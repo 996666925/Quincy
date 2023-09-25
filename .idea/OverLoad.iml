@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module type="EMPTY_MODULE" version="4">
+  <component name="NewModuleRootManager">
+    <content url="file://$MODULE_DIR$">
+      <sourceFolder url="file://$MODULE_DIR$/crates/OvCore/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/crates/OvGame/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/crates/OvMacros/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/crates/OvRender/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/crates/OvTools/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/crates/OvUI/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/crates/OvWindowing/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/crates/OvExport/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/crates/OvScript/src" isTestSource="false" />
+      <excludeFolder url="file://$MODULE_DIR$/target" />
+    </content>
+    <orderEntry type="inheritedJdk" />
+    <orderEntry type="sourceFolder" forTests="false" />
+  </component>
+</module>

@@ -1,0 +1,13 @@
+[workspace]
+members = [
+    "crates/OvCore",
+    "crates/OvGame",
+    "crates/OvTools",
+    "crates/OvWindowing",
+    "crates/OvUI",
+    "crates/OvRender",
+    "crates/OvMacros",
+    "crates/OvExport",
+    "crates/OvScript"
+]
+

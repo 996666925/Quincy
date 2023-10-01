@@ -13,9 +13,9 @@ pub struct JsComponent {
 }
 
 #[derive(Serialize, Deserialize, Debug)]
-struct UpdateResult {
-    isDirty: bool,
-    value: serde_json::Value,
+pub struct ChangeResult {
+    pub isDirty: bool,
+    pub value: serde_json::Value,
 }
 
 impl JsComponent {
@@ -28,6 +28,9 @@ impl JsComponent {
 
     pub fn getValue(&self) -> &serde_json::Value {
         &self.jsValue
+    }
+    pub fn setValue(&mut self, jsValue: serde_json::Value) {
+        self.jsValue = jsValue;
     }
 }
 
@@ -53,8 +56,7 @@ impl Updated for JsComponent {
         let dt = serde_v8::to_v8(_scope, dt).unwrap();
         let typeName = serde_v8::to_v8(_scope, &self.name).unwrap();
         let isDirty = updateFunc.call(_scope, obj, &[typeName, dt]).unwrap();
-        let result: UpdateResult = serde_v8::from_v8(_scope, isDirty).unwrap();
-        // info!("{:#?}", result);
+        let result: ChangeResult = serde_v8::from_v8(_scope, isDirty).unwrap();
         if result.isDirty {
             self.jsValue = result.value;
         }

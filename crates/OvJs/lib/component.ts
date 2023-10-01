@@ -2,8 +2,26 @@
 
 import { GameObject } from "./gameobject";
 
+
+function onStart() {
+    let comp: Component = this;
+    let isDirty = false;
+    let proxy = new Proxy(comp, {
+        set(target, prop, value, recv) {
+            target[prop] = value;
+            isDirty = true;
+            return true;
+        }
+    })
+    proxy.onStart();
+    if (isDirty) {
+        return { isDirty, value: comp };
+    } else {
+        return { isDirty, value: null };
+    }
+}
 function onUpdate(name: string, dt: number) {
-    let comp = this;
+    let comp: Component = this;
     let isDirty = false;
     Object.setPrototypeOf(comp, globalThis[`__${name}__`]);
     let proxy = new Proxy(comp, {
@@ -21,12 +39,15 @@ function onUpdate(name: string, dt: number) {
     }
 }
 
+
+
 export class Component {
     static typeName: string = "Component";
+    parent: string;
     onStart() { }
     onUpdate(_dt: number) { }
-    getComponent(value: typeof Component) {
-        Deno.core.ops.op_getComponent(this, value.typeName);
+    getComponent<T extends Component>(value: typeof Component): T {
+        return Deno.core.ops.op_getComponent(this.parent, value.typeName);
     }
 
     getGameObject(name: string): GameObject {
@@ -36,6 +57,7 @@ export class Component {
 
 globalThis.__COMPONENT__ = new Component();
 globalThis.__ONUPDATE__ = onUpdate;
+globalThis.__ONSTART__ = onStart;
 // export function Component(name: string) {
 //     return (value: any, { kind }: ClassDecoratorContext) => {
 //         if (kind == "class") {

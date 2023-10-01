@@ -17,12 +17,12 @@ export class GameObject {
 
     addComponent(value: Component) {
         let type: any = value.constructor;
-        Deno.core.ops.op_addComponent(this.name, JSON.stringify(value), type.typeName);
-    }
-    getComponent(comp: typeof Component): Component {
-        return Deno.core.ops.op_getComponent(this.name, comp.typeName);
+        Deno.core.ops.op_addComponent(this.name, value, type.typeName);
     }
 
+    getComponent<T extends Component>(value: typeof Component): T {
+        return Deno.core.ops.op_getComponent(this.name, value.typeName);
+    }
 }
 
 globalThis.__GAMEOBJECT__ = new GameObject("");

@@ -1,3 +1,4 @@
+export RUSTY_V8_MIRROR :="https://ghproxy.com/https://github.com/denoland/rusty_v8/releases/download"
 set shell :=["powershell"]
 
 default:

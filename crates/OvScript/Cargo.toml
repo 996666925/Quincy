@@ -7,3 +7,10 @@ edition = "2021"
 
 [dependencies]
 deno_core = { git = "https://github.com/996666925/deno_core" }
+OvCore = { path = "../OvCore" }
+OvMacros = { path = "../OvMacros" }
+serde_v8 = "0.126.0"
+log = "0.4.20"
+OvTools = { path = "../OvTools" }
+serde = { version = "1", features = ["derive"] }
+typetag = "0.2.13"

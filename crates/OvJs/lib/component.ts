@@ -2,8 +2,8 @@
 
 import { GameObject } from "./gameobject";
 
-function onUpdate(obj: string, name: string, dt: number) {
-    let comp = JSON.parse(obj);
+function onUpdate(name: string, dt: number) {
+    let comp = this;
     let isDirty = false;
     Object.setPrototypeOf(comp, globalThis[`__${name}__`]);
     let proxy = new Proxy(comp, {
@@ -15,14 +15,14 @@ function onUpdate(obj: string, name: string, dt: number) {
     })
     proxy.onUpdate(dt);
     if (isDirty) {
-        return { isDirty, value: JSON.stringify(comp) };
+        return { isDirty, value: comp };
     } else {
-        return { isDirty };
+        return { isDirty, value: null };
     }
 }
 
 export class Component {
-    static typeName: string;
+    static typeName: string = "Component";
     onStart() { }
     onUpdate(_dt: number) { }
     getComponent(value: typeof Component) {

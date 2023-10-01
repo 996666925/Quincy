@@ -1,6 +1,6 @@
 use std::{collections::HashMap, ops::Deref};
 
-use deno_core::{op2, v8, OpState};
+use deno_core::{op2, serde_json, v8, OpState};
 use log::info;
 use OvCore::{ecs::component::Component, scene_system::scene_manager::SceneManager};
 use OvTools::utils::r#ref::Ref;
@@ -12,7 +12,7 @@ pub fn op_addComponent<'a>(
     state: &mut OpState,
     _scope: &mut v8::HandleScope<'a>,
     #[string] name: &str,
-    #[string] comp: &str,
+    comp: v8::Local<v8::Value>,
     #[string] compName: &str,
 ) {
     let sceneManager = state.borrow::<Ref<SceneManager>>().clone();
@@ -20,6 +20,7 @@ pub fn op_addComponent<'a>(
 
     let mut scene = sceneManager.getCurrentSceneMut().as_mut().unwrap();
     if let Some(index) = scene.getGameObject(name) {
+        let comp: serde_json::Value = serde_v8::from_v8(_scope, comp).unwrap();
         let jsComp = JsComponent::new(compName, comp);
         scene[index].addComponent(Component::new(jsComp));
     }
@@ -37,7 +38,7 @@ pub fn op_getComponent<'a>(
 
     let mut scene = sceneManager.getCurrentSceneMut().as_mut().unwrap();
     if let Some(index) = scene.getGameObject(name) {
-        info!("{:?}",scene[index]);
+        info!("{:?}", scene[index]);
         if let Some(comp) = scene[index].getComponentByName::<JsComponent>(compName) {
             let obj = serde_v8::to_v8(_scope, comp.getValue()).unwrap();
             {

@@ -6,7 +6,6 @@ use serde::{Deserialize, Serialize};
 use OvCore::ecs::component::Updated;
 use OvMacros::Component;
 
-use crate::utils::print::printJsValue;
 
 #[derive(Serialize, Deserialize, Component)]
 pub struct JsComponent {
@@ -31,8 +30,8 @@ impl JsComponent {
     pub fn getValue(&self) -> &serde_v8::Global {
         &self.jsValue
     }
-    pub fn getV8Value(&self) -> &v8::Global<v8::Value> {
-        &self.jsValue.v8_value
+    pub fn getV8Value(&self) -> v8::Global<v8::Value> {
+        self.jsValue.v8_value.clone()
     }
     pub fn setValue(&mut self, jsValue: serde_v8::Global) {
         self.jsValue = jsValue;

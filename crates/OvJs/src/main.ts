@@ -13,17 +13,16 @@ class Test {
 
 class Person extends Component {
 
-  example: Example = new Example();
+  example: Example;
   id = 0;
   onStart() {
-    // this.example = this.getComponent(Example);
+    this.example = this.getComponent(Example);
     // print("onStart" + this.example)
   }
 
   onUpdate(_dt: number) {
 
-    // print("person:" + JSON.stringify(this))
-    this.example.showId()
+    this.example.id++;
   }
 }
 

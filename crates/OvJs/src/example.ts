@@ -4,7 +4,7 @@ export class Example extends Component {
     id = 0
     name = "我是Example组件"
     onUpdate(dt: number) {
-        // print("example:" + this.id)
+        print("example:" + this.id)
 
     }
 

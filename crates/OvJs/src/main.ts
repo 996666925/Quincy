@@ -1,7 +1,5 @@
-import "../lib/main"
-import "./example"
-import { Component } from "../lib/component"
-import { GameObject } from "../lib/gameobject";
+
+import { Component, GameObject } from "../lib";
 import { Example } from "./example";
 
 
@@ -15,15 +13,17 @@ class Test {
 
 class Person extends Component {
 
-  example: Example;
-  id = 0
+  example: Example=new Example();
+  id = 0;
   onStart() {
-    print("Person onStart")
-    this.example = this.getComponent(Example);
+    // this.example = this.getComponent(Example);
+    // print("onStart" + this.example)
   }
 
   onUpdate(_dt: number) {
-    print("成功获取到Example:" + this.example.name)
+
+    print("person:"+JSON.stringify(this))
+    this.example.showId()
   }
 }
 

@@ -75,13 +75,12 @@ pub fn op_getComponent<'a>(
 
     let mut scene = sceneManager.getCurrentSceneMut().as_mut().unwrap();
     if let Some(index) = scene.getGameObject(name) {
-        info!("{:?}", scene[index]);
         if let Some(comp) = scene[index].getComponentByName::<JsComponent>(compName) {
             let obj = serde_v8::to_v8(scope, comp.getValue()).unwrap();
             {
                 let obj = obj.to_object(scope).unwrap();
                 let global = scope.get_current_context().global(scope);
-                let key = v8::String::new(scope, "__COMPONENT__").unwrap();
+                let key = v8::String::new(scope, "__Component__").unwrap();
                 let parent = global.get(scope, key.into()).unwrap();
                 obj.set_prototype(scope, parent);
             }

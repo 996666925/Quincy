@@ -1,0 +1,19 @@
+[package]
+edition = "2021"
+name = "OvGame"
+version = "0.1.0"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+OvRender = { path = "../OvRender" }
+OvTools = { path = "../OvTools" }
+OvUI = { path = "../OvUI" }
+OvWindowing = { path = "../OvWindowing" }
+OvCore = { path = "../OvCore" }
+env_logger = "0.10.0"
+log = "0.4.20"
+nalgebra = { version = "0.32.3", features = ["serde"] }
+rust-embed = "8.0.0"
+OvMacros = { path = "../OvMacros" }
+OvScript = { path = "../OvScript" }

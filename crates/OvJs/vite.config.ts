@@ -39,7 +39,9 @@ export default defineConfig({
       fileName: 'overload',
 
     },
+
   },
   plugins: [swc({ include: "./src/**.ts", })],
+
 })
 

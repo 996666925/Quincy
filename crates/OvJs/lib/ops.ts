@@ -8,6 +8,6 @@ globalThis.print = (value: any) => {
         Deno.core.print(value + "\n");
     }
     else {
-        Deno.core.print(value.toString() + "\n");
+        Deno.core.print(JSON.stringify(value) + "\n");
     }
 }

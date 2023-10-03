@@ -37,27 +37,14 @@ impl JsRuntimeManager {
             extensions: vec![ext],
             ..Default::default()
         });
+        runtime.op_state().borrow_mut().put(runtime.main_realm());
         Self { js: runtime }
-    }
-
-    pub fn update(&mut self, dt: f32) {
-        let context = self.main_context();
-        let scope = &mut v8::HandleScope::with_context(self.v8_isolate(), context.clone());
-        let context = v8::Local::new(scope, context);
-
-        let global = context.global(scope);
-        let updateName = v8::String::new(scope, "__UPDATE__").unwrap();
-        let update = global.get(scope, updateName.into()).unwrap();
-        let updateFunc = v8::Local::<v8::Function>::try_from(update).unwrap();
-        let args = &[serde_v8::to_v8(scope, dt).unwrap().into()];
-        let undefined = v8::undefined(scope);
-        updateFunc.call(scope, undefined.into(), args);
     }
 }
 
 #[cfg(test)]
 mod test {
-    use deno_core::{v8, Extension, JsRuntime, RuntimeOptions, serde_json};
+    use deno_core::{serde_json, v8, Extension, JsRuntime, RuntimeOptions};
 
     #[test]
     pub fn serialize() {
@@ -69,17 +56,20 @@ mod test {
         let mut runtime = JsRuntime::new(RuntimeOptions {
             extensions: vec![ext],
             ..Default::default()
-        }); 
+        });
 
         let result = runtime
-            .execute_script_static("ov", "let obj={a:'233333',b:333,show(){return this.b;}};obj")
+            .execute_script_static(
+                "ov",
+                "let obj={a:'233333',b:333,show(){return this.b;}};obj",
+            )
             .unwrap();
         let scope = &mut runtime.handle_scope();
         // let result = result.open(runtime.v8_isolate());
         let result = v8::Local::<v8::Value>::new(scope, result);
         let result: serde_json::Value = serde_v8::from_v8(scope, result).unwrap();
-        
-        println!("{:?}", result)
+        let jsValue = serde_v8::to_v8(scope, result).unwrap();
+        let showName = v8::String::new(scope, "show").unwrap();
     }
 
     #[test]

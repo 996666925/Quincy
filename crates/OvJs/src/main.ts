@@ -13,7 +13,7 @@ class Test {
 
 class Person extends Component {
 
-  example: Example=new Example();
+  example: Example = new Example();
   id = 0;
   onStart() {
     // this.example = this.getComponent(Example);
@@ -22,14 +22,14 @@ class Person extends Component {
 
   onUpdate(_dt: number) {
 
-    print("person:"+JSON.stringify(this))
+    // print("person:" + JSON.stringify(this))
     this.example.showId()
   }
 }
 
 let go = GameObject.create("GameObject");
-go.addComponent(new Example())
-go.addComponent(new Person())
+go.addComponent(new Example)
+go.addComponent(new Person)
 
 let comp = go.getComponent(Person)
 

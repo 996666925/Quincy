@@ -6,10 +6,12 @@ use serde::{Deserialize, Serialize};
 use OvCore::ecs::component::Updated;
 use OvMacros::Component;
 
+use crate::utils::print::printJsValue;
+
 #[derive(Serialize, Deserialize, Component)]
 pub struct JsComponent {
     name: String,
-    jsValue: serde_json::Value,
+    jsValue: serde_v8::Global,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -19,17 +21,20 @@ pub struct ChangeResult {
 }
 
 impl JsComponent {
-    pub fn new(name: &str, jsValue: serde_json::Value) -> Self {
+    pub fn new(name: &str, jsValue: serde_v8::Global) -> Self {
         Self {
             name: name.to_string(),
             jsValue,
         }
     }
 
-    pub fn getValue(&self) -> &serde_json::Value {
+    pub fn getValue(&self) -> &serde_v8::Global {
         &self.jsValue
     }
-    pub fn setValue(&mut self, jsValue: serde_json::Value) {
+    pub fn getV8Value(&self) -> &v8::Global<v8::Value> {
+        &self.jsValue.v8_value
+    }
+    pub fn setValue(&mut self, jsValue: serde_v8::Global) {
         self.jsValue = jsValue;
     }
 }
@@ -44,21 +49,16 @@ impl Debug for JsComponent {
 
 impl Updated for JsComponent {
     fn updateByJs(&mut self, dt: f32, js: JsRealm, isolate: &mut v8::OwnedIsolate) {
-        let _scope = &mut js.handle_scope(isolate);
+        let scope = &mut js.handle_scope(isolate);
 
-        let obj = serde_v8::to_v8(_scope, &self.jsValue).unwrap();
+        let obj = v8::Local::<v8::Value>::new(scope, self.getV8Value());
+        let obj = obj.to_object(scope).unwrap();
 
-        let update = v8::String::new(_scope, "__ONUPDATE__").unwrap();
+        let update = v8::String::new(scope, "onUpdate").unwrap();
+        let onUpdate = obj.get(scope, update.into()).unwrap();
 
-        let global = _scope.get_current_context().global(_scope);
-        let updateFunc = global.get(_scope, update.into()).unwrap();
-        let updateFunc = v8::Local::<v8::Function>::try_from(updateFunc).unwrap();
-        let dt = serde_v8::to_v8(_scope, dt).unwrap();
-        let typeName = serde_v8::to_v8(_scope, &self.name).unwrap();
-        let isDirty = updateFunc.call(_scope, obj, &[typeName, dt]).unwrap();
-        let result: ChangeResult = serde_v8::from_v8(_scope, isDirty).unwrap();
-        if result.isDirty {
-            self.jsValue = result.value;
-        }
+        let onUpdateFunc = v8::Local::<v8::Function>::try_from(onUpdate).unwrap();
+        let dt = serde_v8::to_v8(scope, dt).unwrap();
+        onUpdateFunc.call(scope, obj.into(), &[dt]);
     }
 }

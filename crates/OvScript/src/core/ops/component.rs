@@ -13,13 +13,16 @@ use OvTools::utils::r#ref::Ref;
 use crate::core::{ChangeResult, JsComponent};
 
 #[op2]
+#[global] 
 pub fn op_addComponent<'a>(
     state: Rc<RefCell<OpState>>,
     scope: &mut v8::HandleScope<'a>,
     #[string] name: &str,
     comp: v8::Local<v8::Value>,
     #[string] compName: &str,
-) {
+   
+) ->  v8::Global<v8::Value>{
+    // state.borrow_mut().
     let mut goIndex = Index::DANGLING;
     let mut compIndex = Index::DANGLING;
     //添加组件
@@ -37,30 +40,22 @@ pub fn op_addComponent<'a>(
                 comp.set(scope, key.into(), value.into()).unwrap();
             }
             goIndex = index;
-            let comp: serde_json::Value = serde_v8::from_v8(scope, comp).unwrap();
+            let comp: serde_v8::Global = v8::Global::new(scope, comp).into();
             let jsComp = JsComponent::new(compName, comp);
             compIndex = scene[index].addComponent(Component::new(jsComp));
         }
     }
     //调用组件onStart方法
     {
-        let context = scope.get_current_context();
-        let global = context.global(scope);
-        let onStartName = v8::String::new(scope, "__ONSTART__").unwrap();
-        let onStart = global.get(scope, onStartName.into()).unwrap();
-        let onStartFunc = v8::Local::<v8::Function>::try_from(onStart).unwrap();
-        let isDirty = onStartFunc.call(scope, comp.into(), &[]).unwrap();
-        let result: ChangeResult = serde_v8::from_v8(scope, isDirty).unwrap();
-        if result.isDirty {
-            let sceneManager = state.borrow_mut().borrow::<Ref<SceneManager>>().clone();
-            let mut sceneManager = sceneManager.try_write().unwrap();
+        let comp = comp.to_object(scope).unwrap();
 
-            let mut scene = sceneManager.getCurrentSceneMut().as_mut().unwrap();
-            if let Some(comp) = scene[goIndex][compIndex].castMut::<JsComponent>() {
-                comp.setValue(result.value);
-            }
-        }
+        let onStartName = v8::String::new(scope, "onStart").unwrap();
+        let onStart = comp.get(scope, onStartName.into()).unwrap();
+        let onStartFunc = v8::Local::<v8::Function>::try_from(onStart).unwrap();
+        onStartFunc.call(scope, comp.into(), &[]);
+  
     }
+    v8::Global::new(scope, comp)
 }
 
 #[op2]

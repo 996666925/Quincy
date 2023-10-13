@@ -1,3 +1,4 @@
+import { Transform } from "../index";
 import { Component } from "./component"
 
 
@@ -5,6 +6,7 @@ import { Component } from "./component"
 export class GameObject {
 
 
+    transform: Transform;
 
     //不能使用自带的构造方法
     constructor(private name: string) { }

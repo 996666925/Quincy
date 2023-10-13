@@ -1,8 +1,10 @@
 use std::{
+    any::TypeId,
     ops::Deref,
     sync::{Arc, RwLock},
 };
 
+use log::debug;
 use nalgebra::{Point3, Vector3};
 use OvCore::{
     ecs::{
@@ -14,6 +16,7 @@ use OvCore::{
         game_object::GameObject,
     },
     resources::material::Material,
+    scene_system::scene::Scene,
 };
 use OvMacros::Comp;
 use OvRender::resources::Mesh;
@@ -90,7 +93,13 @@ impl Game {
                 .op_state()
                 .borrow_mut()
                 .put(context.sceneManager.clone());
-
+           let sceneManager= context.sceneManager.clone();
+            let mut sceneManager = sceneManager.try_write().unwrap();
+            let currentScene = sceneManager.getCurrentSceneMut().as_mut().unwrap();
+            jsRuntimeManager
+                .op_state()
+                .borrow_mut()
+                .put(currentScene as *mut Scene);
             jsRuntimeManager
                 .execute_script_static("ov", include_str!("../../../OvJs/dist/overload.js"))
                 .unwrap();
@@ -139,6 +148,10 @@ impl Game {
             let jsRuntime = jsRuntimeManager.main_realm();
             let mut sceneManager = self.context.sceneManager.try_write().unwrap();
             let currentScene = sceneManager.getCurrentSceneMut().as_mut().unwrap();
+            jsRuntimeManager
+                .op_state()
+                .borrow_mut()
+                .put::<*mut Scene>(currentScene);
             currentScene.update(
                 clock.getDeltaTime(),
                 jsRuntime,

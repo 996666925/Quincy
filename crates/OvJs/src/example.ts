@@ -1,4 +1,4 @@
-import { Component } from "../lib"
+import { Component } from "../lib";
 
 export class Example extends Component {
     id = 0

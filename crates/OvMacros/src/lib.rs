@@ -11,7 +11,7 @@ pub fn comp(input: TokenStream) -> TokenStream {
 
     let expanded = quote! {
 
-        use crate::ecs::component::{ComponentTrait,Named,Updated};
+        use crate::ecs::component::{ComponentTrait,Named,Updated,V8};
         #[typetag::serde]
         impl ComponentTrait for #name {
             fn getName(&self) -> &str {
@@ -24,6 +24,9 @@ pub fn comp(input: TokenStream) -> TokenStream {
             }
         }
         impl Updated for #name{
+
+        }
+        impl V8 for #name{
 
         }
     };

@@ -38,6 +38,10 @@ impl Transform {
     pub fn setRotation(&mut self, rotation: Vector3<f32>) {
         self.rotation = rotation;
     }
+
+    pub fn setPosition(&mut self, position: Point3<f32>) {
+        self.position = position;
+    }
     pub fn position(&self) -> Point3<f32> {
         self.position
     }

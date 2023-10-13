@@ -1,10 +1,10 @@
-use OvCore::resources::ResourceManager;
 use nalgebra::{Matrix1, Matrix4, Vector3};
 use std::sync::{Arc, RwLock};
 use OvCore::ecs::components::camera::Camera;
 use OvCore::ecs::game_object::GameObject;
 use OvCore::ecs::renderer::Renderer;
 use OvCore::ecs::{component::Component, components::transform::Transform};
+use OvCore::resources::ResourceManager;
 
 use OvCore::scene_system::scene_manager::SceneManager;
 use OvRender::buffers::UniformBuffer;
@@ -37,7 +37,7 @@ impl Context {
         let device = Device::new(&window_read, DeviceSettings::default());
         let uiManager = UiManager::new(&window_read, el);
         let renderer = Renderer::new(DriverSettings::default());
-        let sceneManager = SceneManager::new();
+        let sceneManager =SceneManager::new();
         let engineUBO = Arc::new(UniformBuffer::new(6));
         let jsRuntimeManager = Ref::new(JsRuntimeManager::new());
         let resourceManager = Arc::new(ResourceManager::new());

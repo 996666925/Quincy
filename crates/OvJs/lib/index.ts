@@ -1,5 +1,6 @@
 import "./ops";
-import { Component } from './component';
-import { GameObject } from './gameobject';
+import { Component } from './core/component';
+import { GameObject } from './core/gameobject';
+import { Transform } from './core/components/transform';
 
-export { Component, GameObject }
+export { Component, GameObject, Transform }

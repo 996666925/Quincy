@@ -104,6 +104,13 @@ impl GameObject {
             .map(|handle| handle.1)
             .and_then(|comp| comp.cast::<T>())
     }
+    pub fn getComponentBoxByName(&self, name: &str) -> Option<&Box<dyn ComponentTrait>> {
+        self.pool
+            .iter()
+            .find(|handle| handle.1.getName() == name)
+            .map(|handle| handle.1)
+            .map(|comp| comp.getValue())
+    }
 
     pub fn isActive(&self) -> bool {
         self.active

@@ -1,7 +1,10 @@
 use deno_core::{op_print, serde_v8, v8, Extension, JsRuntime, Op, RuntimeOptions};
 use std::ops::{Deref, DerefMut};
 
-use super::{op_addComponent, op_createGameObject, op_getComponent, op_getGameObject};
+use super::{
+    opSetPosition, opSetRotation, op_addComponent, op_createGameObject, op_getComponent,
+    op_getGameObject,
+};
 
 pub struct JsRuntimeManager {
     js: JsRuntime,
@@ -30,6 +33,8 @@ impl JsRuntimeManager {
                 op_getComponent::DECL,
                 op_getGameObject::DECL,
                 op_createGameObject::DECL,
+                opSetPosition::DECL,
+                opSetRotation::DECL,
             ]),
             ..Default::default()
         };
@@ -37,7 +42,7 @@ impl JsRuntimeManager {
             extensions: vec![ext],
             ..Default::default()
         });
-        runtime.op_state().borrow_mut().put(runtime.main_realm());
+
         Self { js: runtime }
     }
 }

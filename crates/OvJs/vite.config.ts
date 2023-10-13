@@ -8,8 +8,12 @@ function swc(input: { include?: FilterPattern, exclude?: FilterPattern } = {}): 
     transform(code, id) {
       if (!filter(id))
         return null;
-      let clazz = code.match(/class\s+(.*?)\s+extends\s+Component\s+{/)![1];
 
+      let result = code.match(/class\s+(.*?)\s+extends\s+Component\s+{/);
+      if (!result) {
+        return;
+      }
+      let clazz = result[1];
       code = code.replace(/\s+extends\s+Component\s+{/, ` extends Component {
           static {
             this.typeName="${clazz}";
@@ -41,7 +45,7 @@ export default defineConfig({
     },
 
   },
-  plugins: [swc({ include: "./src/**.ts", })],
+  plugins: [swc({ include: "./(src|lib)/**/**.ts" })],
 
 })
 

@@ -1,5 +1,5 @@
 
-import { Component, GameObject } from "../lib";
+import { Component, GameObject, Transform } from "../lib";
 import { Example } from "./example";
 
 
@@ -11,23 +11,30 @@ class Test {
 }
 
 
+
+
 class Person extends Component {
 
   example: Example;
+  go: GameObject;
   id = 0;
   onStart() {
     this.example = this.getComponent(Example);
-    // print("onStart" + this.example)
+    this.go = this.getGameObject("GameObject")
   }
 
-  onUpdate(_dt: number) {
+  onUpdate(dt: number) {
+    let rotation = this.go.transform.rotation;
+    rotation[1] += dt;
+    this.go.transform.setRotation(rotation)
 
-    this.example.id++;
   }
 }
 
-let go = GameObject.create("GameObject");
-go.addComponent(new Example)
+
+
+
+let go = GameObject.create("XXX");
 go.addComponent(new Person)
 
 let comp = go.getComponent(Person)

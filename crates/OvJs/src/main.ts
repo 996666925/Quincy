@@ -1,43 +1,44 @@
 
-import { Component, GameObject, Transform } from "../lib";
+import { Component, GameObject, Transform, input, InputEventArgs, InputEvent, Keys, getGameObject } from "../lib";
+
 import { Example } from "./example";
 
 
-class Test {
-  id = 233
-  showId() {
-    print("id:" + this.id)
-  }
-}
 
 
 
+class Cube extends Component {
 
-class Person extends Component {
 
-  example: Example;
-  go: GameObject;
-  id = 0;
+  speed = 0.1;
   onStart() {
-    this.example = this.getComponent(Example);
-    this.go = this.getGameObject("GameObject")
+    input.on(InputEvent.KEY_DOWN, this.onKeyDown, this);
+  }
+
+  onKeyDown(args: InputEventArgs) {
+
+    print(`你按下了${args.key}键`)
+    let rotation = this.node.transform.rotation;
+    if (args.key == Keys.D) {
+
+      rotation.y += this.speed;
+    } else if (args.key == Keys.A) {
+
+      rotation.y -= this.speed;
+    }
   }
 
   onUpdate(dt: number) {
-    let rotation = this.go.transform.rotation;
-    rotation[1] += dt;
-    this.go.transform.setRotation(rotation)
 
   }
 }
 
+// let go = GameObject.create("XXX");
 
+let go = getGameObject( "GameObject")
+go.addComponent(new Cube)
 
-
-let go = GameObject.create("XXX");
-go.addComponent(new Person)
-
-let comp = go.getComponent(Person)
+// let comp = go.getComponent(Cube)
 
 
 

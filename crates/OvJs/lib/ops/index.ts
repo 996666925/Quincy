@@ -2,7 +2,7 @@
 
 globalThis.print = (value: any) => {
     if (value == null) {
-        return;
+        Deno.core.print("null\n");
     }
     else if (value.constructor == String) {
         Deno.core.print(value + "\n");

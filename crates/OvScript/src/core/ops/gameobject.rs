@@ -9,6 +9,8 @@ use OvCore::{
 };
 use OvTools::utils::r#ref::Ref;
 
+use crate::utils::GoExt;
+
 #[derive(Serialize, Deserialize)]
 struct GO {
     pub name: String,
@@ -23,39 +25,8 @@ pub fn op_getGameObject<'a>(
     let scene = state.borrow_mut::<*mut Scene>();
     let scene = unsafe { &mut **scene };
     if let Some((_, go)) = scene.iter().find(|go| go.1.getName() == name) {
-        let index = go.getRoot();
-        let obj = v8::ObjectTemplate::new(scope);
-        obj.set_internal_field_count(1);
-
-        let obj = obj.new_instance(scope).unwrap();
-        let value = Box::new(index);
-
-        let value = v8::External::new(scope, Box::into_raw(value) as _);
-        obj.set_internal_field(0, value.into());
-        let key = v8::String::new(scope, "name").unwrap();
-        let value = v8::String::new(scope, go.getName()).unwrap();
-        obj.set(scope, key.into(), value.into());
-
-        //给GameObject添加上transform属性
-        if let Some(transform) = go.getComponentBoxByName("Transform") {
-            let transform = transform.toV8Local(scope);
-            let transform = transform.to_object(scope).unwrap();
-            let global = scope.get_current_context().global(scope);
-            let key = v8::String::new(scope, "__Transform__").unwrap();
-            let proto = global.get(scope, key.into()).unwrap();
-
-            //transform js对象的原型对象是transform rust对象,给他原型的原型添加上js的扩展方法
-            {
-                let this = transform.get_prototype(scope).unwrap();
-                let this = this.to_object(scope).unwrap();
-                this.set_prototype(scope, proto);
-            }
-
-            let key = v8::String::new(scope, "transform").unwrap();
-            obj.set(scope, key.into(), transform.into());
-        }
-
-        return obj.into();
+     
+        return GoExt::toJsValue(scope, go).into();
     }
 
     return v8::undefined(scope).into();

@@ -56,7 +56,6 @@ impl Updated for JsComponent {
 
         let obj = v8::Local::<v8::Value>::new(scope, self.getV8Value());
         let obj = obj.to_object(scope).unwrap();
-
         
 
         let update = v8::String::new(scope, "onUpdate").unwrap();

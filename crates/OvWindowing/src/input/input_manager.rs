@@ -3,7 +3,7 @@ use std::{
     sync::{Arc, RwLock},
 };
 
-use winit::event::{ElementState, VirtualKeyCode, WindowEvent};
+use winit::event::{ElementState, KeyboardInput, VirtualKeyCode, WindowEvent};
 use OvTools::{eventing::event::EventId, sync::OnceCell, utils::r#ref::Ref};
 
 use crate::window::OvWindow as Window;
@@ -62,25 +62,29 @@ impl InputManager {
         self.map.clear();
     }
 
-    pub fn handleEvent(&mut self, event: &WindowEvent) {
+    pub fn handleEvent(&mut self, event: &WindowEvent, callback: impl Fn(&KeyboardInput)) {
         match event {
             WindowEvent::KeyboardInput {
                 device_id,
                 input,
-                is_synthetic,  } => match input.state {
-                ElementState::Pressed => {
-                    if let Some(key) = input.virtual_keycode {
-                        self.onKeyPressed(key);
+                is_synthetic,
+            } => {
+                match input.state {
+                    ElementState::Pressed => {
+                        if let Some(key) = input.virtual_keycode {
+                            self.onKeyPressed(key);
+                        }
                     }
-                }
-                ElementState::Released => {
-                    if let Some(key) = input.virtual_keycode {
-                        self.onKeyReleased(key);
+                    ElementState::Released => {
+                        if let Some(key) = input.virtual_keycode {
+                            self.onKeyReleased(key);
+                        }
                     }
-                }
-            },
+                };
+                callback(input);
+            }
             _ => {}
-        }
+        };
     }
 }
 

@@ -1,4 +1,5 @@
 use deno_core::{op_print, serde_v8, v8, Extension, JsRuntime, Op, RuntimeOptions};
+use serde::Serialize;
 use std::ops::{Deref, DerefMut};
 
 use super::{
@@ -44,6 +45,23 @@ impl JsRuntimeManager {
         });
 
         Self { js: runtime }
+    }
+
+    pub fn postInputMessage(&mut self, data: &impl Serialize) {
+        let scope = &mut self.js.handle_scope();
+
+        let context = scope.get_current_context();
+
+        let global = context.global(scope);
+        let funcName = v8::String::new(scope, "__POST_INPUT_MESSAGE__").unwrap();
+
+        let func = global.get(scope, funcName.into()).unwrap();
+
+        let func = v8::Local::<v8::Function>::try_from(func).unwrap();
+
+        let args = serde_v8::to_v8(scope, data).unwrap();
+        let undefined = v8::undefined(scope).into();
+        func.call(scope, undefined, &[args]);
     }
 }
 

@@ -43,8 +43,11 @@ export default defineConfig({
       fileName: 'overload',
 
     },
+    minify:false,
+    target:"esnext"
 
   },
+  
   plugins: [swc({ include: "./(src|lib)/**/**.ts" })],
 
 })

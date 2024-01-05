@@ -7,3 +7,6 @@ default:
 
 export:
     cargo run --bin OvExport
+
+build:
+    cargo build --release --bin OvGame

@@ -93,7 +93,7 @@ impl Game {
                 .op_state()
                 .borrow_mut()
                 .put(context.sceneManager.clone());
-           let sceneManager= context.sceneManager.clone();
+            let sceneManager = context.sceneManager.clone();
             let mut sceneManager = sceneManager.try_write().unwrap();
             let currentScene = sceneManager.getCurrentSceneMut().as_mut().unwrap();
             jsRuntimeManager
@@ -124,11 +124,16 @@ impl Game {
         if result.consumed {
             return;
         }
+
+        let jsManager = self.context.jsRuntimeManager.clone();
         self.context
             .inputManager
             .try_write()
             .unwrap()
-            .handleEvent(event);
+            .handleEvent(event, |input| {
+                jsManager.try_write().unwrap()
+                .postInputMessage(input);
+            });
     }
 
     pub fn update(&mut self, clock: &Clock) {

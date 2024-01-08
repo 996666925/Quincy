@@ -15,7 +15,7 @@ use OvCore::{
 };
 use OvTools::utils::r#ref::Ref;
 
-use crate::core::JsComponent;
+use crate::{core::JsComponent, utils::GoExt};
 
 #[op2]
 #[global]
@@ -35,13 +35,6 @@ pub fn op_addComponent<'a>(
         let scene = state.borrow_mut::<*mut Scene>();
         let scene = unsafe { &mut **scene };
         if let Some(index) = scene.getGameObject(name) {
-            //给组件添加上父对象name
-            {
-                let key = v8::String::new(scope, "parent").unwrap();
-                let value = v8::String::new(scope, name).unwrap();
-                let comp = comp.to_object(scope).unwrap();
-                comp.set(scope, key.into(), value.into()).unwrap();
-            }
             goIndex = index;
             let jsComp = JsComponent::new(compName, compV8.clone().into());
             compIndex = scene[index].addComponent(Component::new(jsComp));
@@ -49,12 +42,8 @@ pub fn op_addComponent<'a>(
     }
     //调用组件onStart方法
     {
-        let comp = comp.to_object(scope).unwrap();
-
-        let onStartName = v8::String::new(scope, "onStart").unwrap();
-        let onStart = comp.get(scope, onStartName.into()).unwrap();
-        let onStartFunc = v8::Local::<v8::Function>::try_from(onStart).unwrap();
-        onStartFunc.call(scope, comp.into(), &[]);
+        GoExt::setParentName(comp, scope, name);
+        GoExt::onStart(comp, scope);
     }
     compV8
 }

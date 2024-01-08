@@ -4,7 +4,7 @@ import "./ops";
 import "./utils/ArrayExt"
 
 export { Keys } from './event/input/index';
-export { InputEventArgs } from './event/input/inputEventArgs';
+export { KeyBoardEventArgs } from './event/input/keyboardEventArgs';
 export { InputEvent } from './event/input/inputEvent';
 
 export { Component } from './core/component';

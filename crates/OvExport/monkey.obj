@@ -1,6 +1,6 @@
 # Blender v3.0.0 OBJ File: ''
 # www.blender.org
-mtllib monkey.mtl
+
 o 猴头
 v 0.437500 0.164062 0.765625
 v -0.437500 0.164062 0.765625

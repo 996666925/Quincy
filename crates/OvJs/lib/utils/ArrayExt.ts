@@ -1,3 +1,5 @@
+import { Vector3 } from "../math/vector"
+
 Object.defineProperty(Array.prototype, 'x', {
     get: function () {
         return this[0]
@@ -24,3 +26,9 @@ Object.defineProperty(Array.prototype, 'z', {
         this[2] = val
     }
 })
+
+
+Array.prototype['toVec'] = function () {
+    return new Vector3(this[0], this[1], this[2])
+
+}

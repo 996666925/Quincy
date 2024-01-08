@@ -10,7 +10,6 @@ export class Component {
     static typeName: string = "Component";
     name: string;
     parent: string;
-    transform: Transform
 
     _node: GameObject;
     get node() {

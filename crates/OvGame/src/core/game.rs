@@ -1,6 +1,8 @@
 use std::{
     any::TypeId,
+    fmt::format,
     ops::Deref,
+    ptr::null,
     sync::{Arc, RwLock},
 };
 
@@ -8,7 +10,7 @@ use log::debug;
 use nalgebra::{Point3, Vector3};
 use OvCore::{
     ecs::{
-        component::Component,
+        component::{Component, Named, V8},
         components::{
             camera::Camera, material_render::MaterialRender, mesh_render::MeshRender,
             transform::Transform,
@@ -24,6 +26,7 @@ use OvRender::{
     gl,
     resources::{Model, Texture},
 };
+use OvScript::{core::JsComponent, serde_v8, utils::GoExt, v8};
 use OvTools::{time::clock::Clock, utils::r#ref::Ref};
 use OvUI::component::{Button, Input, Label};
 use OvWindowing::event::{VirtualKeyCode, WindowEvent};
@@ -44,10 +47,55 @@ impl Game {
     pub fn createScene(context: Arc<Context>) {
         let mut sceneManagerRef = context.sceneManager.try_write().unwrap();
         sceneManagerRef.loadSceneFromStr(
-            include_str!("../../assets/main.scene"),
+            include_str!("../../assets/test.scene"),
             context.resourceManager.clone(),
         );
 
+        let mut jsManager = context.jsRuntimeManager.try_write().unwrap();
+
+        let mut scope = &mut jsManager.handle_scope();
+
+        let mut context = scope.get_current_context();
+
+        let mut global = context.global(scope);
+
+        let mut currentScene = sceneManagerRef.getCurrentSceneMut().as_mut().unwrap();
+
+        for (_, go) in currentScene.iter_mut() {
+            for (_, comp) in go.iter_mut() {
+                if comp.type_id() == TypeId::of::<JsComponent>() {
+                    let jsComp = comp.castMut::<JsComponent>().unwrap();
+
+                    let jsValue = {
+                        let objName =
+                            v8::String::new(scope, &format!("##{}##", jsComp.getName())).unwrap();
+                        let obj = global.get(scope, objName.into()).unwrap();
+
+                        let obj = v8::Local::<v8::Function>::try_from(obj).unwrap();
+
+                        let undefined = v8::undefined(scope);
+                        let obj = obj.call(scope, undefined.into(), &[]).unwrap();
+
+                        obj
+                    };
+
+                    jsComp.setValue(Some(v8::Global::new(scope, jsValue).into()))
+                }
+            }
+        }
+
+        for (_, go) in currentScene.iter_mut() {
+            let name = go.getName().to_string();
+            for (_, comp) in go.iter_mut() {
+                if comp.type_id() == TypeId::of::<JsComponent>() {
+                    let jsComp = comp.castMut::<JsComponent>().unwrap();
+
+                    let comp = v8::Local::<v8::Value>::new(scope, jsComp.getV8Value());
+                    GoExt::setParentName(comp, scope, &name);
+                    GoExt::onStart(comp, scope);
+                }
+            }
+        }
         // let currentScene = sceneManagerRef.getCurrentSceneMut();
         // if let Some(currentScene) = currentScene {
         //     let camera = Component::new(Camera::new());
@@ -78,15 +126,15 @@ impl Game {
         //     obj.insert(Component::new(meshRender));
         //     obj.insert(Component::new(materialRender));
         //     currentScene.insert(obj);
-        //     println!("{}", currentScene.save());
+        // println!("{}", currentScene.save());
         // }
     }
 
     pub fn new(context: Arc<Context>) -> Self {
         let btn = Label::new("fps");
         context.uiManager.try_write().unwrap().addChild(&btn);
-        Self::createScene(context.clone());
 
+        //加载js文件和scene文件
         {
             let mut jsRuntimeManager = context.jsRuntimeManager.try_write().unwrap();
             jsRuntimeManager
@@ -101,10 +149,14 @@ impl Game {
                 .borrow_mut()
                 .put(currentScene as *mut Scene);
             jsRuntimeManager
-                .execute_script_static("ov", include_str!("../../../OvJs/dist/overload.js"))
+                .execute_script_static("ov", include_str!("../../../OvJs/dist/overload.umd.cjs"))
                 .unwrap();
         }
 
+        Self::createScene(context.clone());
+        // if let Some(scene) = context.sceneManager.try_read().unwrap().getCurrentScene() {
+        //     println!("{}", scene.save());
+        // }
         let gameRender = GameRender::new(context.clone());
         Self {
             gameRender,
@@ -114,15 +166,20 @@ impl Game {
         }
     }
     pub fn preUpdate(&self, event: &WindowEvent) {
+
         let result = self
             .context
             .uiManager
             .try_write()
             .unwrap()
             .handleEvent(event);
-
-        if result.consumed {
-            return;
+        match event {
+            WindowEvent::MouseInput { .. } => {}
+            _ => {
+                if result.consumed {
+                    return;
+                }
+            }
         }
 
         let jsManager = self.context.jsRuntimeManager.clone();
@@ -130,10 +187,7 @@ impl Game {
             .inputManager
             .try_write()
             .unwrap()
-            .handleEvent(event, |input| {
-                jsManager.try_write().unwrap()
-                .postInputMessage(input);
-            });
+            .handleEvent(event, &mut jsManager.try_write().unwrap().handle_scope());
     }
 
     pub fn update(&mut self, clock: &Clock) {

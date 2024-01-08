@@ -1,23 +1,22 @@
 use std::{mem::size_of, sync::Arc};
 
 use bevy_reflect::Reflect;
-use nalgebra::{Matrix4, Point3, Rotation3, Vector3};
+use nalgebra::{Matrix, Matrix4, Point3, Rotation, Rotation3, UnitQuaternion, Vector3};
 use OvMacros::Comp;
 use OvRender::buffers::UniformBuffer;
 
 use crate::ecs::MvpUbo;
 
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Comp, Clone, Serialize, Deserialize)]
 pub struct Transform {
-    
     position: Point3<f32>,
-    
+
     rotation: Vector3<f32>,
-    
+
     scale: Vector3<f32>,
-    
+
     modelMatrix: Matrix4<f32>,
 }
 
@@ -49,21 +48,14 @@ impl Transform {
     pub fn getModelMatrix(&self) -> Matrix4<f32> {
         let modelMatrix = Matrix4::<f32>::identity();
         let transform = Matrix4::new_translation(&self.position.coords);
-        
-        let rotate = Matrix4::new_rotation(self.rotation);
+
+        let rotate =
+            UnitQuaternion::from_euler_angles(self.rotation.x, self.rotation.y, self.rotation.z)
+                .to_homogeneous();
         let scale = Matrix4::new_nonuniform_scaling(&self.scale);
         let modelMatrix = scale * transform * rotate * modelMatrix;
         modelMatrix
     }
 
-    pub fn updateUBO(&self, ubo: Arc<MvpUbo>) {
-        let modelMatrix = Matrix4::<f32>::identity();
-        let transform = Matrix4::new_translation(&self.position.coords);
-
-        // let angle = Rotation3::from_euler_angles(self.rotation.x, self.rotation.y, self.rotation.z);
-        let rotate = Matrix4::new_rotation(self.rotation);
-        let scale = Matrix4::new_nonuniform_scaling(&self.scale);
-        let modelMatrix = scale * transform * rotate * modelMatrix;
-        ubo.setSubData(0, modelMatrix.as_slice());
-    }
+    pub fn updateUBO(&self, ubo: Arc<MvpUbo>) {}
 }

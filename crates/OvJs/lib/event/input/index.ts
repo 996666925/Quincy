@@ -1,5 +1,9 @@
 import { InputEvent } from "./inputEvent";
 
+export enum VirtualItem {
+    KEYBOARD = "keyboard",
+    MOUSE = "mouse"
+}
 export class VirtualKeyBoard {
 
     scancode: number;
@@ -10,6 +14,20 @@ export class VirtualKeyBoard {
     modifiers: { shift: boolean, ctrl: boolean, alt: boolean }
 }
 
+export class VirtualMouse {
+
+    state: InputEvent;
+
+    button: MouseButton;
+
+    position:[]
+}
+
+export enum MouseButton {
+    Left = "Left",
+    Right = "Right",
+    Middle = "Middle",
+}
 export enum Keys {
     A = "A",
     B = "B",

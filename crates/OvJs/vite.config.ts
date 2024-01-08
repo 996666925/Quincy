@@ -18,8 +18,9 @@ function swc(input: { include?: FilterPattern, exclude?: FilterPattern } = {}): 
           static {
             this.typeName="${clazz}";
             globalThis.__${clazz}__=new ${clazz}();
+            globalThis['##${clazz}##']=()=>new ${clazz}();
           }`)
-      console.log(code);
+      // console.log(code);
       return code;
     }
 
@@ -41,9 +42,8 @@ export default defineConfig({
       entry: './src/main.ts',
       name: 'OverLoad',
       fileName: 'overload',
-
+      
     },
-    minify:false,
     target:"esnext"
 
   },

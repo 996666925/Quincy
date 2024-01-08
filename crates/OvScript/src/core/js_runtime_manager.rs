@@ -3,8 +3,8 @@ use serde::Serialize;
 use std::ops::{Deref, DerefMut};
 
 use super::{
-    opSetPosition, opSetRotation, op_addComponent, op_createGameObject, op_getComponent,
-    op_getGameObject,
+    opSetPosition, opSetRotation, opTranslate, op_addComponent, op_createGameObject,
+    op_getComponent, op_getGameObject, opGetPosition, opGetRotation,
 };
 
 pub struct JsRuntimeManager {
@@ -34,8 +34,11 @@ impl JsRuntimeManager {
                 op_getComponent::DECL,
                 op_getGameObject::DECL,
                 op_createGameObject::DECL,
+                opGetPosition::DECL,
                 opSetPosition::DECL,
+                opGetRotation::DECL,
                 opSetRotation::DECL,
+                opTranslate::DECL,
             ]),
             ..Default::default()
         };
@@ -45,23 +48,6 @@ impl JsRuntimeManager {
         });
 
         Self { js: runtime }
-    }
-
-    pub fn postInputMessage(&mut self, data: &impl Serialize) {
-        let scope = &mut self.js.handle_scope();
-
-        let context = scope.get_current_context();
-
-        let global = context.global(scope);
-        let funcName = v8::String::new(scope, "__POST_INPUT_MESSAGE__").unwrap();
-
-        let func = global.get(scope, funcName.into()).unwrap();
-
-        let func = v8::Local::<v8::Function>::try_from(func).unwrap();
-
-        let args = serde_v8::to_v8(scope, data).unwrap();
-        let undefined = v8::undefined(scope).into();
-        func.call(scope, undefined, &[args]);
     }
 }
 

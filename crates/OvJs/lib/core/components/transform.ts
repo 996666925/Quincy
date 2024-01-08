@@ -1,23 +1,33 @@
+import { Vector3 } from "../../math/vector";
 import { Component } from "../component";
 
 
-class Rotation {
-    x: number;
-    y: number;
-    z: number;
-}
+
 
 
 export class Transform extends Component {
 
-    position: Array<number>;
-    rotation: Rotation;
-    setPosition(position: Array<number>) {
-        return Deno.core.ops.opSetPosition(this, position);
+
+    get position(): Vector3 {
+        return Deno.core.ops.opGetPosition(this).toVec();
     }
-    setRotation(rotation: Array<number>) {
-        return Deno.core.ops.opSetRotation(this, rotation);
+
+    setPosition(position: Vector3) {
+        return Deno.core.ops.opSetPosition(this, position.into());
     }
+
+    get rotation(): Vector3 {
+        return Deno.core.ops.opGetRotation(this).toVec();
+    }
+    
+    setRotation(rotation: Vector3) {
+        return Deno.core.ops.opSetRotation(this, rotation.into());
+    }
+
+    translate(vector: Vector3) {
+        return Deno.core.ops.opTranslate(this, vector.into());
+    }
+
 
 }
 

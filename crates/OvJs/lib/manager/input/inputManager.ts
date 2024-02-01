@@ -10,18 +10,3 @@ class InputManager extends Emitter<InputEvent> {
 }
 
 export const input = new InputManager();
-
-
-globalThis.__POST_INPUT_MESSAGE__ = (name: VirtualItem, data: VirtualKeyBoard & VirtualMouse) => {
-
-    (data.state as any) = name + data.state;
-    switch (name) {
-        case VirtualItem.KEYBOARD:
-            input.emit(data.state, new KeyBoardEventArgs(data.virtual_keycode));
-            break;
-        case VirtualItem.MOUSE:
-            input.emit(data.state, new MouseEventArgs(data.button, data.position));
-            break;
-    }
-
-}

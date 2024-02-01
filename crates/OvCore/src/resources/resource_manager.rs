@@ -1,4 +1,4 @@
-use std::cell::Cell;
+use std::{cell::{Cell, RefCell}, borrow::BorrowMut};
 
 use rust_embed::{EmbeddedFile, RustEmbed};
 use OvRender::resources::Resource;
@@ -20,22 +20,27 @@ where
 }
 
 pub struct ResourceManager {
-    value: Cell<Option<Box<dyn ResourceTrait>>>,
+    value: RefCell<Option<Box<dyn ResourceTrait>>>,
 }
 
 impl ResourceManager {
     pub fn new() -> Self {
         Self {
-            value: Cell::new(None),
+            value: RefCell::new(None),
         }
     }
 
     pub fn setPath(&self, value: Box<dyn ResourceTrait + 'static>) {
-        self.value.set(Some(value));
+        self.value.replace(Some(value));
     }
 
     pub fn get(&self, name: &str) -> Option<Resource> {
-        let res = self.value.take()?;
-        Some(res.get(name))
+        let res = &*self.value.borrow();
+        
+        if let Some(res) = res {
+            Some(res.get(name))
+        } else {
+            None
+        }
     }
 }

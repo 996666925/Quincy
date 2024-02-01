@@ -6,7 +6,6 @@ use std::{
 };
 
 use super::component::{Component, ComponentTrait, Named};
-use bevy_reflect::TypePath;
 use deno_core::{v8, JsRealm};
 use log::info;
 use serde::{Deserialize, Serialize, Serializer};
@@ -140,10 +139,6 @@ impl GameObject {
 mod test {
     use std::fmt::Debug;
 
-    use bevy_reflect::{
-        reflect_trait, DynamicStruct, FromReflect, GetTypeRegistration, Reflect, TypePath,
-        TypeRegistry,
-    };
     use log::info;
     use thunderdome::{Arena, Index};
     use OvMacros::Comp;

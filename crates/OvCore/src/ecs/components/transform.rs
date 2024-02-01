@@ -1,6 +1,6 @@
 use std::{mem::size_of, sync::Arc};
 
-use bevy_reflect::Reflect;
+
 use nalgebra::{Matrix, Matrix4, Point3, Rotation, Rotation3, UnitQuaternion, Vector3};
 use OvMacros::Comp;
 use OvRender::buffers::UniformBuffer;
@@ -30,8 +30,12 @@ impl Transform {
         }
     }
 
-    pub fn rotation(&self) -> Rotation3<f32> {
-        Rotation3::from_euler_angles(self.rotation.x, self.rotation.y, self.rotation.z)
+    pub fn rotation(&self) -> UnitQuaternion<f32> {
+        UnitQuaternion::from_euler_angles(
+            self.rotation.x.to_radians(),
+            self.rotation.y.to_radians(),
+            self.rotation.z.to_radians(),
+        )
     }
 
     pub fn setRotation(&mut self, rotation: Vector3<f32>) {
@@ -49,11 +53,15 @@ impl Transform {
         let modelMatrix = Matrix4::<f32>::identity();
         let transform = Matrix4::new_translation(&self.position.coords);
 
-        let rotate =
-            UnitQuaternion::from_euler_angles(self.rotation.x, self.rotation.y, self.rotation.z)
-                .to_homogeneous();
+        let rotate = UnitQuaternion::from_euler_angles(
+            self.rotation.x.to_radians(),
+            self.rotation.y.to_radians(),
+            self.rotation.z.to_radians(),
+        )
+        .to_homogeneous();
         let scale = Matrix4::new_nonuniform_scaling(&self.scale);
-        let modelMatrix = scale * transform * rotate * modelMatrix;
+        let modelMatrix = transform * rotate * scale * modelMatrix;
+
         modelMatrix
     }
 

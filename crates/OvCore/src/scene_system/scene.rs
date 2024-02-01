@@ -85,7 +85,9 @@ impl Scene {
                     for uniform in uniformList.iter_mut() {
                         match uniform {
                             UniformInfo::Texture(texture) => {
-                                let image = res.get(texture.getName()).unwrap();
+                                let image = res
+                                    .get(texture.getName())
+                                    .expect(&format!("无法加载图片：{}", texture.getName()));
                                 *texture = Texture::new(image);
                             }
                         }

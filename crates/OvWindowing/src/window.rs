@@ -39,7 +39,7 @@ impl OvWindow {
             .build(el)
             .expect("创建窗口失败");
         // window.set_ime_allowed(true);
-
+        // window.set_cursor_visible(false);
         // window.set_ime_position(LogicalPosition::new(0, 0));
         window
     }

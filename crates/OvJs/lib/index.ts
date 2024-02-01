@@ -1,5 +1,5 @@
 
-
+import "./event/jsb"
 import "./ops";
 import "./utils/ArrayExt"
 

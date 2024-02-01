@@ -7,7 +7,7 @@ use OvRender::geometry::Vertex;
 use OvRender::resources::MeshFile;
 
 fn main() -> Result<(), Box<dyn Error>> {
-    let input = BufReader::new(File::open("qiu.obj").expect("找不到文件"));
+    let input = BufReader::new(File::open("plane.obj").expect("找不到文件"));
     let obj: Obj<TexturedVertex, u16> = load_obj(input)?;
 
     let mut indices: Vec<u16> = obj.indices.clone();
@@ -25,7 +25,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     let meshFile = MeshFile::new(vertices, indices);
 
     let mesh = ron::to_string(&meshFile)?;
-    std::fs::write("qiu.mesh", mesh)?;
+    std::fs::write("plane.mesh", mesh)?;
     // print!("{}", mesh);
     Ok(())
 }

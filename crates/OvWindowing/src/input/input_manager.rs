@@ -13,7 +13,7 @@ use OvTools::{eventing::event::EventId, sync::OnceCell, utils::r#ref::Ref};
 
 use crate::window::OvWindow as Window;
 
-use super::event::VirtualMouse;
+use super::event::{MouseEvent, MouseMoveEvent};
 
 static INPUTMANAGER: OnceCell<Ref<InputManager>> = OnceCell::new();
 
@@ -97,6 +97,14 @@ impl InputManager {
                 ..
             } => {
                 self.mousePosition = (position.x, position.y);
+                Self::postInputMessage(
+                    scope,
+                    "mouse_move",
+                    &MouseMoveEvent {
+                        state: "Move".into(),
+                        position: self.mousePosition,
+                    },
+                );
             }
             WindowEvent::MouseInput {
                 device_id,
@@ -107,7 +115,7 @@ impl InputManager {
                 Self::postInputMessage(
                     scope,
                     "mouse",
-                    &VirtualMouse {
+                    &MouseEvent {
                         state: *state,
                         button: *button,
                         position: self.mousePosition,
@@ -122,7 +130,7 @@ impl InputManager {
         let context = scope.get_current_context();
 
         let global = context.global(scope);
-        let funcName = v8::String::new(scope, "__POST_INPUT_MESSAGE__").unwrap();
+        let funcName = v8::String::new(scope, "__POST_MESSAGE__").unwrap();
 
         let func = global.get(scope, funcName.into()).unwrap();
 

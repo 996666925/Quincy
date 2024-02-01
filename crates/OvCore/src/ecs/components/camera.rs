@@ -1,8 +1,8 @@
 use std::{mem::size_of, sync::Arc};
 
-use bevy_reflect::Reflect;
+
 use log::info;
-use nalgebra::{Matrix, Matrix4, Point3, Rotation3, Vector3};
+use nalgebra::{Matrix, Matrix4, Point3, Rotation3, Vector3, UnitQuaternion};
 use serde::{Deserialize, Serialize};
 use OvMacros::Comp;
 use OvRender::buffers::UniformBuffer;
@@ -42,7 +42,7 @@ impl Camera {
         ubo.setSubData(size_of::<Matrix4<f32>>() * 2, self.projMatrix.as_slice());
     }
 
-    pub fn cacheMatrices(&mut self, position: &Point3<f32>, rotation: &Rotation3<f32>) {
+    pub fn cacheMatrices(&mut self, position: &Point3<f32>, rotation: &UnitQuaternion<f32>) {
         self.viewMatrix = self.calculateViewMatrix(position, rotation);
         self.projMatrix = self.calculateProjMatrix();
         self.viewProjMatrix = self.projMatrix * self.viewMatrix;
@@ -55,7 +55,7 @@ impl Camera {
     fn calculateViewMatrix(
         &self,
         position: &Point3<f32>,
-        rotation: &Rotation3<f32>,
+        rotation: &UnitQuaternion<f32>,
     ) -> Matrix4<f32> {
         let up = rotation * Vector3::y_axis();
         let forward = rotation * Vector3::z();

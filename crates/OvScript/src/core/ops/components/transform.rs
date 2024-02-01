@@ -1,15 +1,15 @@
 use std::{cell::RefCell, ops::Add, rc::Rc, string, vec};
 
 use deno_core::{op2, v8, OpState};
-use nalgebra::{Point3, Vector3};
+use nalgebra::{Matrix4, Point3, UnitQuaternion, Vector3};
 use OvCore::{ecs::components::transform::Transform, scene_system::scene::Scene};
 
 #[op2]
 #[serde]
 pub fn opGetPosition<'a>(
     scope: &mut v8::HandleScope<'a>,
-    this: v8::Local<v8::Object>
-) -> Point3<f32>  {
+    this: v8::Local<v8::Object>,
+) -> Point3<f32> {
     let transform = this.get_internal_field(scope, 0).unwrap();
 
     let transform = v8::Local::<v8::External>::try_from(transform).unwrap();
@@ -39,8 +39,8 @@ pub fn opSetPosition<'a>(
 #[serde]
 pub fn opGetRotation<'a>(
     scope: &mut v8::HandleScope<'a>,
-    this: v8::Local<v8::Object>
-) -> (f32, f32, f32)  {
+    this: v8::Local<v8::Object>,
+) -> (f32, f32, f32) {
     let transform = this.get_internal_field(scope, 0).unwrap();
 
     let transform = v8::Local::<v8::External>::try_from(transform).unwrap();
@@ -79,6 +79,10 @@ pub fn opTranslate<'a>(
     let transform = transform.value() as *mut Transform;
 
     let transform = unsafe { &mut *transform };
+    let rotate = transform.rotation();
 
-    transform.setPosition(transform.position() + vector);
+    let vector = rotate * vector;
+
+    let position = transform.position() + vector;
+    transform.setPosition(position);
 }

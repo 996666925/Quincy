@@ -1,5 +1,5 @@
 use super::game_object::GameObject;
-use bevy_reflect::Reflect;
+
 use deno_core::{
     serde_v8,
     v8::{self, ObjectTemplate},

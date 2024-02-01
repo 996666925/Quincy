@@ -20,5 +20,4 @@ nalgebra = { version = "0.32.3", features = [
 ] }
 serde = { version = "1", features = ["derive"] }
 ron = "0.8.1"
-bevy_reflect = "0.11.2"
 ddsfile = "0.5.1"

@@ -5,9 +5,9 @@ export enum VirtualItem {
     MOUSE = "mouse"
 }
 export class VirtualKeyBoard {
-
+    
     scancode: number;
-    state: InputEvent;
+    state: InputEvent ;
 
     virtual_keycode: string;
 
@@ -20,7 +20,7 @@ export class VirtualMouse {
 
     button: MouseButton;
 
-    position:[]
+    position: []
 }
 
 export enum MouseButton {

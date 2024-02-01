@@ -47,7 +47,7 @@ impl Game {
     pub fn createScene(context: Arc<Context>) {
         let mut sceneManagerRef = context.sceneManager.try_write().unwrap();
         sceneManagerRef.loadSceneFromStr(
-            include_str!("../../assets/test.scene"),
+            include_str!("../../assets/main.scene"),
             context.resourceManager.clone(),
         );
 

@@ -10,3 +10,6 @@ export:
 
 build:
     cargo build --release --bin OvGame
+
+line:
+    tokei -l

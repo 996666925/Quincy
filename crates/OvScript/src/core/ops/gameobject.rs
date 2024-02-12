@@ -3,6 +3,7 @@ use std::sync::Arc;
 use deno_core::{op2, v8, OpState};
 use log::{debug, info};
 use serde::{Deserialize, Serialize};
+use thunderdome::Index;
 use OvCore::{
     ecs::game_object::GameObject,
     scene_system::{scene::Scene, scene_manager::SceneManager},
@@ -25,7 +26,22 @@ pub fn op_getGameObject<'a>(
     let scene = state.borrow_mut::<*mut Scene>();
     let scene = unsafe { &mut **scene };
     if let Some((_, go)) = scene.iter().find(|go| go.1.getName() == name) {
-     
+        return GoExt::toJsValue(scope, go).into();
+    }
+
+    return v8::undefined(scope).into();
+}
+
+#[op2]
+pub fn op_getGameObjectById<'a>(
+    state: &mut OpState,
+    scope: &mut v8::HandleScope<'a>,
+    this: v8::Local<v8::Object>,
+    #[serde] id: Index,
+) -> v8::Local<'a, v8::Value> {
+    let scene = state.borrow_mut::<*mut Scene>();
+    let scene = unsafe { &mut **scene };
+    if let Some((_, go)) = scene.iter().find(|go| go.1.getRoot().unwrap() == id) {
         return GoExt::toJsValue(scope, go).into();
     }
 

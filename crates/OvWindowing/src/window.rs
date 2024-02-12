@@ -22,7 +22,7 @@ pub struct OvWindow {
 impl OvWindow {
     pub fn new(el: &EventLoop<()>, setting: WindowSettings) -> Ref<Self> {
         let window = Self::createWindow(el, setting);
-
+        window.set_ime_allowed(true);
         Ref::new(Self { window })
     }
     pub fn handle(&self) -> &Window {
@@ -41,6 +41,7 @@ impl OvWindow {
         // window.set_ime_allowed(true);
         // window.set_cursor_visible(false);
         // window.set_ime_position(LogicalPosition::new(0, 0));
+        
         window
     }
 }

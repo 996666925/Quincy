@@ -15,6 +15,8 @@ use crate::resources::ResourceManager;
 pub struct Scene {
     graph: Graph,
     camera: Cell<Option<Index>>,
+    canvas: Cell<Option<Index>>,
+    html: Cell<Option<Index>>,
 }
 
 impl Deref for Scene {
@@ -36,7 +38,33 @@ impl Scene {
         Self {
             graph: Graph::default(),
             camera: Cell::new(None),
+            canvas: Cell::new(None),
+            html: Cell::new(None),
         }
+    }
+
+    pub fn getMainHtmlRender(&self) -> Option<Index> {
+        if self.html.get().is_none() {
+            let html = self
+                .graph
+                .iter()
+                .find(|obj| obj.1.getComponentBoxByName("HtmlRender").is_some())
+                .map(|handle| handle.0);
+            self.html.set(html);
+        }
+        self.html.get()
+    }
+
+    pub fn getMainCanvas(&self) -> Option<Index> {
+        if self.canvas.get().is_none() {
+            let canvas = self
+                .graph
+                .iter()
+                .find(|obj| obj.1.getComponentBoxByName("Canvas").is_some())
+                .map(|handle| handle.0);
+            self.canvas.set(canvas);
+        }
+        self.canvas.get()
     }
 
     pub fn getMainCamera(&self) -> Option<Index> {
@@ -54,6 +82,10 @@ impl Scene {
     pub fn update(&mut self, dt: f32, js: JsRealm, isolate: &mut v8::OwnedIsolate) {
         for (_, go) in self.graph.iter_mut() {
             go.update(dt, js.clone(), isolate);
+
+            for (_, children) in go.children.iter_mut() {
+                children.update(dt, js.clone(), isolate)
+            }
         }
     }
 

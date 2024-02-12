@@ -3,8 +3,9 @@ use serde::Serialize;
 use std::ops::{Deref, DerefMut};
 
 use super::{
-    opSetPosition, opSetRotation, opTranslate, op_addComponent, op_createGameObject,
-    op_getComponent, op_getGameObject, opGetPosition, opGetRotation,
+    opGetPosition, opGetRotation, opSetPosition, opSetRotation, opTranslate, op_addComponent,
+    op_createGameObject, op_getComponent, op_getComponentById, op_getGameObject,
+    op_getGameObjectById,
 };
 
 pub struct JsRuntimeManager {
@@ -32,7 +33,9 @@ impl JsRuntimeManager {
             ops: std::borrow::Cow::Borrowed(&[
                 op_addComponent::DECL,
                 op_getComponent::DECL,
+                op_getComponentById::DECL,
                 op_getGameObject::DECL,
+                op_getGameObjectById::DECL,
                 op_createGameObject::DECL,
                 opGetPosition::DECL,
                 opSetPosition::DECL,

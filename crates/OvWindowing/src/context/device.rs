@@ -67,9 +67,9 @@ impl Device {
             let attrs = window.build_surface_attributes(Default::default());
             let surface = display.create_window_surface(&config, &attrs).unwrap();
             let context = context.make_current(&surface).expect("创建surfaces失败");
-            surface
-                .set_swap_interval(&context, SwapInterval::Wait(NonZeroU32::new(1).unwrap()))
-                .expect("设置vsync失败");
+            // surface
+            //     .set_swap_interval(&context, SwapInterval::Wait(NonZeroU32::new(1).unwrap()))
+            //     .expect("设置vsync失败");
             gl::load_with(|s| display.get_proc_address(CString::new(s).unwrap().as_c_str()));
             Device {
                 vsync: true,

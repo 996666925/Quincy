@@ -16,7 +16,7 @@ pub struct GameObject {
     name: String,
     pool: Arena<Component>,
     root: Option<Index>,
-    children: Arena<GameObject>,
+    pub children: Arena<GameObject>,
     parent: Option<Index>,
     active: bool,
 }
@@ -66,6 +66,7 @@ impl GameObject {
         Self {
             name: name.to_string(),
             pool: Arena::new(),
+            //GameObject Pool中的id
             root: None,
             children: Arena::new(),
             parent: None,
@@ -75,6 +76,7 @@ impl GameObject {
     pub fn getName(&self) -> &str {
         &self.name
     }
+
     pub fn addComponent(&mut self, mut component: Component) -> Index {
         component.setParent(self.root);
         self.pool.insert(component)

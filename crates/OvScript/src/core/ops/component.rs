@@ -36,7 +36,7 @@ pub fn op_addComponent<'a>(
         let scene = unsafe { &mut **scene };
         if let Some(index) = scene.getGameObject(name) {
             goIndex = index;
-            let jsComp = JsComponent::new(compName, compV8.clone().into());
+            let jsComp = JsComponent::new(compName, Some(compV8.clone().into()));
             compIndex = scene[index].addComponent(Component::new(jsComp));
         }
     }
@@ -69,4 +69,23 @@ pub fn op_getComponent<'a>(
     v8::Global::new(scope, null)
 }
 
+#[op2]
+#[global]
+pub fn op_getComponentById<'a>(
+    state: Rc<RefCell<OpState>>,
+    scope: &mut v8::HandleScope<'a>,
+    #[serde] objId: Index,
+    #[serde] compId: Index,
+) -> v8::Global<v8::Value> {
+    let mut state = state.borrow_mut();
+    let scene = state.borrow_mut::<*mut Scene>();
+    let scene = unsafe { &mut **scene };
 
+    if let Some(index) = scene.get(objId) {
+        if let Some(comp) = index.get(compId) {
+            return comp.toV8Global(scope);
+        }
+    }
+    let null = serde_v8::to_v8(scope, serde_json::Value::Null).unwrap();
+    v8::Global::new(scope, null)
+}

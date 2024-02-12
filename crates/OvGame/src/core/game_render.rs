@@ -37,10 +37,12 @@ impl GameRender {
             .map(|currnetScene| {
                 currnetScene.getMainCamera().map(|cameraObj| {
                     let transform = currnetScene[cameraObj].getComponent::<Transform>().unwrap();
+                    
                     let mut camera = currnetScene[cameraObj]
                         .getComponent::<Camera>()
                         .cloned()
                         .unwrap();
+                    
                     let position = transform.position();
                     let rotation = transform.rotation();
                     camera.cacheMatrices(&position, &rotation);

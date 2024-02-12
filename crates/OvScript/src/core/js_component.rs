@@ -26,10 +26,10 @@ impl Serialize for JsComponent {
 }
 
 impl JsComponent {
-    pub fn new(name: &str, jsValue: serde_v8::Global) -> Self {
+    pub fn new(name: &str, jsValue: Option<serde_v8::Global>) -> Self {
         Self {
             name: name.to_string(),
-            jsValue: Some(jsValue),
+            jsValue,
         }
     }
 

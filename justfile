@@ -1,4 +1,4 @@
-export RUSTY_V8_MIRROR :="https://ghproxy.com/https://github.com/denoland/rusty_v8/releases/download"
+export RUSTY_V8_MIRROR :="https://mirror.ghproxy.com/https://github.com/denoland/rusty_v8/releases/download"
 set shell :=["powershell"]
 
 default:
@@ -10,6 +10,3 @@ export:
 
 build:
     cargo build --release --bin OvGame
-
-line:
-    tokei -l

@@ -1,4 +1,4 @@
-use super::game_object::GameObject;
+
 
 use deno_core::{
     serde_v8,
@@ -64,7 +64,6 @@ pub trait BaseComponentTrait: Any + Debug {
 pub trait ComponentTrait: BaseComponentTrait + Updated + V8 {
     fn getName(&self) -> &str;
 }
-
 
 impl<T> BaseComponentTrait for T
 where

@@ -20,8 +20,8 @@ class Cube extends Component {
   camera:GameObject
   onStart() {
     this.camera=this.getGameObject("Camera");
-    input.on(InputEvent.KEY_DOWN, this.onKeyDown, this);
-    input.on(InputEvent.MOUSE_MOVE, this.onMouseMove, this);
+    // input.on(InputEvent.KEY_DOWN, this.onKeyDown, this);
+    // input.on(InputEvent.MOUSE_MOVE, this.onMouseMove, this);
   }
 
   onMouseMove(args: MouseEventArgs) {
@@ -65,7 +65,16 @@ class Cube extends Component {
 
   }
 
+  onUpdate(dt: number) {
+   
+    this.speed += dt;
+    this.node.transform.setRotation(new Vector3(0,this.speed,0))
+  }
 
+
+  onClick(){
+    print("按钮被点击了！")
+  }
 }
 
 

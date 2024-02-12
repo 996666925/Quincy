@@ -23,13 +23,22 @@ pub struct Application {
     context: Arc<Context>,
     game: Game,
     el: EventLoop<()>,
+    width: i32,
+    height: i32,
 }
 
 impl Application {
     pub fn new(path: Option<Box<dyn ResourceTrait + 'static>>) -> Self {
         env_logger::init();
         let el = EventLoop::new();
-        let mut window = OvWindow::new(&el, WindowSettings::default());
+
+        let setting = WindowSettings::default();
+
+        let width = setting.width;
+        let height = setting.height;
+
+        let window = OvWindow::new(&el, setting);
+        
         let context = Context::new(window.clone(), &el);
         if let Some(path) = path {
             context.resourceManager.setPath(path);
@@ -41,6 +50,8 @@ impl Application {
             window,
             context,
             game,
+            width,
+            height,
         }
     }
 
@@ -48,8 +59,10 @@ impl Application {
         let mut clock = Clock::new();
 
         self.el.run(move |event, el, control_flow| {
-            control_flow.set_wait_timeout(Duration::ZERO);
+            // control_flow.set_wait_timeout(Duration::ZERO);
+            // control_flow.set_wait();
 
+            control_flow.set_poll();
             match event {
                 Event::WindowEvent { window_id, event } => {
                     self.game.preUpdate(&event);

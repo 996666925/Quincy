@@ -63,10 +63,24 @@ export class GameObject {
         return Deno.core.ops.op_getComponent(this.name, value.typeName);
     }
 
+    getComponentById<T extends Component>(objId: any, compId: any): T {
+        return Deno.core.ops.op_getComponentById(objId, compId);
+    }
+
 }
 
 
 export function getGameObject(name: string): GameObject {
     return Deno.core.ops.op_getGameObject(this, name);
 }
+
+export function getGameObjectById(id: any): GameObject {
+    return Deno.core.ops.op_getGameObjectById(this, id);
+}
+
+export function getComponentById<T extends Component>(objId: any, compId: any): T {
+    return Deno.core.ops.op_getComponentById(objId, compId);
+}
+
+
 globalThis.__GAMEOBJECT__ = new GameObject("");

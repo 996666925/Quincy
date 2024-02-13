@@ -8,7 +8,8 @@ use std::ptr;
 use std::sync::Mutex;
 use OvTools::sync::Lazy;
 use serde::{Serialize, Deserialize};
-static ShaderMap: Lazy<Mutex<Vec<Shader>>> = Lazy::new(|| Mutex::new(Vec::new()));
+
+static SHADER_MAP: Lazy<Mutex<Vec<Shader>>> = Lazy::new(|| Mutex::new(Vec::new()));
 
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -20,7 +21,7 @@ pub struct Shader {
 impl Shader {
     pub fn new(name: &str) -> Self {
         //先查询现有的ShaderMap
-        let mut map = ShaderMap.try_lock().unwrap();
+        let mut map = SHADER_MAP.try_lock().unwrap();
         if let Some(shader) = map.iter().find(|shader| shader.name == name) {
             return shader.clone();
         }

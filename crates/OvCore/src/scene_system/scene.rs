@@ -134,9 +134,10 @@ impl Scene {
         scene
     }
 
-    pub fn addChild(&mut self, go: GameObject) {
+    pub fn addChild(&mut self, go: GameObject) -> Index {
         let index = self.insert(go);
         self[index].setRoot(index);
+        index
     }
     pub fn getGameObject(&self, name: &str) -> Option<Index> {
         self.iter()

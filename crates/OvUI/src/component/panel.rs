@@ -1,6 +1,9 @@
 use std::sync::mpsc::Sender;
 
-use egui::{plot::Orientation, Color32, Frame, Layout, Margin, RichText, Ui, Vec2, WidgetText};
+use egui::{
+    plot::Orientation, style::Spacing, Color32, Frame, Layout, Margin, RichText, Ui, Vec2,
+    WidgetText,
+};
 use serde::{Deserialize, Serialize};
 use thunderdome::Arena;
 
@@ -25,31 +28,43 @@ pub struct Panel {
     padding: Margin,
     background: Color32,
     id: Index,
+    spacing: f32,
 }
 
 #[typetag::serde]
 impl UiNodeTrait for Panel {
-    fn render(&mut self, ui: &mut egui::Ui, sender: &MessageSender<UiMessage>) {
+    fn renderFrame(&self, ui: &mut egui::Ui) -> egui::Frame {
         let frame = Frame::none()
             .fill(self.background)
             .inner_margin(self.padding)
             .outer_margin(self.margin);
-        let res = frame.show(ui, |ui| match self.orientation {
-            FlexDirection::Column => {
-                ui.vertical(|ui| {
-                    for (_, node) in self.children.iter_mut() {
-                        node.value.render(ui, sender);
-                    }
-                });
+
+        frame
+    }
+
+    fn renderInner(&mut self, ui: &mut egui::Ui, sender: &MessageSender<UiMessage>) {
+        ui.scope(|ui| {
+            ui.style_mut().spacing.item_spacing = Vec2::new(self.spacing, self.spacing);
+
+            ui.set_width(self.width);
+            ui.set_height(self.height);
+            match self.orientation {
+                FlexDirection::Column => {
+                    ui.vertical(|ui| {
+                        for (_, node) in self.children.iter_mut() {
+                            node.value.render(ui, sender);
+                        }
+                    });
+                }
+                FlexDirection::Row => {
+                    ui.horizontal(|ui| {
+                        for (_, node) in self.children.iter_mut() {
+                            node.value.render(ui, sender);
+                        }
+                    });
+                }
+                _ => {}
             }
-            FlexDirection::Row => {
-                ui.horizontal(|ui| {
-                    for (_, node) in self.children.iter_mut() {
-                        node.value.render(ui, sender);
-                    }
-                });
-            }
-            _ => {}
         });
     }
 }
@@ -65,6 +80,7 @@ impl Default for Panel {
             padding: Default::default(),
             background: Default::default(),
             id: Index::DANGLING,
+            spacing: 0.,
         }
     }
 }
@@ -92,6 +108,21 @@ impl Panel {
 
     pub fn background(mut self, background: Color32) -> Self {
         self.background = background;
+        self
+    }
+
+    pub fn spacing(mut self, spacing: f32) -> Self {
+        self.spacing = spacing;
+        self
+    }
+
+    pub fn width(mut self, width: f32) -> Self {
+        self.width = width;
+        self
+    }
+
+    pub fn height(mut self, height: f32) -> Self {
+        self.height = height;
         self
     }
 

@@ -47,6 +47,7 @@ impl UiManager {
     pub fn new(window: &Window, el: &EventLoop<()>) -> Ref<UiManager> {
         let egui = EguiBackend::new(window, el);
 
+      
         let mut visuals = Visuals::light();
 
         visuals.widgets.hovered.expansion = 0.;
@@ -86,14 +87,14 @@ impl UiManager {
                 .frame(Frame::none().fill(Color32::TRANSPARENT))
                 .show(ctx, |ui| {
                     for (_, comp) in canvas.iter_mut() {
-                        comp.value.render(ui, &self.sender);
+                        comp.value.renderTop(ui, &self.sender);
                     }
                 });
             egui::CentralPanel::default()
                 .frame(Frame::none().fill(Color32::TRANSPARENT))
                 .show(ctx, |ui| {
                     for (_, comp) in debugCanvas.iter_mut() {
-                        comp.value.render(ui, &self.sender);
+                        comp.value.renderTop(ui, &self.sender);
                     }
                 });
         });

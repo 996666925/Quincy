@@ -1,13 +1,11 @@
 #![allow(non_snake_case)]
+#![allow(dead_code)]
+#![allow(unused_variables)]
+#![allow(unused_imports)]
 
 use self::core::application::AppBuilder;
 
 use rust_embed::RustEmbed;
-
-use OvTools::time::clock::Clock;
-use OvWindowing::{
-    input::input_manager::InputManager, settings::window_settings::WindowSettings, Window,
-};
 
 pub mod core;
 

@@ -6,6 +6,7 @@ use std::{
     sync::{Arc, RwLock},
 };
 
+use env_logger::fmt::Color;
 use log::debug;
 use nalgebra::{Point3, Vector3};
 use thunderdome::Index;
@@ -30,12 +31,12 @@ use OvRender::{
 use OvScript::{core::JsComponent, utils::GoExt, v8};
 use OvTools::time::clock::Clock;
 use OvUI::{
-    component::{Button, ButtonMessage, Canvas, Label, Panel, TextBox, UiNode},
+    component::{Button, ButtonMessage, Canvas, Image, Label, Panel, TextBox, UiNode},
     core::uiBind::UiBind,
     message::UiMessageType,
     panel,
     prelude::FlexDirection,
-    Color32, Margin,
+    Color32, Margin, RetainedImage,
 };
 use OvWindowing::{event::WindowEvent, event_loop::ControlFlow};
 
@@ -72,11 +73,11 @@ impl Game {
                 let mut transform = Transform::new(Point3::new(0., 0., -3.));
                 transform.setRotation(Vector3::new(0., 45f32.to_radians(), 0.));
 
-                let mut obj = GameObject::default();
+                let obj = GameObject::default();
 
                 let objId = currentScene.insert(obj);
 
-                let mut obj = &mut currentScene[objId];
+                let obj = &mut currentScene[objId];
 
                 let mut meshRender = MeshRender::new();
                 let mut model = Mesh::new("monkey.mesh");
@@ -99,10 +100,12 @@ impl Game {
                     .orientation(FlexDirection::Column)
                     .background(Color32::YELLOW)
                     .margin(Margin::symmetric(100., 100.))
-                    .padding(Margin::symmetric(200., 100.));
+                    .width(400.)
+                    .height(400.)
+                    .spacing(100.);
 
                 {
-                    let mut panel1: Panel = Panel::new();
+                    let mut panel1: Panel = Panel::new().spacing(20.);
                     let button = Button::new("确定");
                     let index = panel1.addChild(UiNode::new(button));
 
@@ -122,12 +125,26 @@ impl Game {
                     panel1.addChild(UiNode::new(button));
                     let button = Button::new("确定");
                     panel1.addChild(UiNode::new(button));
+
+                    let mut image = Image::new();
+
+                    let imgFile = RetainedImage::from_image_bytes(
+                        "user.jpg",
+                        include_bytes!("../../assets/user.jpg"),
+                    )
+                    .unwrap();
+                    image.setTexture("user.jpg", Some(imgFile));
+
+                    panel1.addChild(UiNode::new(image));
+
                     panel.addChild(UiNode::new(panel1));
                 }
                 {
                     let mut panel1 = Panel::new()
                         .orientation(FlexDirection::Column)
-                        .margin(Margin::same(50.));
+                        // .margin(Margin::same(50.))
+                        .background(Color32::LIGHT_BLUE)
+                        .spacing(20.);
                     let button = Button::new("确定");
                     panel1.addChild(UiNode::new(button));
                     let button = Button::new("确定");
@@ -135,15 +152,22 @@ impl Game {
                     let button = Button::new("确定");
                     panel1.addChild(UiNode::new(button));
                     let button = Button::new("确定");
-                    panel1.addChild(UiNode::new(button));
+                    // panel1.addChild(UiNode::new(button));
                     let textbox = TextBox::new("确定");
-                    panel.addChild(UiNode::new(textbox));
+                    panel1.addChild(UiNode::new(textbox));
                     panel.addChild(UiNode::new(panel1));
                 }
-       
+
                 canvas.addChild(UiNode::new(panel));
+                let mut image = Image::new();
 
-
+                let imgFile = RetainedImage::from_image_bytes(
+                    "user.jpg",
+                    include_bytes!("../../assets/user.jpg"),
+                )
+                .unwrap();
+                image.setTexture("user.jpg", Some(imgFile));
+                canvas.addChild(UiNode::new(image));
                 obj.insert(Component::new(transform));
                 obj.insert(Component::new(meshRender));
                 obj.insert(Component::new(materialRender));
@@ -155,13 +179,13 @@ impl Game {
 
         let mut jsManager = context.jsRuntimeManager.try_write().unwrap();
 
-        let mut scope = &mut jsManager.handle_scope();
+        let scope = &mut jsManager.handle_scope();
 
-        let mut context = scope.get_current_context();
+        let context = scope.get_current_context();
 
-        let mut global = context.global(scope);
+        let global = context.global(scope);
 
-        let mut currentScene = sceneManagerRef.getCurrentSceneMut().as_mut().unwrap();
+        let currentScene = sceneManagerRef.getCurrentSceneMut().as_mut().unwrap();
 
         for (_, go) in currentScene.iter_mut() {
             for (_, comp) in go.iter_mut() {
@@ -317,11 +341,10 @@ impl Game {
                 let canvas = currentScene[index].getComponentMut::<Canvas>().unwrap();
                 let mut uiManager = self.context.uiManager.try_write().unwrap();
 
-                uiManager.render(&window, canvas,&mut self.debugDraw);
+                uiManager.render(&window, canvas, &mut self.debugDraw);
 
                 uiManager.update(canvas, &mut jsRuntimeManager.handle_scope());
             }
-
         }
     }
 

@@ -45,7 +45,7 @@ impl JsRuntimeManager {
             ]),
             ..Default::default()
         };
-        let mut runtime = JsRuntime::new(RuntimeOptions {
+        let runtime = JsRuntime::new(RuntimeOptions {
             extensions: vec![ext],
             ..Default::default()
         });

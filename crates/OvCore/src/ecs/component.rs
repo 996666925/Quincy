@@ -1,5 +1,3 @@
-
-
 use deno_core::{
     serde_v8,
     v8::{self, ObjectTemplate},
@@ -20,6 +18,7 @@ pub trait V8 {
     fn toV8Global(&self, scope: &mut v8::HandleScope) -> v8::Global<v8::Value>
     where
         Self: Serialize,
+        Self: ComponentTrait,
     {
         let objTemp = ObjectTemplate::new(scope);
         objTemp.set_internal_field_count(1);
@@ -33,6 +32,7 @@ pub trait V8 {
     fn toV8Local<'a>(&self, scope: &mut v8::HandleScope<'a>) -> v8::Local<'a, v8::Value>
     where
         Self: Serialize,
+        Self: ComponentTrait,
     {
         let objTemp = ObjectTemplate::new(scope);
         objTemp.set_internal_field_count(1);

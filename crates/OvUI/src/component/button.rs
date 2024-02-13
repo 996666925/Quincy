@@ -1,8 +1,6 @@
-
-use enum_variant_eq::{*,enum_variant_eq_derive::*};
 use egui::{Color32, Frame, Key, Margin, RichText, Stroke, Vec2, WidgetText};
+use enum_variant_eq::{enum_variant_eq_derive::*, *};
 use serde::{Deserialize, Serialize};
-
 
 use OvMacros::Control;
 use OvTools::{message::messageSender::MessageSender, utils::r#ref::Ref};
@@ -38,50 +36,52 @@ pub struct Button {
 
 #[typetag::serde]
 impl UiNodeTrait for Button {
-    fn render(&mut self, ui: &mut egui::Ui, sender: &MessageSender<UiMessage>) {
+    fn renderFrame(&self, ui: &mut egui::Ui) -> egui::Frame {
         let frame = Frame::none()
             .inner_margin(self.padding)
             .outer_margin(self.margin);
-        frame.show(ui, |ui| {
-            let text = RichText::new(&self.text).size(self.fontSize);
+        frame
+    }
 
-            let color = if self.isClick {
-                sender.sendMessage(UiMessage(
-                    self.id,
-                    UiMessageType::ButtonMessage(ButtonMessage::Pressed),
-                ));
-                self.clickColor
-            } else if self.isHover {
-                self.hoverColor
-            } else {
-                self.background
-            };
+    fn renderInner(&mut self, ui: &mut egui::Ui, sender: &MessageSender<UiMessage>) {
+        let text = RichText::new(&self.text).size(self.fontSize);
 
-            let button = egui::Button::new(text)
-                .fill(color)
-                .stroke(Stroke::new(0.5, Color32::BLACK));
+        let color = if self.isClick {
+            sender.sendMessage(UiMessage(
+                self.id,
+                UiMessageType::ButtonMessage(ButtonMessage::Pressed),
+            ));
+            self.clickColor
+        } else if self.isHover {
+            self.hoverColor
+        } else {
+            self.background
+        };
 
-            let result = ui.add_sized([self.width, self.height], button);
-            let result = result.interact(egui::Sense::click_and_drag());
+        let button = egui::Button::new(text)
+            .fill(color)
+            .stroke(Stroke::new(0.5, Color32::BLACK));
 
-            if result.hovered() {
-                sender.sendMessage(UiMessage(
-                    self.id,
-                    UiMessageType::ButtonMessage(ButtonMessage::Hovered),
-                ));
-            }
+        let result = ui.add_sized([self.width, self.height], button);
+        let result = result.interact(egui::Sense::click_and_drag());
 
-            if result.clicked() {
-                sender.sendMessage(UiMessage(
-                    self.id,
-                    UiMessageType::ButtonMessage(ButtonMessage::Clicked),
-                ));
-            }
+        if result.hovered() {
+            sender.sendMessage(UiMessage(
+                self.id,
+                UiMessageType::ButtonMessage(ButtonMessage::Hovered),
+            ));
+        }
 
-            self.isHover = result.hovered();
+        if result.clicked() {
+            sender.sendMessage(UiMessage(
+                self.id,
+                UiMessageType::ButtonMessage(ButtonMessage::Clicked),
+            ));
+        }
 
-            self.isClick = result.is_pointer_button_down_on();
-        });
+        self.isHover = result.hovered();
+
+        self.isClick = result.is_pointer_button_down_on();
     }
 }
 

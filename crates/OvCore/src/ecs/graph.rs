@@ -1,6 +1,6 @@
 use super::game_object::GameObject;
+use serde::{Deserialize, Serialize};
 use std::ops::{Deref, DerefMut, Index as IndexOps, IndexMut};
-use serde::{Serialize, Deserialize};
 use thunderdome::{Arena, Index};
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -47,7 +47,7 @@ impl Default for Graph {
 }
 
 impl Graph {
-    fn addGameObject(&mut self, mut obj: GameObject) {
+    fn addGameObject(&mut self, obj: GameObject) {
         self.pool.insert(obj);
     }
 

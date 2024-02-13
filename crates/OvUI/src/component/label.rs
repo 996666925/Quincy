@@ -1,6 +1,6 @@
 use std::sync::mpsc::Sender;
 
-use egui::Color32;
+use egui::{Color32, Frame, Margin};
 use serde::{Deserialize, Serialize};
 
 use OvMacros::Control;
@@ -15,11 +15,20 @@ use super::{Component, UiNodeTrait};
 pub struct Label {
     text: String,
     id: Index,
+    margin: Margin,
+    padding: Margin,
 }
 
 #[typetag::serde]
 impl UiNodeTrait for Label {
-    fn render(&mut self, ui: &mut egui::Ui, sender: &MessageSender<UiMessage>) {
+    fn renderFrame(&self, ui: &mut egui::Ui) -> egui::Frame {
+        let frame = Frame::none()
+            .inner_margin(self.padding)
+            .outer_margin(self.margin);
+        frame
+    }
+    
+    fn renderInner(&mut self, ui: &mut egui::Ui, sender: &MessageSender<UiMessage>) {
         ui.scope(|ui| {
             ui.visuals_mut().override_text_color = Some(Color32::RED);
             ui.style_mut().wrap = Some(false);
@@ -28,15 +37,15 @@ impl UiNodeTrait for Label {
             ui.add(label);
         });
     }
-
-
 }
 
 impl Label {
     pub fn new(text: &str) -> Self {
         Self {
             text: text.to_string(),
-            id:Index::DANGLING
+            id: Index::DANGLING,
+            margin: Margin::default(),
+            padding: Margin::default(),
         }
     }
 

@@ -13,19 +13,14 @@ use OvTools::utils::r#ref::Ref;
 
 pub struct GameRender {
     context: Arc<Context>,
+    //默认材质
     material: Material,
-    model: Model,
 }
 
 impl GameRender {
     pub fn new(context: Arc<Context>) -> Arc<GameRender> {
-        let mut model = Model::new("cube.mesh");
         let material = Material::new("standard");
-        Arc::new(Self {
-            context,
-            model,
-            material,
-        })
+        Arc::new(Self { context, material })
     }
 
     pub fn renderScene(&self) {
@@ -37,12 +32,12 @@ impl GameRender {
             .map(|currnetScene| {
                 currnetScene.getMainCamera().map(|cameraObj| {
                     let transform = currnetScene[cameraObj].getComponent::<Transform>().unwrap();
-                    
+
                     let mut camera = currnetScene[cameraObj]
                         .getComponent::<Camera>()
                         .cloned()
                         .unwrap();
-                    
+
                     let position = transform.position();
                     let rotation = transform.rotation();
                     camera.cacheMatrices(&position, &rotation);

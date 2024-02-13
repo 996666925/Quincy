@@ -26,8 +26,6 @@ pub fn op_addComponent<'a>(
     comp: v8::Local<v8::Value>,
     #[string] compName: &str,
 ) -> v8::Global<v8::Value> {
-    let mut goIndex = Index::DANGLING;
-    let mut compIndex = Index::DANGLING;
     let compV8 = v8::Global::new(scope, comp);
     //添加组件
     {
@@ -35,9 +33,8 @@ pub fn op_addComponent<'a>(
         let scene = state.borrow_mut::<*mut Scene>();
         let scene = unsafe { &mut **scene };
         if let Some(index) = scene.getGameObject(name) {
-            goIndex = index;
             let jsComp = JsComponent::new(compName, Some(compV8.clone().into()));
-            compIndex = scene[index].addComponent(Component::new(jsComp));
+            scene[index].addComponent(Component::new(jsComp));
         }
     }
     //调用组件onStart方法

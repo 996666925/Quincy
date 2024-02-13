@@ -28,21 +28,22 @@ impl Debug for TextBox {
 
 #[typetag::serde]
 impl UiNodeTrait for TextBox {
-    fn render(&mut self, ui: &mut egui::Ui, sender: &MessageSender<UiMessage>) {
+    fn renderFrame(&self, ui: &mut egui::Ui) -> egui::Frame {
         let frame = egui::Frame::none();
 
-        frame.show(ui, |ui| {
-            ui.scope(|ui| {
-                ui.style_mut().visuals.selection.bg_fill = Color32::from_rgb(51, 103, 209);
-                ui.style_mut().visuals.widgets.inactive.bg_stroke =
-                    Stroke::new(0.5, Color32::BLACK);
+        frame
+    }
 
-                let input = egui::TextEdit::singleline(&mut self.text).text_color(Color32::BLACK);
+    fn renderInner(&mut self, ui: &mut egui::Ui, sender: &MessageSender<UiMessage>) {
+        ui.scope(|ui| {
+            ui.style_mut().visuals.selection.bg_fill = Color32::from_rgb(51, 103, 209);
+            ui.style_mut().visuals.widgets.inactive.bg_stroke = Stroke::new(0.5, Color32::BLACK);
 
-                let result = ui.add_sized([self.width, self.height], input);
+            let input = egui::TextEdit::singleline(&mut self.text).text_color(Color32::BLACK);
 
-                self.state = true;
-            })
+            let result = ui.add_sized([self.width, self.height], input);
+
+            self.state = true;
         });
     }
 }

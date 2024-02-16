@@ -2,11 +2,11 @@ export RUSTY_V8_MIRROR :="https://mirror.ghproxy.com/https://github.com/denoland
 set shell :=["powershell"]
 
 default:
-    cargo run --bin OvGame
+    cargo run --bin QcGame
 
 
 export:
-    cargo run --bin OvExport
+    cargo run --bin QcExport
 
 build:
-    cargo build --release --bin OvGame
+    cargo build --release --bin QcGame

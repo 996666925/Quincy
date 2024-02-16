@@ -1,0 +1,25 @@
+[package]
+edition = "2021"
+name = "QcUI"
+version = "0.1.0"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+QcTools = { path = "../QcTools" }
+QcWindowing = { path = "../QcWindowing" }
+egui = { version = "0.22", features = ["serde"] }
+egui-glutin-gl = { git = "https://github.com/996666925/egui-glutin-gl" }
+QcCore = { path = "../QcCore" }
+QcMacros = { path = "../QcMacros" }
+serde = { version = "1", features = ["derive"] }
+typetag = "0.2.13"
+QcRender = { path = "../QcRender" }
+taffy = { version = "0.3.18", features = ["serde"] }
+thunderdome = { path = "../../../thunderdome" }
+
+html5ever = "0.26.0"
+deno_core = { git = "https://github.com/996666925/deno_core" }
+enum_variant_eq = "0.1.0"
+egui_extras = { version = "0.22", features = ["image"] }
+image = { version = "0.24", features = ["jpeg", "png"] }

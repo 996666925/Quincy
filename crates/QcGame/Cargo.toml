@@ -1,0 +1,20 @@
+[package]
+edition = "2021"
+name = "QcGame"
+version = "0.1.0"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+QcRender = { path = "../QcRender" }
+QcTools = { path = "../QcTools" }
+QcUI = { path = "../QcUI" }
+QcWindowing = { path = "../QcWindowing" }
+QcCore = { path = "../QcCore" }
+env_logger = "0.10.0"
+log = "0.4.20"
+nalgebra = { version = "0.32.3", features = ["serde"] }
+rust-embed = "8.0.0"
+QcMacros = { path = "../QcMacros" }
+QcScript = { path = "../QcScript" }
+thunderdome = {path="../../../thunderdome"}

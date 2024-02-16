@@ -1,0 +1,18 @@
+[package]
+name = "QcScript"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+deno_core = { git = "https://github.com/996666925/deno_core" }
+QcCore = { path = "../QcCore" }
+QcMacros = { path = "../QcMacros" }
+serde_v8 = "0.126.0"
+log = "0.4.20"
+QcTools = { path = "../QcTools" }
+serde = { version = "1", features = ["derive"] }
+typetag = "0.2.13"
+thunderdome = {path="../../../thunderdome"}
+nalgebra = { version = "0.32.3", features = ["serde", "bytemuck"] }

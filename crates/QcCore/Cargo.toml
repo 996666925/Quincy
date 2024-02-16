@@ -1,0 +1,24 @@
+[package]
+edition = "2021"
+name = "QcCore"
+version = "0.1.0"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+QcWindowing = { path = "../QcWindowing" }
+env_logger = "0.10.0"
+log = "0.4.20"
+QcTools = { path = "../QcTools" }
+QcRender = { path = "../QcRender" }
+QcMacros = { path = "../QcMacros" }
+thunderdome = {path="../../../thunderdome"}
+ron = "0.8.1"
+serde = { version = "1", features = ["derive"] }
+erased-serde = "0.3.31"
+nalgebra = { version = "0.32.3", features = ["serde", "bytemuck"] }
+typetag = "0.2.13"
+rust-embed = "8.0.0"
+deno_core = { git = "https://github.com/996666925/deno_core" }
+
+

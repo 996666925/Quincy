@@ -1,0 +1,16 @@
+[package]
+edition = "2021"
+name = "QcWindowing"
+version = "0.1.0"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+QcTools = { path = "../QcTools" }
+gl = { git = "https://github.com/996666925/gl" }
+glutin = "0.30.9"
+glutin-winit = "0.3.0"
+raw-window-handle = "0.5.2"
+winit = { version = "0.28.6", features = ["serde"] }
+serde = { version = "1", features = ["derive"] }
+deno_core = { git = "https://github.com/996666925/deno_core" }

@@ -1,0 +1,23 @@
+[package]
+edition = "2021"
+name = "QcRender"
+version = "0.1.0"
+build = "build.rs"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+QcTools = { path = "../QcTools" }
+bytemuck = { version = "1.14.0", features = ["derive"] }
+env_logger = "0.10.0"
+gl = { git = "https://github.com/996666925/gl" }
+log = "0.4.20"
+rust-embed = "8.0.0"
+nalgebra = { version = "0.32.3", features = [
+    "serde",
+    "bytemuck",
+    "serde-serialize",
+] }
+serde = { version = "1", features = ["derive"] }
+ron = "0.8.1"
+ddsfile = "0.5.1"

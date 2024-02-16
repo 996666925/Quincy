@@ -34,13 +34,13 @@ export default defineConfig({
   build: {
     // lib: {
     //   entry: './lib/main.ts',
-    //   name: 'QcerLoad',
+    //   name: 'Quincy',
     //   fileName: 'quincy',
 
     // },
     lib: {
       entry: './src/main.ts',
-      name: 'QcerLoad',
+      name: 'Quincy',
       fileName: 'quincy',
       
     },

@@ -1,7 +1,8 @@
+/// <reference path="../QcLib/vite-env.d.ts" />
 
-import { Component, GameObject, Transform, input, KeyBoardEventArgs, InputEvent, Keys, getGameObject } from "../lib";
-import { MouseEventArgs } from "../lib/event/input/mouseEventArgs";
-import { Vector3 } from "../lib/math/vector";
+import { Component, GameObject, Transform, input, KeyBoardEventArgs, InputEvent, Keys, getGameObject } from "../QcLib";
+import { MouseEventArgs } from "../QcLib/event/input/mouseEventArgs";
+import { Vector3 } from "../QcLib/math/vector";
 
 import { Example } from "./example";
 import clamp from "lodash/clamp"
@@ -76,9 +77,6 @@ class Cube extends Component {
     print("按钮被点击了！")
   }
 }
-
-
-
 
 
 // class Cube extends Component {

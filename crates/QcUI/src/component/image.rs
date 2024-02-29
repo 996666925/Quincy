@@ -16,9 +16,7 @@ use super::{Component, UiNodeTrait};
 pub struct Image {
     src: String,
     id: Index,
-    width: f32,
-    height: f32,
-    margin: Margin,
+    widget: Widget,
 
     #[serde(skip_serializing)]
     #[serde(deserialize_with = "deserializeTexture")]
@@ -52,7 +50,7 @@ impl UiNodeTrait for Image {
         frame
     }
 
-    fn renderInner(&mut self, ui: &mut egui::Ui, sender: &MessageSender<UiMessage>)  {
+    fn renderInner(&mut self, ui: &mut egui::Ui, sender: &MessageSender<UiMessage>) {
         if let Some(texture) = &self.texture {
             ui.set_width(self.width);
             ui.set_height(self.height);
@@ -64,8 +62,6 @@ impl UiNodeTrait for Image {
             ui.add(image);
         }
     }
-
-  
 }
 
 impl Image {
@@ -73,10 +69,8 @@ impl Image {
         Self {
             src: String::new(),
             id: Index::DANGLING,
-            width: 100.,
-            height: 100.,
+            widget: Default::default(),
             texture: None,
-            margin: Margin::default(),
         }
     }
     pub fn width(mut self, width: f32) -> Self {

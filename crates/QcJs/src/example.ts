@@ -1,4 +1,4 @@
-import { Component } from "../lib";
+import { Component } from "../QcLib";
 
 export class Example extends Component {
     id = 0
@@ -9,7 +9,7 @@ export class Example extends Component {
     }
 
     onUpdate(dt: number) {
-        print("example:" + this.id)
+        // print("example:" + this.id)
 
     }
 

@@ -1,0 +1,14 @@
+rescript = 1
+g_finger := D:\Projects\rust\OverLoad\crates\QcJs\node_modules\@rescript\core\lib\ocaml\install.stamp
+rule astj
+  command = "D:\Projects\rust\OverLoad\crates\QcJs\node_modules\rescript\win32\bsc.exe"  -bs-v 11.0.1 -uncurried -open RescriptCore -absname -bs-ast -o $out $i
+o QcLib\Demo.ast : astj ..\..\QcLib\Demo.res
+rule deps
+  command = "D:\Projects\rust\OverLoad\crates\QcJs\node_modules\rescript\win32\bsb_helper.exe" -hash 7e3b44c1a9f3095bcd46dee246f3a5cd $in
+  restat = 1
+o QcLib\Demo.d : deps QcLib\Demo.ast
+rule mij
+  command = "D:\Projects\rust\OverLoad\crates\QcJs\node_modules\rescript\win32\bsc.exe" -I "QcLib\core\components" -I "QcLib\core" -I "QcLib\event\input" -I "QcLib\event" -I "QcLib\manager\input" -I "QcLib\manager" -I "QcLib\math" -I "QcLib\ops" -I "QcLib\utils" -I QcLib -I "D:\Projects\rust\OverLoad\crates\QcJs\node_modules\@rescript\core\lib\ocaml" -open RescriptCore  -bs-gentype -uncurried -bs-package-name QcLib -bs-package-output es6:$in_d:.res.js -bs-v $g_finger $i
+  dyndep = 1
+  restat = 1
+o QcLib\Demo.cmj QcLib\Demo.cmi ..\..\QcLib\Demo.res.js : mij QcLib\Demo.ast

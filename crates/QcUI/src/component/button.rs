@@ -20,18 +20,12 @@ pub enum ButtonMessage {
 
 #[derive(Control, Serialize, Deserialize, Debug)]
 pub struct Button {
+    widget: Widget,
     text: String,
-    width: f32,
-    height: f32,
-    background: Color32, // click: Vec<dyn Fn()+'static>,
-    fontSize: f32,
-    margin: Margin,
-    padding: Margin,
     hoverColor: Color32,
     clickColor: Color32,
     isHover: bool,
     isClick: bool,
-    id: Index,
 }
 
 #[typetag::serde]
@@ -44,7 +38,7 @@ impl UiNodeTrait for Button {
     }
 
     fn renderInner(&mut self, ui: &mut egui::Ui, sender: &MessageSender<UiMessage>) {
-        let text = RichText::new(&self.text).size(self.fontSize);
+        let text = RichText::new(&self.text).size(self.font_size);
 
         let color = if self.isClick {
             sender.sendMessage(UiMessage(
@@ -89,17 +83,14 @@ impl Default for Button {
     fn default() -> Self {
         Self {
             text: Default::default(),
-            height: 20.,
-            width: 40.,
-            background: Color32::from_rgb(239, 239, 239),
-            fontSize: 12.,
-            margin: Default::default(),
-            padding: Default::default(),
             hoverColor: Color32::from_rgb(229, 229, 229),
             clickColor: Color32::from_rgb(245, 245, 245),
             isHover: false,
             isClick: false,
-            id: Index::DANGLING,
+            widget: Widget::default()
+                .with_width(100.)
+                .with_height(30.)
+                .with_background(Color32::from_rgb(239, 239, 239)),
         }
     }
 }

@@ -3,6 +3,11 @@ use std::any::Any;
 use egui::Ui;
 use QcWindowing::Window;
 
+
+
+
+mod widget;
+pub use widget::*;
 mod canvas;
 pub use canvas::*;
 mod button;

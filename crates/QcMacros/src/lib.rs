@@ -76,7 +76,8 @@ pub fn uiNode(input: TokenStream) -> TokenStream {
         use QcCore::ecs::component::{BaseComponentTrait,Named};
         use std::any::Any;
         use thunderdome::Index;
-        use crate::component::SetId;
+        use crate::component::{SetId,Widget};
+        use std::ops::{Deref, DerefMut};
         impl BaseComponentTrait for #name {
             fn asAny(&self) -> &dyn Any {
                 self
@@ -96,6 +97,22 @@ pub fn uiNode(input: TokenStream) -> TokenStream {
                 self.id=id;
             }
         }
+
+        
+        impl Deref for #name {
+            type Target = Widget;
+                            
+            fn deref(&self) -> &Self::Target {
+                &self.widget
+            }
+        }
+        
+        impl DerefMut for #name {
+            fn deref_mut(&mut self) -> &mut Self::Target {
+                &mut self.widget
+            }
+        }
+
 
     };
 

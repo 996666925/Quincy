@@ -14,9 +14,7 @@ use super::{Component, UiNodeTrait};
 #[derive(Control, Serialize, Deserialize, Debug)]
 pub struct Label {
     text: String,
-    id: Index,
-    margin: Margin,
-    padding: Margin,
+    widget: Widget,
 }
 
 #[typetag::serde]
@@ -27,10 +25,10 @@ impl UiNodeTrait for Label {
             .outer_margin(self.margin);
         frame
     }
-    
+
     fn renderInner(&mut self, ui: &mut egui::Ui, sender: &MessageSender<UiMessage>) {
         ui.scope(|ui| {
-            ui.visuals_mut().override_text_color = Some(Color32::RED);
+            ui.visuals_mut().override_text_color = Some(self.foreground);
             ui.style_mut().wrap = Some(false);
             let label = egui::Label::new(&self.text);
 
@@ -40,13 +38,16 @@ impl UiNodeTrait for Label {
 }
 
 impl Label {
-    pub fn new(text: &str) -> Self {
+    pub fn new(widget: Widget) -> Self {
         Self {
-            text: text.to_string(),
-            id: Index::DANGLING,
-            margin: Margin::default(),
-            padding: Margin::default(),
+            text: String::new(),
+            widget: widget,
         }
+    }
+
+    pub fn with_text(mut self, text: &str) -> Self {
+        self.text = text.to_string();
+        self
     }
 
     pub fn setText(&mut self, text: &str) {

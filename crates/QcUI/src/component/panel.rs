@@ -20,14 +20,9 @@ use super::{UiNode, UiNodeTrait};
 
 #[derive(Control, Serialize, Deserialize, Debug)]
 pub struct Panel {
-    width: f32,
-    height: f32,
+    widget: Widget,
     orientation: FlexDirection,
     children: Arena<UiNode>,
-    margin: Margin,
-    padding: Margin,
-    background: Color32,
-    id: Index,
     spacing: f32,
 }
 
@@ -72,14 +67,9 @@ impl UiNodeTrait for Panel {
 impl Default for Panel {
     fn default() -> Self {
         Self {
-            height: 0.,
-            width: 0.,
+            widget: Default::default(),
             orientation: FlexDirection::Row,
             children: Default::default(),
-            margin: Default::default(),
-            padding: Default::default(),
-            background: Default::default(),
-            id: Index::DANGLING,
             spacing: 0.,
         }
     }
@@ -91,6 +81,7 @@ impl Panel {
             ..Default::default()
         }
     }
+    
     pub fn orientation(mut self, orientation: FlexDirection) -> Self {
         self.orientation = orientation;
         self

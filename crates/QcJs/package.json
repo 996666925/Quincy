@@ -17,7 +17,10 @@
   },
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build"
+    "build": "tsc && vite build",
+    "res:build": "rescript",
+    "res:clean": "rescript clean",
+    "res:dev": "rescript -w"
   },
   "devDependencies": {
     "@rollup/plugin-swc": "^0.2.0",
@@ -28,6 +31,8 @@
     "vite": "^4.3.9"
   },
   "dependencies": {
-    "lodash": "^4.17.21"
+    "@rescript/core": "^1.0.0",
+    "lodash": "^4.17.21",
+    "rescript": "^11.0.1"
   }
 }

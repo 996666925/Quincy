@@ -31,7 +31,7 @@ use QcRender::{
 use QcScript::{core::JsComponent, utils::GoExt, v8};
 use QcTools::time::clock::Clock;
 use QcUI::{
-    component::{Button, ButtonMessage, Canvas, Image, Label, Panel, TextBox, UiNode},
+    component::{Button, ButtonMessage, Canvas, Image, Label, Panel, TextBox, UiNode, Widget},
     core::uiBind::UiBind,
     message::UiMessageType,
     panel,
@@ -260,9 +260,10 @@ impl Game {
         //     }
         // }
 
-        let btn = Label::new("fps");
+        let fps = Label::new(Widget::default().with_foreground(Color32::RED)).with_text("fps");
+
         let mut canvas = Canvas::new();
-        let index = canvas.addChild(UiNode::new(btn));
+        let index = canvas.addChild(UiNode::new(fps));
 
         let gameRender = GameRender::new(context.clone());
         Self {

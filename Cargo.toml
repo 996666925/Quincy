@@ -8,6 +8,6 @@ members = [
     "crates/QcRender",
     "crates/QcMacros",
     "crates/QcExport",
-    "crates/QcScript"
+    "crates/QcScript",
+    "crates/QcEditor",
 ]
-

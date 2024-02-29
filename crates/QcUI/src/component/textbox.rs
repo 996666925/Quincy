@@ -13,11 +13,8 @@ use super::{Component, UiNodeTrait};
 #[derive(Control, Serialize, Deserialize)]
 pub struct TextBox {
     text: String,
-    id: Index,
     focus: bool,
-    width: f32,
-    height: f32,
-    state: bool,
+    widget: Widget,
 }
 
 impl Debug for TextBox {
@@ -39,11 +36,11 @@ impl UiNodeTrait for TextBox {
             ui.style_mut().visuals.selection.bg_fill = Color32::from_rgb(51, 103, 209);
             ui.style_mut().visuals.widgets.inactive.bg_stroke = Stroke::new(0.5, Color32::BLACK);
 
+            let width = self.width;
+            let height = self.height;
             let input = egui::TextEdit::singleline(&mut self.text).text_color(Color32::BLACK);
 
-            let result = ui.add_sized([self.width, self.height], input);
-
-            self.state = true;
+            let result = ui.add_sized([width, height], input);
         });
     }
 }
@@ -52,11 +49,8 @@ impl TextBox {
     pub fn new(text: &str) -> TextBox {
         Self {
             text: text.to_string(),
-            id: Index::DANGLING,
             focus: false,
-            width: 200.,
-            height: 30.,
-            state: false,
+            widget: Widget::default().with_width(100.).with_height(30.),
         }
     }
 }

@@ -92,8 +92,7 @@ impl Game {
                 material.addTexture(texture);
                 materialRender.addMaterial(material);
 
-                let cube = JsComponent::new("Cube", None);
-                let compId = obj.insert(Component::new(cube));
+            
                 let mut canvas = Canvas::new();
 
                 let mut panel = Panel::new()
@@ -109,15 +108,15 @@ impl Game {
                     let button = Button::new("确定");
                     let index = panel1.addChild(UiNode::new(button));
 
-                    canvas.addUiBind(
-                        index,
-                        UiBind::new(
-                            objId,
-                            compId,
-                            "onClick".to_string(),
-                            UiMessageType::ButtonMessage(ButtonMessage::Clicked),
-                        ),
-                    );
+                    // canvas.addUiBind(
+                    //     index,
+                    //     UiBind::new(
+                    //         objId,
+                    //         compId,
+                    //         "onClick".to_string(),
+                    //         UiMessageType::ButtonMessage(ButtonMessage::Clicked),
+                    //     ),
+                    // );
 
                     let button = Button::new("确定");
                     panel1.addChild(UiNode::new(button));
@@ -171,7 +170,11 @@ impl Game {
                 obj.insert(Component::new(transform));
                 obj.insert(Component::new(meshRender));
                 obj.insert(Component::new(materialRender));
-                obj.insert(Component::new(canvas));
+
+                let cube = JsComponent::new("Cube", None);
+                obj.insert(Component::new(cube));
+                // obj.insert(Component::new(cube));
+                // obj.insert(Component::new(canvas));
 
                 // println!("{}", currentScene.save());
             }

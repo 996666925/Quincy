@@ -1,6 +1,6 @@
-import { Vector3 } from "../../math/vector";
-import { Component } from "../component";
 
+import { Vector3 } from '../../math/vector';
+import { Component } from "../component";
 
 
 
@@ -9,6 +9,7 @@ export class Transform extends Component {
 
 
     get position(): Vector3 {
+
         return Deno.core.ops.opGetPosition(this).toVec();
     }
 
@@ -19,7 +20,7 @@ export class Transform extends Component {
     get rotation(): Vector3 {
         return Deno.core.ops.opGetRotation(this).toVec();
     }
-    
+
     setRotation(rotation: Vector3) {
         return Deno.core.ops.opSetRotation(this, rotation.into());
     }

@@ -5,8 +5,7 @@ import { GameObject } from './gameobject';
 
 
 
-
-export class Component {
+export class Component  {
     static typeName: string = "Component";
     name: string;
     parent: string;

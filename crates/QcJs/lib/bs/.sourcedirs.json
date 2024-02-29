@@ -1,1 +1,0 @@
-{ "dirs" : [ "QcLib" , "QcLib\\utils" , "QcLib\\ops" , "QcLib\\math" , "QcLib\\manager" , "QcLib\\manager\\input" , "QcLib\\event" , "QcLib\\event\\input" , "QcLib\\core" , "QcLib\\core\\components" ] , "pkgs" : [ [ "@rescript\\core" , "D:\\Projects\\rust\\OverLoad\\crates\\QcJs\\node_modules\\@rescript\\core" ] ] , "generated" : [] }

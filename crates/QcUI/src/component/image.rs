@@ -8,19 +8,18 @@ use QcMacros::Control;
 use QcTools::{message::messageSender::MessageSender, utils::r#ref::Ref};
 use QcWindowing::Window;
 
-use crate::message::UiMessage;
+use crate::{core::context::UiContext, message::UiMessage};
 
 use super::{Component, UiNodeTrait};
 
 #[derive(Control, Serialize, Deserialize)]
 pub struct Image {
-    src: String,
-    id: Index,
-    widget: Widget,
+    pub src: String,
+    pub widget: Widget,
 
     #[serde(skip_serializing)]
     #[serde(deserialize_with = "deserializeTexture")]
-    texture: Option<egui_extras::RetainedImage>,
+    pub texture: Option<egui_extras::RetainedImage>,
 }
 
 fn deserializeTexture<'de, D>(
@@ -44,13 +43,14 @@ impl Debug for Image {
 
 #[typetag::serde]
 impl UiNodeTrait for Image {
-    fn renderFrame(&self, ui: &mut egui::Ui) -> egui::Frame {
+    fn renderFrame(&self, ctx: &mut UiContext) -> egui::Frame {
         let frame = Frame::none().outer_margin(self.margin);
 
         frame
     }
 
-    fn renderInner(&mut self, ui: &mut egui::Ui, sender: &MessageSender<UiMessage>) {
+    fn renderInner(&mut self, ctx: &mut UiContext) {
+        let UiContext { ui, sender } = ctx;
         if let Some(texture) = &self.texture {
             ui.set_width(self.width);
             ui.set_height(self.height);
@@ -64,27 +64,31 @@ impl UiNodeTrait for Image {
     }
 }
 
-impl Image {
-    pub fn new() -> Self {
+impl Default for Image {
+    fn default() -> Self {
         Self {
             src: String::new(),
-            id: Index::DANGLING,
             widget: Default::default(),
             texture: None,
         }
     }
-    pub fn width(mut self, width: f32) -> Self {
-        self.width = width;
+}
+
+impl Image {
+    pub fn new(widget: Widget) -> Self {
+        Self {
+            src: String::new(),
+            widget,
+            texture: None,
+        }
+    }
+
+    pub fn with_texture(mut self, name: &str, texture: Option<RetainedImage>) -> Self {
+        self.texture = texture;
+        self.src = name.to_string();
         self
     }
-    pub fn height(mut self, height: f32) -> Self {
-        self.height = height;
-        self
-    }
-    pub fn margin(mut self, margin: Margin) -> Self {
-        self.margin = margin;
-        self
-    }
+
     pub fn setTexture(&mut self, name: &str, texture: Option<RetainedImage>) {
         self.texture = texture;
         self.src = name.to_string();

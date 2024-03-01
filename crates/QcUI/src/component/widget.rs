@@ -59,7 +59,6 @@ impl Widget {
         self
     }
 
-
     pub fn with_background(mut self, background: Color32) -> Self {
         self.background = background;
         self
@@ -70,5 +69,13 @@ impl Widget {
         self
     }
 
-    
+    pub fn with_margin(mut self, margin: Margin) -> Self {
+        self.margin = margin;
+        self
+    }
+
+    pub fn with_padding(mut self, padding: Margin) -> Self {
+        self.padding = padding;
+        self
+    }
 }

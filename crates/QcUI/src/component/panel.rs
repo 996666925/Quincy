@@ -14,21 +14,21 @@ use QcMacros::Control;
 use QcTools::message::messageSender::MessageSender;
 use QcWindowing::{CursorIcon, Window};
 
-use crate::message::UiMessage;
+use crate::{core::context::UiContext, message::UiMessage};
 
 use super::{UiNode, UiNodeTrait};
 
 #[derive(Control, Serialize, Deserialize, Debug)]
 pub struct Panel {
-    widget: Widget,
-    orientation: FlexDirection,
-    children: Arena<UiNode>,
-    spacing: f32,
+    pub widget: Widget,
+    pub orientation: FlexDirection,
+    pub children: Arena<UiNode>,
+    pub spacing: f32,
 }
 
 #[typetag::serde]
 impl UiNodeTrait for Panel {
-    fn renderFrame(&self, ui: &mut egui::Ui) -> egui::Frame {
+    fn renderFrame(&self, ctx: &mut UiContext) -> egui::Frame {
         let frame = Frame::none()
             .fill(self.background)
             .inner_margin(self.padding)
@@ -37,7 +37,8 @@ impl UiNodeTrait for Panel {
         frame
     }
 
-    fn renderInner(&mut self, ui: &mut egui::Ui, sender: &MessageSender<UiMessage>) {
+    fn renderInner(&mut self, ctx: &mut UiContext) {
+        let UiContext { ui, sender } = ctx;
         ui.scope(|ui| {
             ui.style_mut().spacing.item_spacing = Vec2::new(self.spacing, self.spacing);
 
@@ -47,14 +48,14 @@ impl UiNodeTrait for Panel {
                 FlexDirection::Column => {
                     ui.vertical(|ui| {
                         for (_, node) in self.children.iter_mut() {
-                            node.value.render(ui, sender);
+                            node.value.render(&mut UiContext::new(ui, sender));
                         }
                     });
                 }
                 FlexDirection::Row => {
                     ui.horizontal(|ui| {
                         for (_, node) in self.children.iter_mut() {
-                            node.value.render(ui, sender);
+                            node.value.render(&mut UiContext::new(ui, sender));
                         }
                     });
                 }
@@ -76,44 +77,20 @@ impl Default for Panel {
 }
 
 impl Panel {
-    pub fn new() -> Self {
+    pub fn new(widget: Widget) -> Self {
         Self {
+            widget,
             ..Default::default()
         }
     }
-    
-    pub fn orientation(mut self, orientation: FlexDirection) -> Self {
+
+    pub fn with_orientation(mut self, orientation: FlexDirection) -> Self {
         self.orientation = orientation;
         self
     }
 
-    pub fn margin(mut self, margin: Margin) -> Self {
-        self.margin = margin;
-        self
-    }
-
-    pub fn padding(mut self, padding: Margin) -> Self {
-        self.padding = padding;
-        self
-    }
-
-    pub fn background(mut self, background: Color32) -> Self {
-        self.background = background;
-        self
-    }
-
-    pub fn spacing(mut self, spacing: f32) -> Self {
+    pub fn with_spacing(mut self, spacing: f32) -> Self {
         self.spacing = spacing;
-        self
-    }
-
-    pub fn width(mut self, width: f32) -> Self {
-        self.width = width;
-        self
-    }
-
-    pub fn height(mut self, height: f32) -> Self {
-        self.height = height;
         self
     }
 

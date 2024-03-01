@@ -6,7 +6,7 @@ use QcMacros::Control;
 use QcTools::{message::messageSender::MessageSender, utils::r#ref::Ref};
 use QcWindowing::{CursorIcon, Window};
 
-use crate::message::{UiMessage, UiMessageType};
+use crate::{core::context::UiContext, message::{UiMessage, UiMessageType}};
 
 use super::UiNodeTrait;
 
@@ -20,28 +20,28 @@ pub enum ButtonMessage {
 
 #[derive(Control, Serialize, Deserialize, Debug)]
 pub struct Button {
-    widget: Widget,
-    text: String,
-    hoverColor: Color32,
-    clickColor: Color32,
-    isHover: bool,
-    isClick: bool,
+    pub widget: Widget,
+    pub text: String,
+    pub hoverColor: Color32,
+    pub clickColor: Color32,
+    pub isHover: bool,
+    pub isClick: bool,
 }
 
 #[typetag::serde]
 impl UiNodeTrait for Button {
-    fn renderFrame(&self, ui: &mut egui::Ui) -> egui::Frame {
+    fn renderFrame(&self, ctx: &mut UiContext) -> egui::Frame {
         let frame = Frame::none()
             .inner_margin(self.padding)
             .outer_margin(self.margin);
         frame
     }
 
-    fn renderInner(&mut self, ui: &mut egui::Ui, sender: &MessageSender<UiMessage>) {
+    fn renderInner(&mut self, ctx: &mut UiContext) {
         let text = RichText::new(&self.text).size(self.font_size);
 
         let color = if self.isClick {
-            sender.sendMessage(UiMessage(
+            ctx.sender.sendMessage(UiMessage(
                 self.id,
                 UiMessageType::ButtonMessage(ButtonMessage::Pressed),
             ));
@@ -56,18 +56,18 @@ impl UiNodeTrait for Button {
             .fill(color)
             .stroke(Stroke::new(0.5, Color32::BLACK));
 
-        let result = ui.add_sized([self.width, self.height], button);
+        let result = ctx.ui.add_sized([self.width, self.height], button);
         let result = result.interact(egui::Sense::click_and_drag());
 
         if result.hovered() {
-            sender.sendMessage(UiMessage(
+            ctx.sender.sendMessage(UiMessage(
                 self.id,
                 UiMessageType::ButtonMessage(ButtonMessage::Hovered),
             ));
         }
 
         if result.clicked() {
-            sender.sendMessage(UiMessage(
+            ctx.sender.sendMessage(UiMessage(
                 self.id,
                 UiMessageType::ButtonMessage(ButtonMessage::Clicked),
             ));
@@ -96,28 +96,15 @@ impl Default for Button {
 }
 
 impl Button {
-    pub fn new(text: &str) -> Self {
+    pub fn new(widget: Widget) -> Self {
         Self {
-            text: text.to_string(),
-            // click: Vec::new(),
+            widget,
             ..Default::default()
         }
     }
-    pub fn width(mut self, width: f32) -> Self {
-        self.width = width;
-        self
-    }
-    pub fn height(mut self, height: f32) -> Self {
-        self.height = height;
-        self
-    }
-    pub fn margin(mut self, margin: Margin) -> Self {
-        self.margin = margin;
-        self
-    }
-    pub fn setText(&mut self, text: &str) {
-        self.text = text.to_string();
-    }
 
-    // pub fn
+    pub fn with_text(mut self, text: &str) -> Self {
+        self.text = text.to_string();
+        self
+    }
 }

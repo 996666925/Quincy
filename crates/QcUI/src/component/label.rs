@@ -7,7 +7,7 @@ use QcMacros::Control;
 use QcTools::{message::messageSender::MessageSender, utils::r#ref::Ref};
 use QcWindowing::Window;
 
-use crate::message::UiMessage;
+use crate::{core::context::UiContext, message::UiMessage};
 
 use super::{Component, UiNodeTrait};
 
@@ -19,14 +19,15 @@ pub struct Label {
 
 #[typetag::serde]
 impl UiNodeTrait for Label {
-    fn renderFrame(&self, ui: &mut egui::Ui) -> egui::Frame {
+    fn renderFrame(&self, ctx: &mut UiContext) -> egui::Frame {
         let frame = Frame::none()
             .inner_margin(self.padding)
             .outer_margin(self.margin);
         frame
     }
 
-    fn renderInner(&mut self, ui: &mut egui::Ui, sender: &MessageSender<UiMessage>) {
+    fn renderInner(&mut self, ctx: &mut UiContext) {
+        let UiContext { ui, sender } = ctx;
         ui.scope(|ui| {
             ui.visuals_mut().override_text_color = Some(self.foreground);
             ui.style_mut().wrap = Some(false);

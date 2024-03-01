@@ -92,20 +92,21 @@ impl Game {
                 material.addTexture(texture);
                 materialRender.addMaterial(material);
 
-            
                 let mut canvas = Canvas::new();
 
-                let mut panel = Panel::new()
-                    .orientation(FlexDirection::Column)
-                    .background(Color32::YELLOW)
-                    .margin(Margin::symmetric(100., 100.))
-                    .width(400.)
-                    .height(400.)
-                    .spacing(100.);
+                let mut panel = Panel::new(
+                    Widget::default()
+                        .with_background(Color32::YELLOW)
+                        .with_margin(Margin::symmetric(100., 100.))
+                        .with_width(400.)
+                        .with_height(400.),
+                )
+                .with_orientation(FlexDirection::Column)
+                .with_spacing(100.);
 
                 {
-                    let mut panel1: Panel = Panel::new().spacing(20.);
-                    let button = Button::new("确定");
+                    let mut panel1: Panel = Panel::default().with_spacing(20.);
+                    let button = Button::default().with_text("确定");
                     let index = panel1.addChild(UiNode::new(button));
 
                     // canvas.addUiBind(
@@ -118,39 +119,36 @@ impl Game {
                     //     ),
                     // );
 
-                    let button = Button::new("确定");
+                    let button = Button::default().with_text("确定");
                     panel1.addChild(UiNode::new(button));
-                    let button = Button::new("确定");
+                    let button = Button::default().with_text("确定");
                     panel1.addChild(UiNode::new(button));
-                    let button = Button::new("确定");
+                    let button = Button::default().with_text("确定");
                     panel1.addChild(UiNode::new(button));
-
-                    let mut image = Image::new();
 
                     let imgFile = RetainedImage::from_image_bytes(
                         "user.jpg",
                         include_bytes!("../../assets/user.jpg"),
                     )
                     .unwrap();
-                    image.setTexture("user.jpg", Some(imgFile));
+                    let mut image = Image::default().with_texture("user.jpg", Some(imgFile));
 
                     panel1.addChild(UiNode::new(image));
 
                     panel.addChild(UiNode::new(panel1));
                 }
                 {
-                    let mut panel1 = Panel::new()
-                        .orientation(FlexDirection::Column)
-                        // .margin(Margin::same(50.))
-                        .background(Color32::LIGHT_BLUE)
-                        .spacing(20.);
-                    let button = Button::new("确定");
+                    let mut panel1 =
+                        Panel::new(Widget::default().with_background(Color32::LIGHT_BLUE))
+                            .with_orientation(FlexDirection::Column)
+                            .with_spacing(20.);
+                    let button = Button::default().with_text("确定");
                     panel1.addChild(UiNode::new(button));
-                    let button = Button::new("确定");
+                    let button = Button::default().with_text("确定");
                     panel1.addChild(UiNode::new(button));
-                    let button = Button::new("确定");
+                    let button = Button::default().with_text("确定");
                     panel1.addChild(UiNode::new(button));
-                    let button = Button::new("确定");
+                    let button = Button::default().with_text("确定");
                     // panel1.addChild(UiNode::new(button));
                     let textbox = TextBox::new("确定");
                     panel1.addChild(UiNode::new(textbox));
@@ -158,14 +156,14 @@ impl Game {
                 }
 
                 canvas.addChild(UiNode::new(panel));
-                let mut image = Image::new();
 
                 let imgFile = RetainedImage::from_image_bytes(
                     "user.jpg",
                     include_bytes!("../../assets/user.jpg"),
                 )
                 .unwrap();
-                image.setTexture("user.jpg", Some(imgFile));
+                let mut image = Image::default().with_texture("user.jpg", Some(imgFile));
+
                 canvas.addChild(UiNode::new(image));
                 obj.insert(Component::new(transform));
                 obj.insert(Component::new(meshRender));
@@ -174,7 +172,7 @@ impl Game {
                 let cube = JsComponent::new("Cube", None);
                 obj.insert(Component::new(cube));
                 // obj.insert(Component::new(cube));
-                // obj.insert(Component::new(canvas));
+                obj.insert(Component::new(canvas));
 
                 // println!("{}", currentScene.save());
             }

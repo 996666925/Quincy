@@ -6,29 +6,32 @@ use thunderdome::Index;
 use QcCore::ecs::component::BaseComponentTrait;
 use QcTools::message::messageSender::MessageSender;
 
-use crate::message::UiMessage;
+use crate::{core::context::UiContext, message::UiMessage};
 
 #[typetag::serde(tag = "type")]
 pub trait UiNodeTrait: BaseComponentTrait + SetId {
+    fn render(&mut self, ctx: &mut UiContext) {
     
-    fn render(&mut self, ui: &mut egui::Ui, sender: &MessageSender<UiMessage>) {
-        let frame = self.renderFrame(ui);
-
-        frame.show(ui, |ui| self.renderInner(ui, sender));
+        let frame = self.renderFrame(ctx);
+        let UiContext { ui, sender } = ctx;
+        
+        frame.show(ctx.ui, |ui| self.renderInner(&mut UiContext::new(ui, sender)));
     }
 
-    fn renderTop(&mut self, ui: &mut egui::Ui, sender: &MessageSender<UiMessage>) {
-        let frame = self.renderFrame(ui);
+    fn renderTop(&mut self, ctx: &mut UiContext) {
+        let frame = self.renderFrame(ctx);
+        let UiContext { ui, sender } = ctx;
+        
         egui::CentralPanel::default()
             .frame(frame)
-            .show(ui.ctx(), |ui| self.renderInner(ui, sender));
+            .show(ui.ctx(), move |ui| self.renderInner(&mut UiContext::new(ui, sender)));
     }
 
-    fn renderFrame(&self, ui: &mut egui::Ui) -> egui::Frame {
+    fn renderFrame(&self, ctx: &mut UiContext) -> egui::Frame {
         Frame::none()
     }
 
-    fn renderInner(&mut self, ui: &mut egui::Ui, sender: &MessageSender<UiMessage>) {}
+    fn renderInner(&mut self, ctx: &mut UiContext) {}
 }
 
 pub trait SetId {

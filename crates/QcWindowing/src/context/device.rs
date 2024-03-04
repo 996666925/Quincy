@@ -7,16 +7,16 @@ use glutin::{
     api::egl::device::Device as eglDevice,
     config::Config,
     context::{
-        ContextApi, ContextAttributes, ContextAttributesBuilder, PossiblyCurrentContext, Version,
+        ContextApi, ContextAttributes, ContextAttributesBuilder, NotCurrentGlContext, PossiblyCurrentContext, Version
     },
     display::{Display, DisplayApiPreference},
-    prelude::{GlConfig, GlDisplay, NotCurrentGlContextSurfaceAccessor},
+    prelude::{GlConfig, GlDisplay},
     surface::{GlSurface, Surface, SwapInterval, WindowSurface},
 };
 use glutin_winit::{DisplayBuilder, GlWindow};
 
 use raw_window_handle::{
-    HasRawWindowHandle, RawDisplayHandle, RawWindowHandle, Win32WindowHandle, WindowsDisplayHandle,
+    HasRawWindowHandle, HasWindowHandle, RawDisplayHandle, Win32WindowHandle, WindowsDisplayHandle
 };
 use winit::{
     dpi::LogicalSize,
@@ -38,6 +38,7 @@ impl Device {
     pub fn new(window: &Window, settings: DeviceSettings) -> Self {
         unsafe {
             let hwnd = window.raw_window_handle();
+
             let display = Display::new(
                 RawDisplayHandle::Windows(WindowsDisplayHandle::empty()),
                 DisplayApiPreference::Wgl(Some(hwnd)),

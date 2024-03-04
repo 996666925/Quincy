@@ -1,5 +1,14 @@
 use serde::Serialize;
-use winit::event::{ElementState, MouseButton};
+use winit::{
+    event::{ElementState, MouseButton},
+    keyboard::KeyCode,
+};
+
+#[derive(Serialize)]
+pub struct KeyBoardEvent {
+    pub key: KeyCode,
+    pub state: ElementState,
+}
 
 #[derive(Serialize)]
 pub struct MouseEvent {

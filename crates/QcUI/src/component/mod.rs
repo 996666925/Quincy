@@ -20,6 +20,8 @@ mod panel;
 pub use panel::*;
 mod image;
 pub use image::*;
+mod image_loader;
+pub use image_loader::*;
 
 pub trait Component: Any {
     fn render(&mut self, ui: &mut Ui, window: &Window);

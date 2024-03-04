@@ -8,18 +8,21 @@ use deno_core::{
     v8::{self, HandleScope},
 };
 use serde::Serialize;
-use winit::event::{ElementState, KeyboardInput, VirtualKeyCode, WindowEvent};
+use winit::{
+    event::{ElementState, WindowEvent},
+    keyboard::{KeyCode, PhysicalKey},
+};
 use QcTools::{eventing::event::EventId, sync::OnceCell, utils::r#ref::Ref};
 
 use crate::window::QcWindow as Window;
 
-use super::event::{MouseEvent, MouseMoveEvent};
+use super::event::{KeyBoardEvent, MouseEvent, MouseMoveEvent};
 
 static INPUTMANAGER: OnceCell<Ref<InputManager>> = OnceCell::new();
 
 #[derive(Debug)]
 pub struct InputManager {
-    map: HashMap<VirtualKeyCode, ElementState>,
+    map: HashMap<KeyCode, ElementState>,
     mousePosition: (f64, f64),
 }
 
@@ -37,28 +40,28 @@ impl InputManager {
         input_manager
     }
 
-    fn onKeyPressed(&mut self, key: VirtualKeyCode) {
+    fn onKeyPressed(&mut self, key: KeyCode) {
         self.map
             .entry(key)
             .and_modify(|value| *value = ElementState::Pressed)
             .or_insert(ElementState::Pressed);
     }
 
-    fn onKeyReleased(&mut self, key: VirtualKeyCode) {
+    fn onKeyReleased(&mut self, key: KeyCode) {
         self.map
             .entry(key)
             .and_modify(|value| *value = ElementState::Released)
             .or_insert(ElementState::Released);
     }
 
-    pub fn isKeyPressed(&self, key: VirtualKeyCode) -> bool {
+    pub fn isKeyPressed(&self, key: KeyCode) -> bool {
         if let Some(state) = self.map.get(&key) {
             *state == ElementState::Pressed
         } else {
             false
         }
     }
-    pub fn isKeyReleased(&self, key: VirtualKeyCode) -> bool {
+    pub fn isKeyReleased(&self, key: KeyCode) -> bool {
         if let Some(state) = self.map.get(&key) {
             *state == ElementState::Released
         } else {
@@ -73,23 +76,37 @@ impl InputManager {
         match event {
             WindowEvent::KeyboardInput {
                 device_id,
-                input,
                 is_synthetic,
+                event,
             } => {
-                match input.state {
-                    ElementState::Pressed => {
-                        if let Some(key) = input.virtual_keycode {
-                            self.onKeyPressed(key);
-                        }
-                    }
-                    ElementState::Released => {
-                        if let Some(key) = input.virtual_keycode {
-                            self.onKeyReleased(key);
-                        }
+                let key = match event.physical_key {
+                    PhysicalKey::Code(key) => key,
+                    _ => {
+                        todo!()
                     }
                 };
+                // match event.state {
+                //     ElementState::Pressed => {
+                //         if let PhysicalKey::Code(key) = event.physical_key {
+                //             self.onKeyPressed(key);
+                //         }
+                //     }
+                //     ElementState::Released => {
+
+                //             self.onKeyReleased(key);
+                //         }
+                //     }
+                // }
+
                 // callback(input);
-                Self::postInputMessage(scope, "keyboard", input);
+                Self::postInputMessage(
+                    scope,
+                    "keyboard",
+                    &KeyBoardEvent {
+                        key,
+                        state: event.state,
+                    },
+                );
             }
             WindowEvent::CursorMoved {
                 device_id,
@@ -146,13 +163,13 @@ impl InputManager {
 pub struct Input;
 
 impl Input {
-    pub fn isKeyPressed(key: VirtualKeyCode) -> bool {
+    pub fn isKeyPressed(key: KeyCode) -> bool {
         let input = InputManager::getInstance();
         let input = input.try_read().unwrap();
         input.isKeyPressed(key)
     }
 
-    pub fn isKeyReleased(key: VirtualKeyCode) -> bool {
+    pub fn isKeyReleased(key: KeyCode) -> bool {
         let input = InputManager::getInstance();
         let input = input.try_read().unwrap();
         input.isKeyReleased(key)

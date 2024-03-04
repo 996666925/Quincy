@@ -31,14 +31,15 @@ use QcRender::{
 use QcScript::{core::JsComponent, utils::GoExt, v8};
 use QcTools::time::clock::Clock;
 use QcUI::{
-    component::{Button, ButtonMessage, Canvas, Image, Label, Panel, TextBox, UiNode, Widget},
+    component::{Button, ButtonMessage, Canvas, Image, ImageLoader, Label, Panel, TextBox, UiNode, Widget},
     core::uiBind::UiBind,
+    egui,
     message::UiMessageType,
     panel,
     prelude::FlexDirection,
     Align2, Color32, Margin, RetainedImage,
 };
-use QcWindowing::{event::WindowEvent, event_loop::ControlFlow};
+use QcWindowing::{event::WindowEvent, event_loop::ControlFlow, Window};
 
 use super::{context::Context, game_render::GameRender};
 
@@ -155,7 +156,7 @@ impl Game {
 
                 {
                     let mut panel1 =
-                        Panel::new(Widget::default().with_background(Color32::LIGHT_BLUE))
+                        Panel::new(Widget::default().with_background(Color32::LIGHT_RED))
                             .with_orientation(FlexDirection::Column)
                             .with_spacing(20.);
 
@@ -165,25 +166,28 @@ impl Game {
                             .with_align(align)
                     };
 
-                    let textbox = createTextbox(Align2::CENTER_TOP);
-                    panel1.addChild(UiNode::new(textbox));
-                    let textbox = createTextbox(Align2::CENTER_CENTER);
-                    panel1.addChild(UiNode::new(textbox));
-                    let textbox = createTextbox(Align2::CENTER_BOTTOM);
+                    let textbox = createTextbox(Align2::LEFT_TOP);
                     panel1.addChild(UiNode::new(textbox));
                     let textbox = createTextbox(Align2::LEFT_CENTER);
+                    panel1.addChild(UiNode::new(textbox));
+                    let textbox = createTextbox(Align2::LEFT_BOTTOM);
+                    panel1.addChild(UiNode::new(textbox));
+                    let textbox = createTextbox(Align2::CENTER_TOP);
                     panel1.addChild(UiNode::new(textbox));
                     panel.addChild(UiNode::new(panel1));
                 }
 
                 canvas.addChild(UiNode::new(panel));
 
-                let imgFile = RetainedImage::from_image_bytes(
-                    "user.jpg",
-                    include_bytes!("../../assets/user.jpg"),
-                )
-                .unwrap();
-                let image = Image::default().with_texture("user.jpg", Some(imgFile));
+                // let imgFile = RetainedImage::from_image_bytes(
+                //     "user.jpg",
+                //     include_bytes!("../../assets/user.jpg"),
+                // )
+                // .unwrap();
+
+                let image = context.resourceManager.get("user.jpg").unwrap();
+                let img =  RetainedImage::load_texture(&image);
+                let image = Image::default().with_texture(img);
 
                 canvas.addChild(UiNode::new(image));
 
@@ -298,12 +302,14 @@ impl Game {
         }
     }
     pub fn preUpdate(&self, event: &WindowEvent) {
+        let window = self.context.window.try_read().unwrap();
+
         let result = self
             .context
             .uiManager
             .try_write()
             .unwrap()
-            .handleEvent(event);
+            .handleEvent(&window, event);
 
         match event {
             WindowEvent::MouseInput { state, .. } => {}
@@ -374,5 +380,10 @@ impl Game {
 
     pub fn postUpdate(&self) {
         self.context.device.swapBuffers();
+    }
+
+    pub fn destory(&mut self) {
+        let mut ui = self.context.uiManager.try_write().unwrap();
+        ui.destory();
     }
 }

@@ -1,6 +1,6 @@
 use std::fmt::Debug;
 
-use egui::{text_edit::TextEditState, Align, Align2, Color32, Stroke, TextBuffer};
+use egui::{text_edit::TextEditState, Align, Align2, Color32, Key, Stroke, TextBuffer, Vec2};
 use serde::{Deserialize, Serialize};
 use QcMacros::Control;
 use QcTools::{message::messageSender::MessageSender, utils::r#ref::Ref};
@@ -20,6 +20,7 @@ pub struct TextBox {
     widget: Widget,
     align: Align2,
     hint_text: String,
+    multiline: bool,
 }
 
 impl Debug for TextBox {
@@ -44,13 +45,15 @@ impl UiNodeTrait for TextBox {
 
             let width = self.width;
             let height = self.height;
-            let input = egui::TextEdit::singleline(&mut self.text)
+            let input = egui::TextEdit::multiline(&mut self.text)
                 .text_color(Color32::BLACK)
-                .vertical_align(self.align.y())
                 .horizontal_align(self.align.x())
-                .hint_text(&self.hint_text);
+                .vertical_align(self.align.y())
+                .hint_text(&self.hint_text)
+                .min_size(Vec2::new(width, height));
 
-            let result = ui.add_sized([width, height], input);
+            ui.add(input)
+            // let result = ui.add_sized([width, height], input);
         });
     }
 }
@@ -63,6 +66,7 @@ impl TextBox {
             widget,
             align: Align2::LEFT_TOP,
             hint_text: String::new(),
+            multiline: false,
         }
     }
 
@@ -89,6 +93,7 @@ impl Default for TextBox {
             widget: Widget::default().with_width(100.).with_height(30.),
             align: Align2::LEFT_TOP,
             hint_text: String::new(),
+            multiline: false,
         }
     }
 }

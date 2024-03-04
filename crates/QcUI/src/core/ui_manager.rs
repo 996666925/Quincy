@@ -20,7 +20,7 @@ use serde::Serialize;
 use thunderdome::Index;
 use QcCore::scene_system::scene::Scene;
 use QcTools::{message::messageSender::MessageSender, sync::OnceCell, utils::r#ref::Ref};
-use QcWindowing::{event::WindowEvent, event_loop::EventLoop, Window};
+use QcWindowing::{event::WindowEvent, event_loop::EventLoop, window, Window};
 
 use crate::{
     component::{ButtonMessage, Canvas, Component},
@@ -66,7 +66,7 @@ impl UiManager {
         visuals.widgets.active.expansion = 0.;
 
         egui.egui_ctx.set_visuals(visuals);
-  
+
         let mut fonts = egui::FontDefinitions::default();
 
         fonts.font_data.insert(
@@ -129,8 +129,12 @@ impl UiManager {
         }
     }
 
-    pub fn handleEvent(&mut self, event: &WindowEvent) -> EventResponse {
-        self.egui.on_event(event)
+    pub fn handleEvent(&mut self, window: &Window, event: &WindowEvent) -> EventResponse {
+        self.egui.on_window_event(window, event)
+    }
+
+    pub fn destory(&mut self) {
+        self.egui.destroy();
     }
     // pub fn loadFont(&mut self, name: &str) {
 

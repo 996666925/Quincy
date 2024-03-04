@@ -1,7 +1,6 @@
 
 
 use egui::Ui;
-use html5ever::{Attribute, QualName};
 use serde::{ser::SerializeStruct, Deserialize, Serialize};
 
 use thunderdome::{Arena, Index};

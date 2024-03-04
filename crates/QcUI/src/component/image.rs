@@ -5,6 +5,7 @@ use egui_extras::RetainedImage;
 use serde::{Deserialize, Deserializer, Serialize};
 
 use QcMacros::Control;
+use QcRender::resources::Resource;
 use QcTools::{message::messageSender::MessageSender, utils::r#ref::Ref};
 use QcWindowing::Window;
 
@@ -54,10 +55,11 @@ impl UiNodeTrait for Image {
         if let Some(texture) = &self.texture {
             ui.set_width(self.width);
             ui.set_height(self.height);
-            let image = egui::Image::new(
+
+            let image = egui::Image::new((
                 texture.texture_id(ui.ctx()),
                 egui::Vec2::new(self.width, self.height),
-            );
+            ));
 
             ui.add(image);
         }
@@ -83,14 +85,24 @@ impl Image {
         }
     }
 
-    pub fn with_texture(mut self, name: &str, texture: Option<RetainedImage>) -> Self {
-        self.texture = texture;
-        self.src = name.to_string();
+    pub fn with_texture(mut self, texture: RetainedImage) -> Self {
+        self.src = texture.debug_name().to_string();
+        self.texture = Some(texture);
+
         self
     }
 
     pub fn setTexture(&mut self, name: &str, texture: Option<RetainedImage>) {
         self.texture = texture;
         self.src = name.to_string();
+    }
+
+    pub fn with_resource(mut self, res: Resource) -> Self {
+        // egui_extras::image::load_image_bytes(ctx)
+        self
+    }
+
+    pub fn load_texture(res: Resource) -> egui::ColorImage {
+        egui_extras::image::load_image_bytes(&res.file.data).unwrap()
     }
 }

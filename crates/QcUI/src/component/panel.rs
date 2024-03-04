@@ -1,9 +1,6 @@
 use std::sync::mpsc::Sender;
 
-use egui::{
-    plot::Orientation, style::Spacing, Color32, Frame, Layout, Margin, RichText, Ui, Vec2,
-    WidgetText,
-};
+use egui::{Frame, Ui, Vec2};
 use serde::{Deserialize, Serialize};
 use thunderdome::Arena;
 

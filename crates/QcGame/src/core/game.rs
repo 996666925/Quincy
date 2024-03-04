@@ -36,7 +36,7 @@ use QcUI::{
     message::UiMessageType,
     panel,
     prelude::FlexDirection,
-    Color32, Margin, RetainedImage,
+    Align2, Color32, Margin, RetainedImage,
 };
 use QcWindowing::{event::WindowEvent, event_loop::ControlFlow};
 
@@ -101,42 +101,42 @@ impl Game {
                         .with_width(400.)
                         .with_height(400.),
                 )
-                .with_orientation(FlexDirection::Column)
+                .with_orientation(FlexDirection::Row)
                 .with_spacing(100.);
 
-                {
-                    let mut panel1: Panel = Panel::default().with_spacing(20.);
-                    let button = Button::default().with_text("确定");
-                    let index = panel1.addChild(UiNode::new(button));
+                // {
+                //     let mut panel1: Panel = Panel::default().with_spacing(20.);
+                //     let button = Button::default().with_text("确定");
+                //     let index = panel1.addChild(UiNode::new(button));
 
-                    // canvas.addUiBind(
-                    //     index,
-                    //     UiBind::new(
-                    //         objId,
-                    //         compId,
-                    //         "onClick".to_string(),
-                    //         UiMessageType::ButtonMessage(ButtonMessage::Clicked),
-                    //     ),
-                    // );
+                //     // canvas.addUiBind(
+                //     //     index,
+                //     //     UiBind::new(
+                //     //         objId,
+                //     //         compId,
+                //     //         "onClick".to_string(),
+                //     //         UiMessageType::ButtonMessage(ButtonMessage::Clicked),
+                //     //     ),
+                //     // );
 
-                    let button = Button::default().with_text("确定");
-                    panel1.addChild(UiNode::new(button));
-                    let button = Button::default().with_text("确定");
-                    panel1.addChild(UiNode::new(button));
-                    let button = Button::default().with_text("确定");
-                    panel1.addChild(UiNode::new(button));
+                //     let button = Button::default().with_text("确定");
+                //     panel1.addChild(UiNode::new(button));
+                //     let button = Button::default().with_text("确定");
+                //     panel1.addChild(UiNode::new(button));
+                //     let button = Button::default().with_text("确定");
+                //     panel1.addChild(UiNode::new(button));
 
-                    let imgFile = RetainedImage::from_image_bytes(
-                        "user.jpg",
-                        include_bytes!("../../assets/user.jpg"),
-                    )
-                    .unwrap();
-                    let mut image = Image::default().with_texture("user.jpg", Some(imgFile));
+                //     let imgFile = RetainedImage::from_image_bytes(
+                //         "user.jpg",
+                //         include_bytes!("../../assets/user.jpg"),
+                //     )
+                //     .unwrap();
+                //     let mut image = Image::default().with_texture("user.jpg", Some(imgFile));
 
-                    panel1.addChild(UiNode::new(image));
+                //     panel1.addChild(UiNode::new(image));
 
-                    panel.addChild(UiNode::new(panel1));
-                }
+                //     panel.addChild(UiNode::new(panel1));
+                // }
                 {
                     let mut panel1 =
                         Panel::new(Widget::default().with_background(Color32::LIGHT_BLUE))
@@ -149,8 +149,29 @@ impl Game {
                     let button = Button::default().with_text("确定");
                     panel1.addChild(UiNode::new(button));
                     let button = Button::default().with_text("确定");
-                    // panel1.addChild(UiNode::new(button));
-                    let textbox = TextBox::new("确定");
+                    panel1.addChild(UiNode::new(button));
+                    panel.addChild(UiNode::new(panel1));
+                }
+
+                {
+                    let mut panel1 =
+                        Panel::new(Widget::default().with_background(Color32::LIGHT_BLUE))
+                            .with_orientation(FlexDirection::Column)
+                            .with_spacing(20.);
+
+                    let createTextbox = |align: Align2| {
+                        TextBox::new(Widget::default().with_height(100.).with_width(100.))
+                            .with_text("确定")
+                            .with_align(align)
+                    };
+
+                    let textbox = createTextbox(Align2::CENTER_TOP);
+                    panel1.addChild(UiNode::new(textbox));
+                    let textbox = createTextbox(Align2::CENTER_CENTER);
+                    panel1.addChild(UiNode::new(textbox));
+                    let textbox = createTextbox(Align2::CENTER_BOTTOM);
+                    panel1.addChild(UiNode::new(textbox));
+                    let textbox = createTextbox(Align2::LEFT_CENTER);
                     panel1.addChild(UiNode::new(textbox));
                     panel.addChild(UiNode::new(panel1));
                 }
@@ -162,9 +183,10 @@ impl Game {
                     include_bytes!("../../assets/user.jpg"),
                 )
                 .unwrap();
-                let mut image = Image::default().with_texture("user.jpg", Some(imgFile));
+                let image = Image::default().with_texture("user.jpg", Some(imgFile));
 
                 canvas.addChild(UiNode::new(image));
+
                 obj.insert(Component::new(transform));
                 obj.insert(Component::new(meshRender));
                 obj.insert(Component::new(materialRender));

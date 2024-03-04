@@ -45,14 +45,28 @@ impl Debug for UiManager {
 
 impl UiManager {
     pub fn new(window: &Window, el: &EventLoop<()>) -> Ref<UiManager> {
-        let egui = EguiBackend::new(window, el);
+        let mut egui = EguiBackend::new(window, el);
+        Self::init(&mut egui);
+        let (sender, receiver) = channel();
 
+        let uiManager = Ref::new(Self {
+            egui,
+            fonts: egui::FontDefinitions::default(),
+            sender: MessageSender::new(sender),
+            receiver,
+        });
+
+        uiManager
+    }
+
+    fn init(egui: &mut EguiBackend) {
         let mut visuals = Visuals::light();
 
         visuals.widgets.hovered.expansion = 0.;
         visuals.widgets.active.expansion = 0.;
 
         egui.egui_ctx.set_visuals(visuals);
+  
         let mut fonts = egui::FontDefinitions::default();
 
         fonts.font_data.insert(
@@ -67,19 +81,7 @@ impl UiManager {
             .insert(1, "OPPOSans".into());
 
         egui.egui_ctx.set_fonts(fonts);
-
-        let (sender, receiver) = channel();
-
-        let uiManager = Ref::new(Self {
-            egui,
-            fonts: egui::FontDefinitions::default(),
-            sender: MessageSender::new(sender),
-            receiver,
-        });
-
-        uiManager
     }
-
     pub fn render(&mut self, window: &Window, canvas: &mut Canvas, debugCanvas: &mut Canvas) {
         let _ = self.egui.run(window, |ctx| {
             egui::CentralPanel::default()

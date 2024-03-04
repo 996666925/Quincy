@@ -1,6 +1,6 @@
 use std::fmt::Debug;
 
-use egui::{text_edit::TextEditState, Color32, Stroke, TextBuffer};
+use egui::{text_edit::TextEditState, Align, Align2, Color32, Stroke, TextBuffer};
 use serde::{Deserialize, Serialize};
 use QcMacros::Control;
 use QcTools::{message::messageSender::MessageSender, utils::r#ref::Ref};
@@ -18,6 +18,8 @@ pub struct TextBox {
     text: String,
     focus: bool,
     widget: Widget,
+    align: Align2,
+    hint_text: String,
 }
 
 impl Debug for TextBox {
@@ -42,7 +44,11 @@ impl UiNodeTrait for TextBox {
 
             let width = self.width;
             let height = self.height;
-            let input = egui::TextEdit::singleline(&mut self.text).text_color(Color32::BLACK);
+            let input = egui::TextEdit::singleline(&mut self.text)
+                .text_color(Color32::BLACK)
+                .vertical_align(self.align.y())
+                .horizontal_align(self.align.x())
+                .hint_text(&self.hint_text);
 
             let result = ui.add_sized([width, height], input);
         });
@@ -50,11 +56,39 @@ impl UiNodeTrait for TextBox {
 }
 
 impl TextBox {
-    pub fn new(text: &str) -> TextBox {
+    pub fn new(widget: Widget) -> TextBox {
         Self {
-            text: text.to_string(),
+            text: String::new(),
+            focus: false,
+            widget,
+            align: Align2::LEFT_TOP,
+            hint_text: String::new(),
+        }
+    }
+
+    pub fn with_text(mut self, text: &str) -> Self {
+        self.text = text.to_string();
+        self
+    }
+
+    pub fn with_align(mut self, align: Align2) -> Self {
+        self.align = align;
+        self
+    }
+    pub fn with_hint_text(mut self, hint_text: &str) -> Self {
+        self.hint_text = hint_text.to_string();
+        self
+    }
+}
+
+impl Default for TextBox {
+    fn default() -> Self {
+        Self {
+            text: String::new(),
             focus: false,
             widget: Widget::default().with_width(100.).with_height(30.),
+            align: Align2::LEFT_TOP,
+            hint_text: String::new(),
         }
     }
 }

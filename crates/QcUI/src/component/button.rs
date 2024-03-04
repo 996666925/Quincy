@@ -1,12 +1,15 @@
-use egui::{Color32, Frame, Key, Margin, RichText, Stroke, Vec2, WidgetText};
+use egui::{Color32, CursorIcon, Frame, Key, Margin, RichText, Stroke, Vec2, WidgetText};
 use enum_variant_eq::{enum_variant_eq_derive::*, *};
 use serde::{Deserialize, Serialize};
 
 use QcMacros::Control;
 use QcTools::{message::messageSender::MessageSender, utils::r#ref::Ref};
-use QcWindowing::{CursorIcon, Window};
+use QcWindowing::Window;
 
-use crate::{core::context::UiContext, message::{UiMessage, UiMessageType}};
+use crate::{
+    core::context::UiContext,
+    message::{UiMessage, UiMessageType},
+};
 
 use super::UiNodeTrait;
 
@@ -64,6 +67,7 @@ impl UiNodeTrait for Button {
                 self.id,
                 UiMessageType::ButtonMessage(ButtonMessage::Hovered),
             ));
+            ctx.ui.ctx().set_cursor_icon(CursorIcon::PointingHand);
         }
 
         if result.clicked() {

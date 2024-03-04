@@ -42,25 +42,30 @@ impl UiNodeTrait for Panel {
         ui.scope(|ui| {
             ui.style_mut().spacing.item_spacing = Vec2::new(self.spacing, self.spacing);
 
-            ui.set_width(self.width);
-            ui.set_height(self.height);
-            match self.orientation {
-                FlexDirection::Column => {
-                    ui.vertical(|ui| {
-                        for (_, node) in self.children.iter_mut() {
-                            node.value.render(&mut UiContext::new(ui, sender));
-                        }
-                    });
-                }
-                FlexDirection::Row => {
-                    ui.horizontal(|ui| {
-                        for (_, node) in self.children.iter_mut() {
-                            node.value.render(&mut UiContext::new(ui, sender));
-                        }
-                    });
-                }
-                _ => {}
+            if self.width != 0.0 && self.height != 0.0 {
+                ui.set_width(self.width);
+                ui.set_height(self.height);
             }
+
+            let res = match self.orientation {
+                FlexDirection::Column => ui.vertical(|ui| {
+                    for (_, node) in self.children.iter_mut() {
+                        node.value.render(&mut UiContext::new(ui, sender));
+                    }
+                }),
+                FlexDirection::Row => ui.horizontal(|ui: &mut Ui| {
+                    for (_, node) in self.children.iter_mut() {
+                        node.value.render(&mut UiContext::new(ui, sender));
+                    }
+                }),
+                _ => {
+                    panic!("只支持Row和Column")
+                }
+            };
+
+            let rect = res.response.rect;
+            self.width = rect.width();
+            self.height = rect.height();
         });
     }
 }

@@ -68,7 +68,7 @@ impl Default for Image {
     fn default() -> Self {
         Self {
             src: String::new(),
-            widget: Default::default(),
+            widget: Widget::default().with_width(100.).with_height(100.),
             texture: None,
         }
     }

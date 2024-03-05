@@ -11,7 +11,34 @@ pub fn comp(input: TokenStream) -> TokenStream {
 
     let expanded = quote! {
 
-        use crate::ecs::component::{ComponentTrait,Named,Updated,V8};
+        use crate::ecs::component::{ComponentTrait,ComponentInnerTrait,Named,Updated,V8};
+        use std::ops::{Deref, DerefMut};
+        impl Deref for #name {
+            type Target = ComponentInner;
+            fn deref(&self) -> &Self::Target {
+                &self.inner
+            }
+        }
+
+        impl DerefMut for #name {
+            fn deref_mut(&mut self) -> &mut Self::Target {
+                &mut self.inner
+            }
+        }
+
+        impl ComponentInnerTrait for #name {
+            fn set_parent(&mut self, parent: Option<thunderdome::Index>) {
+                self.inner.set_parent(parent)
+            }
+
+            fn get_parent(&mut self) -> Option<thunderdome::Index> {
+                self.inner.get_parent()
+            }
+
+            fn is_active(&mut self) -> bool{
+                self.inner.is_active()
+            }
+        }
         #[typetag::serde]
         impl ComponentTrait for #name {
             fn getName(&self) -> &str {
@@ -29,6 +56,7 @@ pub fn comp(input: TokenStream) -> TokenStream {
         impl V8 for #name{
 
         }
+
     };
 
     TokenStream::from(expanded)
@@ -42,7 +70,34 @@ pub fn uiComp(input: TokenStream) -> TokenStream {
 
     let expanded = quote! {
 
-        use QcCore::ecs::component::{ComponentTrait,Named,Updated,V8};
+        use QcCore::ecs::component::{ComponentTrait,ComponentInner,ComponentInnerTrait,Named,Updated,V8};
+        use std::ops::{Deref, DerefMut};
+        impl Deref for #name {
+            type Target = ComponentInner;
+            fn deref(&self) -> &Self::Target {
+                &self.inner
+            }
+        }
+
+        impl DerefMut for #name {
+            fn deref_mut(&mut self) -> &mut Self::Target {
+                &mut self.inner
+            }
+        }
+
+        impl ComponentInnerTrait for #name {
+            fn set_parent(&mut self, parent: Option<thunderdome::Index>) {
+                self.inner.set_parent(parent)
+            }
+
+            fn get_parent(&mut self) -> Option<thunderdome::Index> {
+                self.inner.get_parent()
+            }
+
+            fn is_active(&mut self) -> bool{
+                self.inner.is_active()
+            }
+        }
         #[typetag::serde]
         impl ComponentTrait for #name {
             fn getName(&self) -> &str {
@@ -98,15 +153,15 @@ pub fn uiNode(input: TokenStream) -> TokenStream {
             }
         }
 
-        
+
         impl Deref for #name {
             type Target = Widget;
-                            
+
             fn deref(&self) -> &Self::Target {
                 &self.widget
             }
         }
-        
+
         impl DerefMut for #name {
             fn deref_mut(&mut self) -> &mut Self::Target {
                 &mut self.widget
@@ -127,7 +182,34 @@ pub fn component(input: TokenStream) -> TokenStream {
 
     let expanded = quote! {
 
-        use QcCore::ecs::component::{ComponentTrait,Named};
+        use QcCore::ecs::component::{ComponentTrait,Named,ComponentInner,ComponentInnerTrait};
+        use std::ops::{Deref, DerefMut};
+        impl Deref for #name {
+            type Target = ComponentInner;
+            fn deref(&self) -> &Self::Target {
+                &self.inner
+            }
+        }
+
+        impl DerefMut for #name {
+            fn deref_mut(&mut self) -> &mut Self::Target {
+                &mut self.inner
+            }
+        }
+
+        impl ComponentInnerTrait for #name {
+            fn set_parent(&mut self, parent: Option<thunderdome::Index>) {
+                self.inner.set_parent(parent)
+            }
+
+            fn get_parent(&mut self) -> Option<thunderdome::Index> {
+                self.inner.get_parent()
+            }
+
+            fn is_active(&mut self) -> bool{
+                self.inner.is_active()
+            }
+        }
         #[typetag::serde]
         impl ComponentTrait for #name {
             fn getName(&self) -> &str {
@@ -139,6 +221,7 @@ pub fn component(input: TokenStream) -> TokenStream {
                 #name_str
             }
         }
+
     };
 
     // Hand the output tokens back to the compiler

@@ -13,12 +13,12 @@ use thunderdome::{Arena, Index};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct GameObject {
-    name: String,
-    pool: Arena<Component>,
-    root: Option<Index>,
+    pub name: String,
+    pub pool: Arena<Component>,
+    pub root: Option<Index>,
     pub children: Arena<GameObject>,
-    parent: Option<Index>,
-    active: bool,
+    pub parent: Option<Index>,
+    pub active: bool,
 }
 
 impl Default for GameObject {
@@ -77,8 +77,13 @@ impl GameObject {
         &self.name
     }
 
+    pub fn add_child(&mut self, mut gameobject: GameObject) -> Index {
+        gameobject.parent = self.root;
+        self.children.insert(gameobject)
+    }
+
     pub fn addComponent(&mut self, mut component: Component) -> Index {
-        component.setParent(self.root);
+        component.set_parent(self.root);
         self.pool.insert(component)
     }
 
@@ -135,6 +140,10 @@ impl GameObject {
     pub fn getRoot(&self) -> Option<Index> {
         self.root
     }
+
+    pub fn set_parent(&mut self, index: Index) {
+        self.parent = Some(index);
+    }
 }
 
 #[cfg(test)]
@@ -145,18 +154,23 @@ mod test {
     use thunderdome::{Arena, Index};
     use QcMacros::Comp;
 
-    use crate::ecs::{component::Component, components::camera::Camera};
+    use crate::ecs::{
+        component::{Component, ComponentInner},
+        components::camera::Camera,
+    };
 
     use super::GameObject;
     use serde::{Deserialize, Serialize};
 
-    #[derive(Debug, Comp, Clone, Serialize, Deserialize)]
-    struct Example;
+    #[derive(Debug, Comp, Clone, Serialize, Deserialize, Default)]
+    struct Example {
+        inner: ComponentInner,
+    }
 
     #[test]
     fn addComp() {
         let mut obj = GameObject::default();
-        obj.addComponent(Component::new(Example));
+        obj.addComponent(Component::new(Example::default()));
         let example = obj.getComponent::<Example>();
 
         println!("{:#?}", example);
@@ -165,8 +179,9 @@ mod test {
     #[typetag::serde(tag = "type")]
     trait Comp: Debug {}
 
-    #[derive(Debug, Clone, Serialize, Deserialize)]
+    #[derive(Debug, Clone, Serialize, Deserialize, Default)]
     struct Example2 {
+        inner: ComponentInner,
         value: i32,
     }
     #[typetag::serde]
@@ -179,7 +194,7 @@ mod test {
     #[test]
     fn serde() {
         let mut obj = GameObject::default();
-        obj.addComponent(Component::new(Example));
+        obj.addComponent(Component::new(Example::default()));
         let str = ron::to_string(&obj).unwrap();
         println!("{:#?}", str);
         let ex: GameObject = ron::from_str(&str).unwrap();

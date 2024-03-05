@@ -1,15 +1,19 @@
 use std::{mem::size_of, sync::Arc};
 
-
 use log::info;
-use nalgebra::{Matrix, Matrix4, Point3, Rotation3, Vector3, UnitQuaternion};
+use nalgebra::{Matrix, Matrix4, Point3, Rotation3, UnitQuaternion, Vector3};
 use serde::{Deserialize, Serialize};
 use QcMacros::Comp;
 use QcRender::buffers::UniformBuffer;
 use QcTools::utils::r#ref::Ref;
 
+use crate::ecs::component::ComponentInner;
+
+
+
 #[derive(Debug, Comp, Clone, Copy, Serialize, Deserialize)]
 pub struct Camera {
+    inner: ComponentInner,
     fov: f32,
     near: f32,
     far: f32,
@@ -42,13 +46,19 @@ impl Camera {
         ubo.setSubData(size_of::<Matrix4<f32>>() * 2, self.projMatrix.as_slice());
     }
 
-    pub fn cacheMatrices(&mut self, position: &Point3<f32>, rotation: &UnitQuaternion<f32>) {
+    pub fn cacheMatrices(
+        &mut self,
+        width: u32,
+        height: u32,
+        position: &Point3<f32>,
+        rotation: &UnitQuaternion<f32>,
+    ) {
         self.viewMatrix = self.calculateViewMatrix(position, rotation);
-        self.projMatrix = self.calculateProjMatrix();
+        self.projMatrix = self.calculateProjMatrix(width, height);
         self.viewProjMatrix = self.projMatrix * self.viewMatrix;
     }
 
-    fn calculateProjMatrix(&self) -> Matrix4<f32> {
+    fn calculateProjMatrix(&self, width: u32, height: u32) -> Matrix4<f32> {
         Matrix4::new_perspective(self.aspect, self.fov, self.near, self.far)
     }
 
@@ -66,6 +76,7 @@ impl Camera {
 
     pub fn new() -> Self {
         Self {
+            inner: ComponentInner::default(),
             fov: 45.,
             near: 0.1,
             far: 1000.,
@@ -91,6 +102,6 @@ mod test {
     pub fn deser() {
         let str = "(fov:45.0,near:0.1,far:1000.0,aspect:1.3333334,viewMatrix:(0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0),projMatrix:(0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0),viewProjMatrix:(0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0))";
         let camera: Camera = ron::from_str(str).unwrap();
-        println!("{:?}",camera);
+        println!("{:?}", camera);
     }
 }

@@ -72,7 +72,7 @@ impl Renderer {
                                     material = defaultMaterial;
                                 }
                                 drawables.push(Drawable::new(
-                                    transform.getModelMatrix(),
+                                    transform.get_local_matrix(),
                                     mesh.clone(),
                                     material.clone(),
                                 ));
@@ -82,7 +82,7 @@ impl Renderer {
                         for model in meshRender.getModels() {
                             for mesh in model.meshes() {
                                 drawables.push(Drawable::new(
-                                    transform.getModelMatrix(),
+                                    transform.get_local_matrix(),
                                     mesh.clone(),
                                     defaultMaterial.clone(),
                                 ));

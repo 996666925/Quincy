@@ -61,8 +61,17 @@ pub trait BaseComponentTrait: Any + Debug {
 }
 
 #[typetag::serde(tag = "type")]
-pub trait ComponentTrait: BaseComponentTrait + Updated + V8 {
+pub trait ComponentTrait: BaseComponentTrait + Updated + V8 + ComponentInnerTrait {
     fn getName(&self) -> &str;
+
+}
+
+pub trait ComponentInnerTrait {
+    fn set_parent(&mut self, parent: Option<Index>);
+
+    fn get_parent(&mut self) -> Option<Index>;
+
+    fn is_active(&mut self) -> bool;
 }
 
 impl<T> BaseComponentTrait for T
@@ -77,11 +86,30 @@ where
     }
 }
 
+#[derive(Debug, Clone, Copy, Serialize, Deserialize, Default)]
+pub struct ComponentInner {
+    //父对象的index
+    pub parent: Option<Index>,
+    pub active: bool,
+}
+
+impl ComponentInnerTrait for ComponentInner {
+    fn set_parent(&mut self, parent: Option<Index>) {
+        self.parent = parent;
+    }
+
+    fn get_parent(&mut self) -> Option<Index> {
+        self.parent
+    }
+
+    fn is_active(&mut self) -> bool {
+        self.active
+    }
+}
+
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Component {
-    value: Box<dyn ComponentTrait>,
-    //父对象的index
-    parent: Option<Index>,
+    pub value: Box<dyn ComponentTrait>,
 }
 
 // impl Serialize for Component {
@@ -104,7 +132,6 @@ impl Component {
     pub fn new(comp: impl ComponentTrait) -> Self {
         Self {
             value: Box::new(comp),
-            parent: None,
         }
     }
 
@@ -113,14 +140,6 @@ impl Component {
     }
     pub fn castMut<T: ComponentTrait>(&mut self) -> Option<&mut T> {
         self.value.asAnyMut().downcast_mut::<T>()
-    }
-
-    pub fn getParent(&self) -> Option<Index> {
-        self.parent
-    }
-
-    pub fn setParent(&mut self, parent: Option<Index>) {
-        self.parent = parent;
     }
 
     pub fn getValue(&self) -> &Box<dyn ComponentTrait> {

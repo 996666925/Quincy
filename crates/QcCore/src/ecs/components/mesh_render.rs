@@ -2,14 +2,20 @@ use serde::{Deserialize, Serialize};
 use QcMacros::Comp;
 use QcRender::resources::Model;
 
+use crate::ecs::component::ComponentInner;
+
 #[derive(Debug, Comp, Clone, Serialize, Deserialize)]
 pub struct MeshRender {
+    inner: ComponentInner,
     models: Vec<Model>,
 }
 
 impl MeshRender {
     pub fn new() -> Self {
-        Self { models: vec![] }
+        Self {
+            inner: ComponentInner::default(),
+            models: vec![],
+        }
     }
 
     pub fn addModel(&mut self, model: Model) {

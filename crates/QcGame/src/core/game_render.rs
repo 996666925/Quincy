@@ -25,7 +25,8 @@ impl GameRender {
 
     pub fn renderScene(&self) {
         let mut sceneManager = self.context.sceneManager.try_write().unwrap();
-
+        let mut window = self.context.window.try_read().unwrap();
+        let size = window.inner_size().to_logical::<u32>(window.scale_factor());
         sceneManager
             .getCurrentSceneMut()
             .as_mut()
@@ -40,7 +41,7 @@ impl GameRender {
 
                     let position = transform.position();
                     let rotation = transform.rotation();
-                    camera.cacheMatrices(&position, &rotation);
+                    camera.cacheMatrices(size.width, size.height, &position, &rotation);
                     camera.updateUBO(self.context.engineUBO.clone());
                 });
 

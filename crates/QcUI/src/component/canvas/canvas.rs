@@ -1,12 +1,15 @@
 use egui::Ui;
 use serde::{Deserialize, Serialize};
-use uuid::Uuid;
 use std::{
     collections::HashMap,
-    ops::{Deref, DerefMut, Index as IndexOps, IndexMut},
+    ops::{Index as IndexOps, IndexMut},
 };
-use thunderdome::{Arena, Index};
-use QcMacros::UiComp;
+use thunderdome::{
+    iter::{Iter, IterMut},
+    Arena, Index,
+};
+use uuid::Uuid;
+use QcMacros::{Component, UiComp};
 
 use crate::{core::uiBind::UiBind, message::UiMessageType};
 
@@ -14,23 +17,24 @@ use super::UiNode;
 
 #[derive(Debug, UiComp, Deserialize, Serialize)]
 pub struct Canvas {
+    inner: ComponentInner,
     pub pool: Arena<UiNode>,
     pub uiBindList: HashMap<Uuid, Vec<UiBind>>,
 }
 
-impl Deref for Canvas {
-    type Target = Arena<UiNode>;
+// impl Deref for Canvas {
+//     type Target = Arena<UiNode>;
 
-    fn deref(&self) -> &Self::Target {
-        &self.pool
-    }
-}
+//     fn deref(&self) -> &Self::Target {
+//         &self.pool
+//     }
+// }
 
-impl DerefMut for Canvas {
-    fn deref_mut(&mut self) -> &mut Self::Target {
-        &mut self.pool
-    }
-}
+// impl DerefMut for Canvas {
+//     fn deref_mut(&mut self) -> &mut Self::Target {
+//         &mut self.pool
+//     }
+// }
 
 impl IndexOps<Index> for Canvas {
     type Output = UiNode;
@@ -48,6 +52,7 @@ impl IndexMut<Index> for Canvas {
 impl Canvas {
     pub fn new() -> Self {
         Canvas {
+            inner: ComponentInner::default(),
             pool: Default::default(),
             uiBindList: Default::default(),
         }
@@ -61,7 +66,6 @@ impl Canvas {
     }
 
     pub fn getUiBind(&mut self, comp: Uuid) -> Option<&Vec<UiBind>> {
-
         self.uiBindList.get(&comp)
     }
 
@@ -73,5 +77,13 @@ impl Canvas {
 
     pub fn removeChild(&mut self, node: Index) -> Option<UiNode> {
         self.pool.remove(node)
+    }
+
+    pub fn iter(&self) -> Iter<'_, UiNode> {
+        self.pool.iter()
+    }
+
+    pub fn iter_mut(&mut self) -> IterMut<'_, UiNode> {
+        self.pool.iter_mut()
     }
 }

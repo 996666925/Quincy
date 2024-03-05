@@ -9,6 +9,7 @@ use QcMacros::Component;
 
 #[derive(Deserialize, Component)]
 pub struct JsComponent {
+    inner: ComponentInner,
     name: String,
     jsValue: Option<serde_v8::Global>,
 }
@@ -28,6 +29,7 @@ impl Serialize for JsComponent {
 impl JsComponent {
     pub fn new(name: &str, jsValue: Option<serde_v8::Global>) -> Self {
         Self {
+            inner: ComponentInner::default(),
             name: name.to_string(),
             jsValue,
         }

@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize};
 use std::cell::Cell;
 use std::ops::{Deref, DerefMut};
 use std::sync::Arc;
-use thunderdome::Index;
+use thunderdome::{Arena, Index};
 use QcRender::resources::{Mesh, Texture, UniformInfo};
 
 use crate::ecs::components::material_render::MaterialRender;
@@ -13,7 +13,10 @@ use crate::resources::ResourceManager;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Scene {
+    //场景内的所有对象
     graph: Graph,
+    //根节点下的对象
+    children: Arena<Index>,
     camera: Cell<Option<Index>>,
     canvas: Cell<Option<Index>>,
     html: Cell<Option<Index>>,
@@ -37,6 +40,7 @@ impl Scene {
     pub fn new() -> Self {
         Self {
             graph: Graph::default(),
+            children: Default::default(),
             camera: Cell::new(None),
             canvas: Cell::new(None),
             html: Cell::new(None),
@@ -134,11 +138,18 @@ impl Scene {
         scene
     }
 
-    pub fn addChild(&mut self, go: GameObject) -> Index {
+    pub fn add_child(&mut self, go: GameObject) -> Index {
         let index = self.insert(go);
         self[index].setRoot(index);
         index
     }
+
+    pub fn add_child_with_parent(&mut self, obj: GameObject, parent: Index) {
+        let index = self.insert(obj);
+        self[index].setRoot(index);
+        self[index].set_parent(parent);
+    }
+
     pub fn getGameObject(&self, name: &str) -> Option<Index> {
         self.iter()
             .find(|(_, go)| go.getName() == name)

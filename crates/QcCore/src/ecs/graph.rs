@@ -51,6 +51,7 @@ impl Graph {
         self.pool.insert(obj);
     }
 
+
     fn getComponentByName(&self, name: &str) -> Option<&GameObject> {
         self.pool
             .iter()

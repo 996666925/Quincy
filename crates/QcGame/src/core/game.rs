@@ -76,9 +76,13 @@ impl Game {
                 let mut transform = Transform::new(Point3::new(0., 0., -3.));
                 transform.setRotation(Vector3::new(0., 45f32.to_radians(), 0.));
 
+
+                let parent = GameObject::default();
+                // parent.addComponent(component)
+
                 let obj = GameObject::default();
 
-                let objId = currentScene.insert(obj);
+                let objId = currentScene.add_child(obj);
 
                 let obj = &mut currentScene[objId];
 
@@ -95,119 +99,121 @@ impl Game {
                 material.addTexture(texture);
                 materialRender.addMaterial(material);
 
-                let mut canvas = Canvas::new();
-
-                let mut panel = Panel::new(
-                    Widget::default()
-                        .with_background(Color32::YELLOW)
-                        .with_margin(Margin::symmetric(100., 100.))
-                        .with_width(400.)
-                        .with_height(400.),
-                )
-                .with_orientation(FlexDirection::Row)
-                .with_spacing(100.);
 
                 {
-                    let mut panel1: Panel = Panel::new(
+                    let mut canvas = Canvas::new();
+
+                    let mut panel = Panel::new(
                         Widget::default()
-                            .with_background(Color32::BLACK)
-                            .with_padding(Margin::same(10.)),
+                            .with_background(Color32::YELLOW)
+                            .with_margin(Margin::symmetric(100., 100.))
+                            .with_width(400.)
+                            .with_height(400.),
                     )
-                    // .with_orientation(FlexDirection::Column)
-                    .with_spacing(20.);
-                    let button = Button::default().with_text("OnClick");
-                    let index = button.uuid;
-                    panel1.addChild(UiNode::new(button));
+                    .with_orientation(FlexDirection::Row)
+                    .with_spacing(100.);
 
-                    let cube = JsComponent::new("Cube", None);
-                    let compId = obj.insert(Component::new(cube));
-                    canvas.addUiBind(
-                        index,
-                        UiBind::new(
-                            objId,
-                            compId,
-                            "onClick".to_string(),
-                            UiMessageType::ButtonMessage(ButtonMessage::Clicked),
-                        ),
-                    );
+                    {
+                        let mut panel1: Panel = Panel::new(
+                            Widget::default()
+                                .with_background(Color32::BLACK)
+                                .with_padding(Margin::same(10.)),
+                        )
+                        // .with_orientation(FlexDirection::Column)
+                        .with_spacing(20.);
+                        let button = Button::default().with_text("OnClick");
+                        let index = button.uuid;
+                        panel1.addChild(UiNode::new(button));
 
-                    let button = Button::default().with_text("确定");
-                    panel1.addChild(UiNode::new(button));
-                    let button = Button::default().with_text("确定");
-                    panel1.addChild(UiNode::new(button));
-                    let button = Button::default().with_text("确定");
-                    panel1.addChild(UiNode::new(button));
+                        let cube = JsComponent::new("Cube", None);
+                        let compId = obj.insert(Component::new(cube));
+                        // canvas.addUiBind(
+                        //     index,
+                        //     UiBind::new(
+                        //         objId,
+                        //         compId,
+                        //         "onClick".to_string(),
+                        //         UiMessageType::ButtonMessage(ButtonMessage::Clicked),
+                        //     ),
+                        // );
 
-                    //     let imgFile = RetainedImage::from_image_bytes(
-                    //         "user.jpg",
-                    //         include_bytes!("../../assets/user.jpg"),
-                    //     )
-                    //     .unwrap();
-                    //     let mut image = Image::default().with_texture("user.jpg", Some(imgFile));
+                        let button = Button::default().with_text("确定");
+                        panel1.addChild(UiNode::new(button));
+                        let button = Button::default().with_text("确定");
+                        panel1.addChild(UiNode::new(button));
+                        let button = Button::default().with_text("确定");
+                        panel1.addChild(UiNode::new(button));
 
-                    //     panel1.addChild(UiNode::new(image));
+                        //     let imgFile = RetainedImage::from_image_bytes(
+                        //         "user.jpg",
+                        //         include_bytes!("../../assets/user.jpg"),
+                        //     )
+                        //     .unwrap();
+                        //     let mut image = Image::default().with_texture("user.jpg", Some(imgFile));
 
-                    panel.addChild(UiNode::new(panel1));
+                        //     panel1.addChild(UiNode::new(image));
+
+                        panel.addChild(UiNode::new(panel1));
+                    }
+                    {
+                        let mut panel1 =
+                            Panel::new(Widget::default().with_background(Color32::LIGHT_BLUE))
+                                .with_orientation(FlexDirection::Column)
+                                .with_spacing(20.);
+                        let button = Button::default().with_text("确定");
+                        panel1.addChild(UiNode::new(button));
+                        let button = Button::default().with_text("确定");
+                        panel1.addChild(UiNode::new(button));
+                        let button = Button::default().with_text("确定");
+                        panel1.addChild(UiNode::new(button));
+                        let button = Button::default().with_text("确定");
+                        panel1.addChild(UiNode::new(button));
+                        panel.addChild(UiNode::new(panel1));
+                    }
+
+                    {
+                        let mut panel1 =
+                            Panel::new(Widget::default().with_background(Color32::LIGHT_RED))
+                                .with_orientation(FlexDirection::Column)
+                                .with_spacing(20.);
+
+                        let createTextbox = |align: Align2| {
+                            TextBox::new(Widget::default().with_height(100.).with_width(100.))
+                                .with_text("确定")
+                                .with_align(align)
+                        };
+
+                        let textbox = createTextbox(Align2::LEFT_TOP);
+                        panel1.addChild(UiNode::new(textbox));
+                        let textbox = createTextbox(Align2::LEFT_CENTER);
+                        panel1.addChild(UiNode::new(textbox));
+                        let textbox = createTextbox(Align2::LEFT_BOTTOM);
+                        panel1.addChild(UiNode::new(textbox));
+                        let textbox = createTextbox(Align2::CENTER_TOP);
+                        panel1.addChild(UiNode::new(textbox));
+                        panel.addChild(UiNode::new(panel1));
+                    }
+
+                    canvas.addChild(UiNode::new(panel));
+
+                    // let imgFile = RetainedImage::from_image_bytes(
+                    //     "user.jpg",
+                    //     include_bytes!("../../assets/user.jpg"),
+                    // )
+                    // .unwrap();
+
+                    let image = context.resourceManager.get("user.jpg").unwrap();
+                    let img = RetainedImage::load_texture(&image);
+                    let image = Image::default().with_texture(img);
+
+                    canvas.addChild(UiNode::new(image));
+                    // obj.insert(Component::new(canvas));
                 }
-                {
-                    let mut panel1 =
-                        Panel::new(Widget::default().with_background(Color32::LIGHT_BLUE))
-                            .with_orientation(FlexDirection::Column)
-                            .with_spacing(20.);
-                    let button = Button::default().with_text("确定");
-                    panel1.addChild(UiNode::new(button));
-                    let button = Button::default().with_text("确定");
-                    panel1.addChild(UiNode::new(button));
-                    let button = Button::default().with_text("确定");
-                    panel1.addChild(UiNode::new(button));
-                    let button = Button::default().with_text("确定");
-                    panel1.addChild(UiNode::new(button));
-                    panel.addChild(UiNode::new(panel1));
-                }
-
-                {
-                    let mut panel1 =
-                        Panel::new(Widget::default().with_background(Color32::LIGHT_RED))
-                            .with_orientation(FlexDirection::Column)
-                            .with_spacing(20.);
-
-                    let createTextbox = |align: Align2| {
-                        TextBox::new(Widget::default().with_height(100.).with_width(100.))
-                            .with_text("确定")
-                            .with_align(align)
-                    };
-
-                    let textbox = createTextbox(Align2::LEFT_TOP);
-                    panel1.addChild(UiNode::new(textbox));
-                    let textbox = createTextbox(Align2::LEFT_CENTER);
-                    panel1.addChild(UiNode::new(textbox));
-                    let textbox = createTextbox(Align2::LEFT_BOTTOM);
-                    panel1.addChild(UiNode::new(textbox));
-                    let textbox = createTextbox(Align2::CENTER_TOP);
-                    panel1.addChild(UiNode::new(textbox));
-                    panel.addChild(UiNode::new(panel1));
-                }
-
-                canvas.addChild(UiNode::new(panel));
-
-                // let imgFile = RetainedImage::from_image_bytes(
-                //     "user.jpg",
-                //     include_bytes!("../../assets/user.jpg"),
-                // )
-                // .unwrap();
-
-                let image = context.resourceManager.get("user.jpg").unwrap();
-                let img = RetainedImage::load_texture(&image);
-                let image = Image::default().with_texture(img);
-
-                canvas.addChild(UiNode::new(image));
-
                 obj.insert(Component::new(transform));
                 obj.insert(Component::new(meshRender));
                 obj.insert(Component::new(materialRender));
 
                 // obj.insert(Component::new(cube));
-                obj.insert(Component::new(canvas));
 
                 // println!("{}", currentScene.save());
             }

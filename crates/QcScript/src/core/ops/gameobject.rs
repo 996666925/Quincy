@@ -57,7 +57,7 @@ pub fn op_createGameObject<'a>(
     let scene = state.borrow_mut::<*mut Scene>();
     let scene = unsafe { &mut **scene };
     let go = GameObject::new(name);
-    let index = scene.addChild(go);
+    let index = scene.add_child(go);
     let go = GO {
         name: name.to_string(),
     };

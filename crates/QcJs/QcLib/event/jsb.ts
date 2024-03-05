@@ -18,7 +18,7 @@ globalThis.__POST_MESSAGE__ = (type: MessageType, data: any, ...args) => {
         case MessageType.KEYBOARD:
             {
                 let keyboard = data as VirtualKeyBoard;
-                input.emit((type + keyboard.state) as InputEvent, new KeyBoardEventArgs(data.virtual_keycode));
+                input.emit((type + keyboard.state) as InputEvent, new KeyBoardEventArgs(data.key));
                 break;
             }
         case MessageType.MOUSE:

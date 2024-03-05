@@ -38,7 +38,7 @@ impl UiNodeTrait for Panel {
         let UiContext { ui, sender } = ctx;
         ui.scope(|ui| {
             ui.style_mut().spacing.item_spacing = Vec2::new(self.spacing, self.spacing);
-
+    
             if self.width != 0.0 && self.height != 0.0 {
                 ui.set_width(self.width);
                 ui.set_height(self.height);
@@ -50,7 +50,7 @@ impl UiNodeTrait for Panel {
                         node.value.render(&mut UiContext::new(ui, sender));
                     }
                 }),
-                FlexDirection::Row => ui.horizontal(|ui: &mut Ui| {
+                FlexDirection::Row => ui.horizontal_top(|ui: &mut Ui| {
                     for (_, node) in self.children.iter_mut() {
                         node.value.render(&mut UiContext::new(ui, sender));
                     }

@@ -61,6 +61,7 @@ impl InputManager {
             false
         }
     }
+    
     pub fn isKeyReleased(&self, key: KeyCode) -> bool {
         if let Some(state) = self.map.get(&key) {
             *state == ElementState::Released
@@ -68,6 +69,7 @@ impl InputManager {
             false
         }
     }
+
     pub fn lateUpdate(&mut self) {
         self.map.clear();
     }

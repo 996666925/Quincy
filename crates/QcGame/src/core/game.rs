@@ -31,7 +31,9 @@ use QcRender::{
 use QcScript::{core::JsComponent, utils::GoExt, v8};
 use QcTools::time::clock::Clock;
 use QcUI::{
-    component::{Button, ButtonMessage, Canvas, Image, ImageLoader, Label, Panel, TextBox, UiNode, Widget},
+    component::{
+        Button, ButtonMessage, Canvas, Image, ImageLoader, Label, Panel, TextBox, UiNode, Widget,
+    },
     core::uiBind::UiBind,
     egui,
     message::UiMessageType,
@@ -105,39 +107,48 @@ impl Game {
                 .with_orientation(FlexDirection::Row)
                 .with_spacing(100.);
 
-                // {
-                //     let mut panel1: Panel = Panel::default().with_spacing(20.);
-                //     let button = Button::default().with_text("确定");
-                //     let index = panel1.addChild(UiNode::new(button));
+                {
+                    let mut panel1: Panel = Panel::new(
+                        Widget::default()
+                            .with_background(Color32::BLACK)
+                            .with_padding(Margin::same(10.)),
+                    )
+                    // .with_orientation(FlexDirection::Column)
+                    .with_spacing(20.);
+                    let button = Button::default().with_text("OnClick");
+                    let index = button.uuid;
+                    panel1.addChild(UiNode::new(button));
 
-                //     // canvas.addUiBind(
-                //     //     index,
-                //     //     UiBind::new(
-                //     //         objId,
-                //     //         compId,
-                //     //         "onClick".to_string(),
-                //     //         UiMessageType::ButtonMessage(ButtonMessage::Clicked),
-                //     //     ),
-                //     // );
+                    let cube = JsComponent::new("Cube", None);
+                    let compId = obj.insert(Component::new(cube));
+                    canvas.addUiBind(
+                        index,
+                        UiBind::new(
+                            objId,
+                            compId,
+                            "onClick".to_string(),
+                            UiMessageType::ButtonMessage(ButtonMessage::Clicked),
+                        ),
+                    );
 
-                //     let button = Button::default().with_text("确定");
-                //     panel1.addChild(UiNode::new(button));
-                //     let button = Button::default().with_text("确定");
-                //     panel1.addChild(UiNode::new(button));
-                //     let button = Button::default().with_text("确定");
-                //     panel1.addChild(UiNode::new(button));
+                    let button = Button::default().with_text("确定");
+                    panel1.addChild(UiNode::new(button));
+                    let button = Button::default().with_text("确定");
+                    panel1.addChild(UiNode::new(button));
+                    let button = Button::default().with_text("确定");
+                    panel1.addChild(UiNode::new(button));
 
-                //     let imgFile = RetainedImage::from_image_bytes(
-                //         "user.jpg",
-                //         include_bytes!("../../assets/user.jpg"),
-                //     )
-                //     .unwrap();
-                //     let mut image = Image::default().with_texture("user.jpg", Some(imgFile));
+                    //     let imgFile = RetainedImage::from_image_bytes(
+                    //         "user.jpg",
+                    //         include_bytes!("../../assets/user.jpg"),
+                    //     )
+                    //     .unwrap();
+                    //     let mut image = Image::default().with_texture("user.jpg", Some(imgFile));
 
-                //     panel1.addChild(UiNode::new(image));
+                    //     panel1.addChild(UiNode::new(image));
 
-                //     panel.addChild(UiNode::new(panel1));
-                // }
+                    panel.addChild(UiNode::new(panel1));
+                }
                 {
                     let mut panel1 =
                         Panel::new(Widget::default().with_background(Color32::LIGHT_BLUE))
@@ -186,7 +197,7 @@ impl Game {
                 // .unwrap();
 
                 let image = context.resourceManager.get("user.jpg").unwrap();
-                let img =  RetainedImage::load_texture(&image);
+                let img = RetainedImage::load_texture(&image);
                 let image = Image::default().with_texture(img);
 
                 canvas.addChild(UiNode::new(image));
@@ -195,8 +206,6 @@ impl Game {
                 obj.insert(Component::new(meshRender));
                 obj.insert(Component::new(materialRender));
 
-                let cube = JsComponent::new("Cube", None);
-                obj.insert(Component::new(cube));
                 // obj.insert(Component::new(cube));
                 obj.insert(Component::new(canvas));
 

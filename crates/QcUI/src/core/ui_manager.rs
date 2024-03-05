@@ -12,7 +12,7 @@ use deno_core::{
     serde_v8,
     v8::{self, HandleScope},
 };
-use egui::{Color32, FontId, Frame, TextStyle, Visuals, Widget};
+use egui::{Color32, FontId, Frame, TextStyle, Vec2, Visuals, Widget};
 use egui_glutin_gl::{EguiBackend, EventResponse};
 
 use enum_variant_eq::EnumVariantEq;
@@ -66,7 +66,10 @@ impl UiManager {
         visuals.widgets.active.expansion = 0.;
 
         egui.egui_ctx.set_visuals(visuals);
-
+        egui.egui_ctx.style_mut(|style| {
+            style.spacing.button_padding = Vec2::ZERO;
+            style.spacing.item_spacing = Vec2::ZERO;
+        });
         let mut fonts = egui::FontDefinitions::default();
 
         fonts.font_data.insert(

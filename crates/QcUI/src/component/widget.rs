@@ -1,9 +1,11 @@
 use egui::{Color32, Margin};
-use serde::{Deserialize, Serialize};
+use serde::{Deserialize, Deserializer, Serialize};
 use thunderdome::Index;
+use uuid::Uuid;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Widget {
+    pub uuid: Uuid,
     pub id: Index,
     pub name: String,
     pub width: f32,
@@ -24,6 +26,7 @@ pub struct Widget {
 impl Default for Widget {
     fn default() -> Self {
         Self {
+            uuid: Uuid::new_v4(),
             id: Index::DANGLING,
             name: "Widget".to_string(),
             width: 0.0,

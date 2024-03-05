@@ -19,6 +19,13 @@ taffy = { version = "0.3.18", features = ["serde"] }
 thunderdome = { path = "../../../thunderdome" }
 
 
+uuid = { version = "1.7.0", features = [
+    "v4",
+    "fast-rng",
+    "macro-diagnostics",
+    "borsh",
+    "serde"
+] }
 deno_core = { git = "https://github.com/996666925/deno_core" }
 enum_variant_eq = "0.1.0"
 egui_extras = { version = "0.26.2", features = ["image"] }

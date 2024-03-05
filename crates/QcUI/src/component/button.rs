@@ -42,10 +42,10 @@ impl UiNodeTrait for Button {
 
     fn renderInner(&mut self, ctx: &mut UiContext) {
         let text = RichText::new(&self.text).size(self.font_size);
-
+      
         let color = if self.isClick {
             ctx.sender.sendMessage(UiMessage(
-                self.id,
+                self.uuid,
                 UiMessageType::ButtonMessage(ButtonMessage::Pressed),
             ));
             self.clickColor
@@ -54,7 +54,6 @@ impl UiNodeTrait for Button {
         } else {
             self.background
         };
-
         let button = egui::Button::new(text)
             .fill(color)
             .stroke(Stroke::new(0.5, Color32::BLACK));
@@ -64,7 +63,7 @@ impl UiNodeTrait for Button {
 
         if result.hovered() {
             ctx.sender.sendMessage(UiMessage(
-                self.id,
+                self.uuid,
                 UiMessageType::ButtonMessage(ButtonMessage::Hovered),
             ));
             ctx.ui.ctx().set_cursor_icon(CursorIcon::PointingHand);
@@ -72,7 +71,7 @@ impl UiNodeTrait for Button {
 
         if result.clicked() {
             ctx.sender.sendMessage(UiMessage(
-                self.id,
+                self.uuid,
                 UiMessageType::ButtonMessage(ButtonMessage::Clicked),
             ));
         }

@@ -2,6 +2,7 @@ use enum_variant_eq::{enum_variant_eq_derive::*, *};
 
 use serde::{Deserialize, Serialize};
 use thunderdome::Index;
+use uuid::Uuid;
 
 use crate::component::ButtonMessage;
 
@@ -10,7 +11,7 @@ use self::ime::ImeMessage;
 pub mod ime;
 
 #[derive(Debug, Serialize)]
-pub struct UiMessage(pub Index, pub UiMessageType);
+pub struct UiMessage(pub Uuid, pub UiMessageType);
 
 
 
@@ -20,6 +21,7 @@ pub enum UiMessageType {
     ButtonMessage(ButtonMessage),
     ImeMessage(ImeMessage),
 }
+
 
 impl PartialEq for UiMessageType {
     fn eq(&self, other: &Self) -> bool {

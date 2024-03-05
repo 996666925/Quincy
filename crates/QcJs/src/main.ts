@@ -21,7 +21,7 @@ class Cube extends Component {
   camera:GameObject
   onStart() {
     this.camera=this.getGameObject("Camera");
-    // input.on(InputEvent.KEY_DOWN, this.onKeyDown, this);
+    input.on(InputEvent.KEY_DOWN, this.onKeyDown, this);
     // input.on(InputEvent.MOUSE_MOVE, this.onMouseMove, this);
   }
 
@@ -50,17 +50,17 @@ class Cube extends Component {
 
 
   onKeyDown(args: KeyBoardEventArgs) {
-
+    print(args)
     print(`你按下了${args.key}键`)
-    if (args.key == Keys.D) {
+    if (args.key == Keys.KeyD) {
       this.camera.transform.translate(new Vector3(this.speed, 0, 0))
-    } else if (args.key == Keys.A) {
+    } else if (args.key == Keys.KeyA) {
       this.camera.transform.translate(new Vector3(-this.speed, 0, 0))
     }
 
-    if (args.key == Keys.W) {
+    if (args.key == Keys.KeyW) {
       this.camera.transform.translate(new Vector3(0, 0, -this.speed))
-    } else if (args.key == Keys.S) {
+    } else if (args.key == Keys.KeyS) {
       this.camera.transform.translate(new Vector3(0, 0, this.speed))
     }
 
@@ -68,8 +68,8 @@ class Cube extends Component {
 
   onUpdate(dt: number) {
    
-    this.speed += dt;
-    this.node.transform.setRotation(new Vector3(0,this.speed,0))
+    // this.speed += dt;
+    // this.node.transform.setRotation(new Vector3(0,this.speed,0))
   }
 
 

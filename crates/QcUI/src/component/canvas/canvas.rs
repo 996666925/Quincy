@@ -1,5 +1,6 @@
 use egui::Ui;
 use serde::{Deserialize, Serialize};
+use uuid::Uuid;
 use std::{
     collections::HashMap,
     ops::{Deref, DerefMut, Index as IndexOps, IndexMut},
@@ -14,7 +15,7 @@ use super::UiNode;
 #[derive(Debug, UiComp, Deserialize, Serialize)]
 pub struct Canvas {
     pub pool: Arena<UiNode>,
-    pub uiBindList: HashMap<Index, Vec<UiBind>>,
+    pub uiBindList: HashMap<Uuid, Vec<UiBind>>,
 }
 
 impl Deref for Canvas {
@@ -52,14 +53,14 @@ impl Canvas {
         }
     }
 
-    pub fn addUiBind(&mut self, comp: Index, bind: UiBind) {
+    pub fn addUiBind(&mut self, comp: Uuid, bind: UiBind) {
         self.uiBindList
             .entry(comp)
             .and_modify(|vec| vec.push(bind.clone()))
             .or_insert(vec![bind.clone()]);
     }
 
-    pub fn getUiBind(&mut self, comp: Index) -> Option<&Vec<UiBind>> {
+    pub fn getUiBind(&mut self, comp: Uuid) -> Option<&Vec<UiBind>> {
 
         self.uiBindList.get(&comp)
     }

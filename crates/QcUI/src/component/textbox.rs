@@ -13,7 +13,7 @@ use crate::{
 
 use super::{Component, UiNodeTrait};
 
-#[derive(Control, Serialize, Deserialize)]
+#[derive(Control, Serialize, Deserialize, Debug)]
 pub struct TextBox {
     text: String,
     focus: bool,
@@ -21,12 +21,6 @@ pub struct TextBox {
     align: Align2,
     hint_text: String,
     multiline: bool,
-}
-
-impl Debug for TextBox {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("TextBox").field("text", &self.text).finish()
-    }
 }
 
 #[typetag::serde]
@@ -45,12 +39,17 @@ impl UiNodeTrait for TextBox {
 
             let width = self.width;
             let height = self.height;
-            let input = egui::TextEdit::multiline(&mut self.text)
-                .text_color(Color32::BLACK)
-                .horizontal_align(self.align.x())
-                .vertical_align(self.align.y())
-                .hint_text(&self.hint_text)
-                .min_size(Vec2::new(width, height));
+
+            let input = if self.multiline {
+                egui::TextEdit::multiline(&mut self.text)
+            } else {
+                egui::TextEdit::singleline(&mut self.text)
+            }
+            .text_color(Color32::BLACK)
+            .horizontal_align(self.align.x())
+            .vertical_align(self.align.y())
+            .hint_text(&self.hint_text)
+            .min_size(Vec2::new(width, height));
 
             ui.add(input)
             // let result = ui.add_sized([width, height], input);
@@ -79,8 +78,14 @@ impl TextBox {
         self.align = align;
         self
     }
+
     pub fn with_hint_text(mut self, hint_text: &str) -> Self {
         self.hint_text = hint_text.to_string();
+        self
+    }
+
+    pub fn with_multiline(mut self, multiline: bool) -> Self {
+        self.multiline = multiline;
         self
     }
 }

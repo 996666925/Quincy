@@ -76,15 +76,15 @@ impl Game {
                 let mut parent = GameObject::default();
                 let transform = Component::new(Transform::new(Point3::new(0., 0., -100.)));
                 let tf = parent.addComponent(transform);
-      
 
                 // parent.addComponent(component)
 
                 let obj = GameObject::default();
 
                 let parent = currentScene.add_child(parent);
-          
+
                 let objId = currentScene.add_child_with_parent(obj, Some(parent));
+
                 let obj = &mut currentScene[objId];
 
                 let mut transform = Transform::new(Point3::new(0., 0., -3.));
@@ -290,20 +290,6 @@ impl Game {
         }
 
         Self::createScene(context.clone());
-        // {
-        //     if let Some(scene) = context
-        //         .sceneManager
-        //         .try_write()
-        //         .unwrap()
-        //         .getCurrentSceneMut()
-        //     {
-        //         if let Some(index) = scene.getMainCanvas() {
-        //             if let Some(canvas) = scene[index].getComponentMut::<Canvas>() {
-
-        //             }
-        //         }
-        //     }
-        // }
 
         let fps = Label::new(Widget::default().with_foreground(Color32::RED)).with_text("fps");
 
@@ -385,14 +371,18 @@ impl Game {
             let mut sceneManager = self.context.sceneManager.try_write().unwrap();
             let currentScene = sceneManager.getCurrentSceneMut().as_mut().unwrap();
 
+            let mut canvasList = vec![&mut self.debugDraw];
             if let Some(index) = currentScene.getMainCanvas() {
                 let canvas = currentScene[index].getComponentMut::<Canvas>().unwrap();
-                let mut uiManager = self.context.uiManager.try_write().unwrap();
 
-                uiManager.render(&window, canvas, &mut self.debugDraw);
-
-                uiManager.update(canvas, &mut jsRuntimeManager.handle_scope());
+                canvasList.push(canvas);
             }
+
+            let mut uiManager = self.context.uiManager.try_write().unwrap();
+
+            uiManager.render(&window, &mut canvasList);
+
+            uiManager.update(canvasList, &mut jsRuntimeManager.handle_scope());
         }
     }
 

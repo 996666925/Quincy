@@ -85,49 +85,51 @@ impl UiManager {
 
         egui.egui_ctx.set_fonts(fonts);
     }
-    pub fn render(&mut self, window: &Window, canvas: &mut Canvas, debugCanvas: &mut Canvas) {
+
+    pub fn render(&mut self, window: &Window, canvasList: &mut Vec<&mut Canvas>) {
         let _ = self.egui.run(window, |ctx| {
-            egui::CentralPanel::default()
-                .frame(Frame::none().fill(Color32::TRANSPARENT))
-                .show(ctx, |ui| {
-                    for (_, comp) in canvas.iter_mut() {
-                        comp.value.renderTop(&mut UiContext::new(ui, &self.sender));
-                    }
-                });
-            egui::CentralPanel::default()
-                .frame(Frame::none().fill(Color32::TRANSPARENT))
-                .show(ctx, |ui| {
-                    for (_, comp) in debugCanvas.iter_mut() {
-                        comp.value.renderTop(&mut UiContext::new(ui, &self.sender));
-                    }
-                });
+            for canvas in &mut *canvasList {
+                egui::CentralPanel::default()
+                    .frame(Frame::none().fill(Color32::TRANSPARENT))
+                    .show(ctx, |ui| {
+                        for (_, comp) in canvas.iter_mut() {
+                            comp.value.renderTop(&mut UiContext::new(ui, &self.sender));
+                        }
+                    });
+            }
         });
 
         self.egui.paint(window);
     }
 
-    pub fn update(&mut self, canvas: &mut Canvas, scope: &mut HandleScope) {
-        if canvas.uiBindList.is_empty() {
+    pub fn update(&mut self, canvasList: Vec<&mut Canvas>, scope: &mut HandleScope) {
+        let canvasList = canvasList
+            .iter()
+            .filter(|canvas| !canvas.uiBindList.is_empty())
+            .collect::<Vec<&&mut Canvas>>();
+
+        if canvasList.is_empty() {
             return;
         }
-
         while let Ok(msg) = self.receiver.try_recv() {
             let id = msg.0;
 
             let msg = msg.1;
+            
+            for canvas in &canvasList {
+                let uiBind = canvas.getUiBind(id);
+                if let Some(bind) = uiBind {
+                    let list = bind
+                        .iter()
+                        .filter(|u| u.msgType.eq(&msg))
+                        .collect::<Vec<&UiBind>>();
 
-            let uiBind = canvas.getUiBind(id);
-            if let Some(bind) = uiBind {
-                let list = bind
-                    .iter()
-                    .filter(|u| u.msgType.eq(&msg))
-                    .collect::<Vec<&UiBind>>();
+                    if list.is_empty() {
+                        return;
+                    }
 
-                if list.is_empty() {
-                    return;
+                    Self::postUiMessage(scope, &list, &msg);
                 }
-
-                Self::postUiMessage(scope, &list, &msg);
             }
         }
     }

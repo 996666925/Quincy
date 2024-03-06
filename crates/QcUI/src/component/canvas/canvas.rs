@@ -65,7 +65,7 @@ impl Canvas {
             .or_insert(vec![bind.clone()]);
     }
 
-    pub fn getUiBind(&mut self, comp: Uuid) -> Option<&Vec<UiBind>> {
+    pub fn getUiBind(&self, comp: Uuid) -> Option<&Vec<UiBind>> {
         self.uiBindList.get(&comp)
     }
 

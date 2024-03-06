@@ -97,10 +97,9 @@ impl Transform {
         self.update_local_atrix();
 
         let mut world_matrix = self.local_matrix.get();
-        println!("{:?}", self);
+
         if let Some(parent) = self.parent {
             let mut parentIdx = graph[parent].parent;
-            println!("id:{:?},parent:{:?}", parent, parentIdx);
             while let Some(parent) = parentIdx {
                 let obj = &graph[parent];
                 if let Some(transform) = obj.getComponent::<Transform>() {

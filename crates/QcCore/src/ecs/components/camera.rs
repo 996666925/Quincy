@@ -9,8 +9,6 @@ use QcTools::utils::r#ref::Ref;
 
 use crate::ecs::component::ComponentInner;
 
-
-
 #[derive(Debug, Comp, Clone, Copy, Serialize, Deserialize)]
 pub struct Camera {
     inner: ComponentInner,
@@ -59,7 +57,7 @@ impl Camera {
     }
 
     fn calculateProjMatrix(&self, width: u32, height: u32) -> Matrix4<f32> {
-        Matrix4::new_perspective(self.aspect, self.fov, self.near, self.far)
+        Matrix4::new_perspective(width as f32 / height as f32, self.fov, self.near, self.far)
     }
 
     fn calculateViewMatrix(

@@ -71,20 +71,24 @@ impl Game {
                 obj.insert(camera);
                 obj.insert(transform);
                 // obj.insert(Component::new(Example));
-                currentScene.insert(obj);
+                currentScene.add_child(obj);
 
-                let mut transform = Transform::new(Point3::new(0., 0., -3.));
-                transform.setRotation(Vector3::new(0., 45f32.to_radians(), 0.));
+                let mut parent = GameObject::default();
+                let transform = Component::new(Transform::new(Point3::new(0., 0., -100.)));
+                let tf = parent.addComponent(transform);
+      
 
-
-                let parent = GameObject::default();
                 // parent.addComponent(component)
 
                 let obj = GameObject::default();
 
-                let objId = currentScene.add_child(obj);
-
+                let parent = currentScene.add_child(parent);
+          
+                let objId = currentScene.add_child_with_parent(obj, Some(parent));
                 let obj = &mut currentScene[objId];
+
+                let mut transform = Transform::new(Point3::new(0., 0., -3.));
+                transform.set_rotation(Vector3::new(0., 45f32.to_radians(), 0.));
 
                 let mut meshRender = MeshRender::new();
                 let mut model = Mesh::new("monkey.mesh");
@@ -98,7 +102,6 @@ impl Game {
                 let texture = Texture::new(image);
                 material.addTexture(texture);
                 materialRender.addMaterial(material);
-
 
                 {
                     let mut canvas = Canvas::new();
@@ -209,11 +212,11 @@ impl Game {
                     canvas.addChild(UiNode::new(image));
                     // obj.insert(Component::new(canvas));
                 }
-                obj.insert(Component::new(transform));
-                obj.insert(Component::new(meshRender));
-                obj.insert(Component::new(materialRender));
+                obj.addComponent(Component::new(transform));
+                obj.addComponent(Component::new(meshRender));
+                obj.addComponent(Component::new(materialRender));
 
-                // obj.insert(Component::new(cube));
+                // obj.addComponent(Component::new(cube));
 
                 // println!("{}", currentScene.save());
             }

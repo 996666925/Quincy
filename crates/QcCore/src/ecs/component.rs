@@ -63,7 +63,6 @@ pub trait BaseComponentTrait: Any + Debug {
 #[typetag::serde(tag = "type")]
 pub trait ComponentTrait: BaseComponentTrait + Updated + V8 + ComponentInnerTrait {
     fn getName(&self) -> &str;
-
 }
 
 pub trait ComponentInnerTrait {
@@ -93,16 +92,16 @@ pub struct ComponentInner {
     pub active: bool,
 }
 
-impl ComponentInnerTrait for ComponentInner {
-    fn set_parent(&mut self, parent: Option<Index>) {
+impl ComponentInner {
+    pub fn set_parent(&mut self, parent: Option<Index>) {
         self.parent = parent;
     }
 
-    fn get_parent(&mut self) -> Option<Index> {
+    pub fn get_parent(&mut self) -> Option<Index> {
         self.parent
     }
 
-    fn is_active(&mut self) -> bool {
+    pub fn is_active(&mut self) -> bool {
         self.active
     }
 }

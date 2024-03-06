@@ -53,7 +53,6 @@ impl Renderer {
     pub fn preDraw(&self) {
         unsafe {
             gl::Enable(gl::DEPTH_TEST);
-
         }
     }
     pub fn draw(&self, mesh: &Mesh, mode: PrimitiveMode, instance: u32) {
@@ -74,5 +73,9 @@ impl Renderer {
 
             mesh.unbind();
         }
+    }
+
+    pub fn set_viewport(&self, x: i32, y: i32, width: i32, height: i32) {
+        unsafe { gl::Viewport(x, y, width, height) }
     }
 }

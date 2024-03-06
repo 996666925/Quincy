@@ -86,10 +86,6 @@ impl Scene {
     pub fn update(&mut self, dt: f32, js: JsRealm, isolate: &mut v8::OwnedIsolate) {
         for (_, go) in self.graph.iter_mut() {
             go.update(dt, js.clone(), isolate);
-
-            for (_, children) in go.children.iter_mut() {
-                children.update(dt, js.clone(), isolate)
-            }
         }
     }
 
@@ -140,14 +136,25 @@ impl Scene {
 
     pub fn add_child(&mut self, go: GameObject) -> Index {
         let index = self.insert(go);
-        self[index].setRoot(index);
+        self[index].set_root(index);
         index
     }
 
-    pub fn add_child_with_parent(&mut self, obj: GameObject, parent: Index) {
-        let index = self.insert(obj);
-        self[index].setRoot(index);
+    pub fn add_child_with_parent(&mut self, obj: GameObject, parent: Option<Index>) -> Index {
+        let index = self.graph.insert(obj);
+
+        self[index].set_root(index);
         self[index].set_parent(parent);
+        if let Some(parent) = parent {
+            self[parent].add_child(index);
+        }
+
+        index
+    }
+
+    pub fn remove_child_with_parent(&mut self, obj: Index, parent: Index) -> Option<Index> {
+        self[obj].set_parent(None);
+        self[parent].remove_child(obj)
     }
 
     pub fn getGameObject(&self, name: &str) -> Option<Index> {

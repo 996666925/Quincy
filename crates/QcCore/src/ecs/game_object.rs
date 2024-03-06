@@ -5,7 +5,10 @@ use std::{
     sync::{Arc, RwLock},
 };
 
-use super::component::{Component, ComponentTrait, Named};
+use super::{
+    component::{Component, ComponentTrait, Named},
+    graph::Graph,
+};
 use deno_core::{v8, JsRealm};
 use log::info;
 use serde::{Deserialize, Serialize, Serializer};
@@ -16,7 +19,7 @@ pub struct GameObject {
     pub name: String,
     pub pool: Arena<Component>,
     pub root: Option<Index>,
-    pub children: Arena<GameObject>,
+    pub children: Arena<Index>,
     pub parent: Option<Index>,
     pub active: bool,
 }
@@ -25,11 +28,13 @@ impl Default for GameObject {
     fn default() -> Self {
         Self {
             name: "GameObject".to_string(),
+            //组件
             pool: Arena::new(),
             root: None,
+            //对象
             children: Arena::new(),
             parent: None,
-            active: true,
+            active: false,
         }
     }
 }
@@ -70,18 +75,24 @@ impl GameObject {
             root: None,
             children: Arena::new(),
             parent: None,
-            active: true,
+            active: false,
         }
     }
     pub fn getName(&self) -> &str {
         &self.name
     }
 
-    pub fn add_child(&mut self, mut gameobject: GameObject) -> Index {
-        gameobject.parent = self.root;
+    ///添加对象请使用Scene::add_child_with_parent方法
+    pub fn add_child(&mut self, gameobject: Index) -> Index {
         self.children.insert(gameobject)
     }
 
+    ///移除对象请使用Scene::remove_child_with_parent方法
+    pub fn remove_child(&mut self, gameobject: Index) -> Option<Index> {
+        self.children.remove(gameobject)
+    }
+
+    ///未添加到场景时，组件无法获取到对象
     pub fn addComponent(&mut self, mut component: Component) -> Index {
         component.set_parent(self.root);
         self.pool.insert(component)
@@ -133,16 +144,21 @@ impl GameObject {
             }
         }
     }
-    pub fn setRoot(&mut self, index: Index) {
+    pub fn set_root(&mut self, index: Index) {
         self.root = Some(index);
+
+        for (_, comp) in self.pool.iter_mut() {
+            comp.set_parent(self.root);
+        }
     }
 
     pub fn getRoot(&self) -> Option<Index> {
         self.root
     }
 
-    pub fn set_parent(&mut self, index: Index) {
-        self.parent = Some(index);
+    pub fn set_parent(&mut self, index: Option<Index>) {
+        self.parent = index;
+        self.active = index.is_some();
     }
 }
 

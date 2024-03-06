@@ -32,7 +32,7 @@ pub fn opSetPosition<'a>(
 
     let transform = unsafe { &mut *transform };
 
-    transform.setPosition(position);
+    transform.set_position(position);
 }
 
 #[op2]
@@ -64,7 +64,7 @@ pub fn opSetRotation<'a>(
 
     let transform = unsafe { &mut *transform };
 
-    transform.setRotation(rotation);
+    transform.set_rotation(rotation);
 }
 
 #[op2]
@@ -84,5 +84,6 @@ pub fn opTranslate<'a>(
     let vector = rotate * vector;
 
     let position = transform.position() + vector;
-    transform.setPosition(position);
+    
+    transform.set_position(position);
 }

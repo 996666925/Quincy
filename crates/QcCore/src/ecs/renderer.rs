@@ -72,7 +72,7 @@ impl Renderer {
                                     material = defaultMaterial;
                                 }
                                 drawables.push(Drawable::new(
-                                    transform.get_local_matrix(),
+                                    transform.get_world_matrix(scene),
                                     mesh.clone(),
                                     material.clone(),
                                 ));
@@ -82,7 +82,7 @@ impl Renderer {
                         for model in meshRender.getModels() {
                             for mesh in model.meshes() {
                                 drawables.push(Drawable::new(
-                                    transform.get_local_matrix(),
+                                    transform.get_world_matrix(scene),
                                     mesh.clone(),
                                     defaultMaterial.clone(),
                                 ));
@@ -95,6 +95,8 @@ impl Renderer {
 
         drawables
     }
+
+
 }
 
 impl Deref for Renderer {

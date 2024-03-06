@@ -72,7 +72,10 @@ impl Application {
                             WindowEvent::CloseRequested => {
                                 el.exit();
                             }
-
+                            WindowEvent::Resized(size) => {
+                                let renderer = self.context.renderer.try_read().unwrap();
+                                renderer.set_viewport(0, 0, size.width as _, size.height as _);
+                            }
                             _ => {
                                 // println!("event:{:?}", event);
                             }

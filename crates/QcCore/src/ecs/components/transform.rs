@@ -100,14 +100,14 @@ impl Transform {
 
         let mut world_matrix = self.local_matrix.get();
 
-        if let Some(parent) = self.parent {
-            let mut parentIdx = graph[parent].parent;
+        if let Some(this) = self.parent {
+            let mut parentIdx = graph[this].parent;
             while let Some(parent) = parentIdx {
                 let obj = &graph[parent];
                 if let Some(transform) = obj.getComponent::<Transform>() {
                     transform.update_local_atrix();
 
-                    world_matrix = world_matrix * transform.local_matrix.get();
+                    world_matrix = transform.local_matrix.get() * world_matrix;
                 }
 
                 parentIdx = obj.parent;

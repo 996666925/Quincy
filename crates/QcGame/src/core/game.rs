@@ -67,11 +67,8 @@ impl Game {
             if let Some(currentScene) = currentScene {
                 let camera = Component::new(Camera::new());
                 let mut skybox = SkyBox::new();
-                // let image = context.resourceManager.get("texture.dds").unwrap();
-                // let texture = Texture::new(image);
-                // skybox.material.addTexture(texture);
 
-                let transform = Component::new(Transform::new(Point3::new(0., 0., 0.)));
+                let transform = Component::new(Transform::new(Point3::new(0., 2., 0.)));
                 let mut obj = GameObject::new("Camera");
                 obj.insert(camera);
                 obj.insert(Component::new(skybox));
@@ -85,30 +82,60 @@ impl Game {
 
                 // parent.addComponent(component)
 
-                let obj = GameObject::default();
-
                 let parent = currentScene.add_child(parent);
 
-                let objId = currentScene.add_child_with_parent(obj, Some(parent));
+                //添加平面
+                {
+                    let obj = GameObject::new("Plane");
+                    let objId = currentScene.add_child_with_parent(obj, Some(parent));
+                    let obj = &mut currentScene[objId];
 
-                let obj = &mut currentScene[objId];
+                    let mut transform = Transform::new(Point3::new(0., -2., 0.));
 
-                let mut transform = Transform::new(Point3::new(0., 0., -3.));
-                transform.set_rotation(Vector3::new(0., 45f32.to_radians(), 0.));
+                    transform.set_scale(Vector3::new(3., 1., 3.));
+                    let mut meshRender = MeshRender::new();
+                    let mut model = Mesh::plane();
+                    model.setMaterialIndex(0);
 
-                let mut meshRender = MeshRender::new();
-                let mut model = Mesh::new("monkey.mesh");
-                model.setMaterialIndex(0);
+                    meshRender.addModel(model.into());
 
-                meshRender.addModel(model.into());
+                    let mut materialRender = MaterialRender::new();
+                    let mut material = Material::default();
+                    let image = context.resourceManager.get("shitou.dds").unwrap();
+                    let texture = Texture::new(image);
+                    material.addTexture(texture);
+                    materialRender.addMaterial(material);
+                    obj.addComponent(Component::new(transform));
+                    obj.addComponent(Component::new(meshRender));
+                    obj.addComponent(Component::new(materialRender));
+                }
 
-                let mut materialRender = MaterialRender::new();
-                let mut material = Material::default();
-                let image = context.resourceManager.get("texture.dds").unwrap();
-                let texture = Texture::new(image);
-                material.addTexture(texture);
-                materialRender.addMaterial(material);
+                //添加猴头
+                let obj = {
+                    let obj = GameObject::new("Monkey");
+                    let objId = currentScene.add_child_with_parent(obj, Some(parent));
+                    let obj = &mut currentScene[objId];
 
+                    let mut transform = Transform::new(Point3::new(0., 0., 0.));
+
+                    let mut meshRender = MeshRender::new();
+                    let mut model = Mesh::new("monkey.mesh");
+                    model.setMaterialIndex(0);
+
+                    meshRender.addModel(model.into());
+
+                    let mut materialRender = MaterialRender::new();
+                    let mut material = Material::default();
+                    let image = context.resourceManager.get("texture.dds").unwrap();
+                    let texture = Texture::new(image);
+                    material.addTexture(texture);
+                    materialRender.addMaterial(material);
+                    obj.addComponent(Component::new(transform));
+                    obj.addComponent(Component::new(meshRender));
+                    obj.addComponent(Component::new(materialRender));
+                    obj
+                };
+          
                 {
                     let mut canvas = Canvas::new();
 
@@ -218,12 +245,9 @@ impl Game {
                     canvas.addChild(UiNode::new(image));
                     // obj.insert(Component::new(canvas));
                 }
-                obj.addComponent(Component::new(transform));
-                obj.addComponent(Component::new(meshRender));
-                obj.addComponent(Component::new(materialRender));
 
                 // obj.addComponent(Component::new(cube));
-
+                // println!("{:#?}", currentScene);
                 // println!("{}", currentScene.save());
             }
         }

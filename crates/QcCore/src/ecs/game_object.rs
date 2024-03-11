@@ -17,10 +17,10 @@ use thunderdome::{Arena, Index};
 #[derive(Debug, Serialize, Deserialize)]
 pub struct GameObject {
     pub name: String,
-    pub pool: Arena<Component>,
     pub root: Option<Index>,
-    pub children: Arena<Index>,
     pub parent: Option<Index>,
+    pub pool: Arena<Component>,
+    pub children: Arena<Index>,
     pub active: bool,
 }
 

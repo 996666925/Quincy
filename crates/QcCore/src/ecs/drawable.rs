@@ -3,6 +3,7 @@ use QcRender::resources::Mesh;
 
 use crate::resources::material::Material;
 
+#[derive(Debug)]
 pub struct Drawable(Matrix4<f32>, Mesh, Material);
 impl Drawable {
     pub fn new(model: Matrix4<f32>, mesh: Mesh, material: Material) -> Self {

@@ -17,7 +17,7 @@ class Cube extends Component {
   preX=0;
   preY=0;
 
-  speed = 2;
+  speed = 1;
   camera:GameObject
   onStart() {
     this.camera=this.getGameObject("Camera");

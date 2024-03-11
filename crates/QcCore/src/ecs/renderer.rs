@@ -35,7 +35,7 @@ impl Renderer {
     }
 
     ///临时渲染天空盒，以后必改
-    pub fn renderSkybox(&self,  skybox: &SkyBox, ubo: Arc<MvpUbo>) {
+    pub fn renderSkybox(&self, skybox: &SkyBox, ubo: Arc<MvpUbo>) {
         self.preDraw(DrawParameters {
             cull_face: None,
             depth_test: false,
@@ -55,8 +55,6 @@ impl Renderer {
         self.preDraw(Default::default());
 
         let drawables = self.findAndSortDrawables(scene, defaultMaterial);
-
-        //临时渲染天空盒，以后必改
 
         for drawable in drawables {
             ubo.setSubData(0, drawable.getModelMatrix().as_slice());

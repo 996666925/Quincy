@@ -59,7 +59,7 @@ impl GameRender {
             renderer.clear(true, true, false);
 
             {
-                currnetScene.get_main_skybox().map(|skybox| {
+                currnetScene.get_main_skybox().map(|skybox: thunderdome::Index| {
                     let skybox = currnetScene[skybox].getComponent::<SkyBox>().unwrap();
 
                     renderer.renderSkybox(skybox, self.context.engineUBO.clone());

@@ -40,11 +40,9 @@ impl Default for Texture {
 
 impl Texture {
     pub fn skybox() -> Self {
-        // let a = Asset::get("skybox/front.dds").unwrap().data.as_ref();
         let textures = vec![
             Asset::get("skybox/back.dds").unwrap(),
             Asset::get("skybox/front.dds").unwrap(),
-        
             Asset::get("skybox/top.dds").unwrap(),
             Asset::get("skybox/bottom.dds").unwrap(),
             Asset::get("skybox/left.dds").unwrap(),
@@ -221,23 +219,7 @@ impl Texture {
 
     pub fn bind(&self, index: u32) {
         unsafe {
-            // gl::ActiveTexture(gl::TEXTURE0 + index);
-            // println!("{}", self.id);
             gl::BindTextureUnit(index, self.id);
-            // match self.kind {
-            //     TextureKind::Line { length } => todo!(),
-            //     TextureKind::Rectangle { width, height } => {
-            //         gl::BindTexture(gl::TEXTURE_2D, self.id);
-            //     }
-            //     TextureKind::Cube { width, height } => {
-            //         gl::BindTexture(gl::TEXTURE_CUBE_MAP, self.id);
-            //     }
-            //     TextureKind::Volume {
-            //         width,
-            //         height,
-            //         depth,
-            //     } => todo!(),
-            // }
         }
     }
 

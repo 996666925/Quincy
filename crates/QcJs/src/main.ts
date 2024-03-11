@@ -17,12 +17,12 @@ class Cube extends Component {
   preX=0;
   preY=0;
 
-  speed = 0.1;
+  speed = 2;
   camera:GameObject
   onStart() {
     this.camera=this.getGameObject("Camera");
     input.on(InputEvent.KEY_DOWN, this.onKeyDown, this);
-    // input.on(InputEvent.MOUSE_MOVE, this.onMouseMove, this);
+    input.on(InputEvent.MOUSE_MOVE, this.onMouseMove, this);
   }
 
   onMouseMove(args: MouseEventArgs) {

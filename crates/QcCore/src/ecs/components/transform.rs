@@ -1,6 +1,8 @@
 use std::{cell::Cell, mem::size_of, sync::Arc};
 
-use nalgebra::{Matrix, Matrix4, Point3, Rotation, Rotation3, UnitQuaternion, Vector3};
+use nalgebra::{
+    Matrix, Matrix4, Point, Point3, Rotation, Rotation3, UnitQuaternion, Vector, Vector3,
+};
 use QcMacros::Comp;
 use QcRender::buffers::UniformBuffer;
 
@@ -113,6 +115,28 @@ impl Transform {
         }
 
         world_matrix
+    }
+
+    pub fn get_world_position(&self, graph: &Graph) -> Vector3<f32> {
+        let mut position = self.position.coords;
+
+        if let Some(parent) = self.parent {
+            let mut parentIdx = graph[parent].parent;
+            while let Some(parent) = parentIdx {
+                let obj = &graph[parent];
+                if let Some(transform) = obj.getComponent::<Transform>() {
+                    position += transform.position.coords;
+                }
+
+                parentIdx = obj.parent;
+            }
+        }
+
+        position
+    }
+
+    pub fn get_world_position_matrix(&self, graph: &Graph) -> Matrix4<f32> {
+        Matrix4::new_translation(&self.get_world_position(graph))
     }
 
     pub fn updateUBO(&self, ubo: Arc<MvpUbo>) {}

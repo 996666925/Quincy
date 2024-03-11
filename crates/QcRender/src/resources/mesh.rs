@@ -31,6 +31,11 @@ pub struct Mesh {
 }
 
 impl Mesh {
+    
+    pub fn cube() -> Self {
+        Mesh::new("skybox.mesh")
+    }
+
     pub fn new(name: &str) -> Self {
         let file =
             Asset::get(&format!("model/{}", name)).expect(&format!("找不到资源文件:{}", name));

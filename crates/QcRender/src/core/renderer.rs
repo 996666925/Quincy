@@ -3,6 +3,8 @@ use QcTools::utils::r#ref::Ref;
 
 use crate::{context::driver::Driver, resources::Mesh, settings::driver_settings::DriverSettings};
 
+use super::DrawParameters;
+
 pub enum PrimitiveMode {
     POINTS = 0x0000,
     LINES = 0x0001,
@@ -50,9 +52,13 @@ impl Renderer {
         }
     }
 
-    pub fn preDraw(&self) {
+    pub fn preDraw(&self, params: DrawParameters) {
         unsafe {
-            gl::Enable(gl::DEPTH_TEST);
+            if params.depth_test {
+                gl::Enable(gl::DEPTH_TEST);
+            } else {
+                gl::Disable(gl::DEPTH_TEST);
+            }
         }
     }
     pub fn draw(&self, mesh: &Mesh, mode: PrimitiveMode, instance: u32) {

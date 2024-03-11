@@ -16,7 +16,7 @@ pub struct WindowSettings {
 impl Default for WindowSettings {
     fn default() -> Self {
         Self {
-            title: "Title".to_string(),
+            title: "Quincy".to_string(),
             width: 800,
             height: 600,
             minWidth: 100,

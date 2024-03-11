@@ -12,16 +12,16 @@ use crate::ecs::component::ComponentInner;
 #[derive(Debug, Comp, Clone, Copy, Serialize, Deserialize)]
 pub struct Camera {
     inner: ComponentInner,
-    fov: f32,
-    near: f32,
-    far: f32,
-    aspect: f32,
+    pub fov: f32,
+    pub near: f32,
+    pub far: f32,
+    pub aspect: f32,
 
-    viewMatrix: Matrix4<f32>,
+    pub viewMatrix: Matrix4<f32>,
 
-    projMatrix: Matrix4<f32>,
+    pub projMatrix: Matrix4<f32>,
 
-    viewProjMatrix: Matrix4<f32>,
+    pub viewProjMatrix: Matrix4<f32>,
 }
 
 impl Camera {

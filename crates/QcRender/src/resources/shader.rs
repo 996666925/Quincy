@@ -1,16 +1,15 @@
 use crate::Asset;
 
 use rust_embed::EmbeddedFile;
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::ffi::CString;
 use std::fmt::format;
 use std::ptr;
 use std::sync::Mutex;
 use QcTools::sync::Lazy;
-use serde::{Serialize, Deserialize};
 
 static SHADER_MAP: Lazy<Mutex<Vec<Shader>>> = Lazy::new(|| Mutex::new(Vec::new()));
-
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Shader {
@@ -18,7 +17,21 @@ pub struct Shader {
     program: u32,
 }
 
+impl Default for Shader {
+    fn default() -> Self {
+        Self::standard()
+    }
+}
+
 impl Shader {
+    pub fn standard() -> Self {
+        Self::new("standard")
+    }
+
+    pub fn skybox() -> Self {
+        Self::new("skybox")
+    }
+
     pub fn new(name: &str) -> Self {
         //先查询现有的ShaderMap
         let mut map = SHADER_MAP.try_lock().unwrap();

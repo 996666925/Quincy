@@ -6,15 +6,12 @@
 pub use gl;
 use rust_embed::RustEmbed;
 
-pub mod core;
-mod context;
-pub mod settings;
 pub mod buffers;
-
-pub mod resources;
+mod context;
+pub mod core;
 pub mod geometry;
+pub mod resources;
+pub mod settings;
 #[derive(RustEmbed)]
 #[folder = "assets"]
 struct Asset;
-
-

@@ -15,7 +15,7 @@ use QcCore::{
         component::{Component, Named, V8},
         components::{
             camera::Camera, material_render::MaterialRender, mesh_render::MeshRender,
-            transform::Transform,
+            skybox::SkyBox, transform::Transform,
         },
         game_object::GameObject,
     },
@@ -66,15 +66,21 @@ impl Game {
             let currentScene = sceneManagerRef.getCurrentSceneMut();
             if let Some(currentScene) = currentScene {
                 let camera = Component::new(Camera::new());
+                let mut skybox = SkyBox::new();
+                // let image = context.resourceManager.get("texture.dds").unwrap();
+                // let texture = Texture::new(image);
+                // skybox.material.addTexture(texture);
+
                 let transform = Component::new(Transform::new(Point3::new(0., 0., 0.)));
                 let mut obj = GameObject::new("Camera");
                 obj.insert(camera);
+                obj.insert(Component::new(skybox));
                 obj.insert(transform);
                 // obj.insert(Component::new(Example));
                 currentScene.add_child(obj);
 
                 let mut parent = GameObject::default();
-                let transform = Component::new(Transform::new(Point3::new(0., 0., -100.)));
+                let transform = Component::new(Transform::new(Point3::new(0., 0., -5.)));
                 let tf = parent.addComponent(transform);
 
                 // parent.addComponent(component)
@@ -97,7 +103,7 @@ impl Game {
                 meshRender.addModel(model.into());
 
                 let mut materialRender = MaterialRender::new();
-                let mut material = Material::new("standard");
+                let mut material = Material::default();
                 let image = context.resourceManager.get("texture.dds").unwrap();
                 let texture = Texture::new(image);
                 material.addTexture(texture);
@@ -372,7 +378,7 @@ impl Game {
             let currentScene = sceneManager.getCurrentSceneMut().as_mut().unwrap();
 
             let mut canvasList = vec![&mut self.debugDraw];
-            if let Some(index) = currentScene.getMainCanvas() {
+            if let Some(index) = currentScene.get_main_canvas() {
                 let canvas = currentScene[index].getComponentMut::<Canvas>().unwrap();
 
                 canvasList.push(canvas);

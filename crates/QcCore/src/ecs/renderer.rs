@@ -1,12 +1,12 @@
+use log::info;
 use std::{
     ops::Deref,
     sync::{mpsc::Sender, Arc},
 };
-use log::info;
 
 use nalgebra::Matrix4;
 use QcRender::{
-    core::{PrimitiveMode, Renderer as QcRenderer},
+    core::{DrawParameters, PrimitiveMode, Renderer as QcRenderer},
     resources::Mesh,
     settings::driver_settings::DriverSettings,
 };
@@ -15,7 +15,10 @@ use QcTools::utils::r#ref::Ref;
 use crate::{resources::material::Material, scene_system::scene::Scene};
 
 use super::{
-    components::{material_render::MaterialRender, mesh_render::MeshRender, transform::Transform},
+    components::{
+        material_render::MaterialRender, mesh_render::MeshRender, skybox::SkyBox,
+        transform::Transform,
+    },
     drawable::{Drawable, Drawables},
     MvpUbo,
 };
@@ -31,10 +34,29 @@ impl Renderer {
         })
     }
 
+    ///临时渲染天空盒，以后必改
+    pub fn renderSkybox(&self,  skybox: &SkyBox, ubo: Arc<MvpUbo>) {
+        self.preDraw(DrawParameters {
+            cull_face: None,
+            depth_test: false,
+            depth_write: false,
+        });
+
+        let drawable = Drawable::new(
+            Matrix4::identity(),
+            skybox.mesh.clone(),
+            skybox.material.clone(),
+        );
+
+        self.drawDrawable(drawable);
+    }
+
     pub fn renderScene(&self, scene: &mut Scene, ubo: Arc<MvpUbo>, defaultMaterial: &Material) {
-        self.preDraw();
+        self.preDraw(Default::default());
 
         let drawables = self.findAndSortDrawables(scene, defaultMaterial);
+
+        //临时渲染天空盒，以后必改
 
         for drawable in drawables {
             ubo.setSubData(0, drawable.getModelMatrix().as_slice());
@@ -95,8 +117,6 @@ impl Renderer {
 
         drawables
     }
-
-
 }
 
 impl Deref for Renderer {

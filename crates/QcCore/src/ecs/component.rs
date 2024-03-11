@@ -29,6 +29,7 @@ pub trait V8 {
         let obj: v8::Local<v8::Value> = obj.into();
         v8::Global::new(scope, obj)
     }
+    
     fn toV8Local<'a>(&self, scope: &mut v8::HandleScope<'a>) -> v8::Local<'a, v8::Value>
     where
         Self: Serialize,

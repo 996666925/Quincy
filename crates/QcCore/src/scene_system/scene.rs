@@ -8,6 +8,7 @@ use QcRender::resources::{Mesh, Texture, UniformInfo};
 
 use crate::ecs::components::material_render::MaterialRender;
 use crate::ecs::components::mesh_render::MeshRender;
+use crate::ecs::components::skybox::SkyBox;
 use crate::ecs::{components::camera::Camera, game_object::GameObject, graph::Graph};
 use crate::resources::ResourceManager;
 
@@ -19,7 +20,7 @@ pub struct Scene {
     children: Arena<Index>,
     camera: Cell<Option<Index>>,
     canvas: Cell<Option<Index>>,
-    html: Cell<Option<Index>>,
+    skybox: Cell<Option<Index>>,
 }
 
 impl Deref for Scene {
@@ -43,23 +44,11 @@ impl Scene {
             children: Default::default(),
             camera: Cell::new(None),
             canvas: Cell::new(None),
-            html: Cell::new(None),
+            skybox: Cell::new(None),
         }
     }
 
-    pub fn getMainHtmlRender(&self) -> Option<Index> {
-        if self.html.get().is_none() {
-            let html = self
-                .graph
-                .iter()
-                .find(|obj| obj.1.getComponentBoxByName("HtmlRender").is_some())
-                .map(|handle| handle.0);
-            self.html.set(html);
-        }
-        self.html.get()
-    }
-
-    pub fn getMainCanvas(&self) -> Option<Index> {
+    pub fn get_main_canvas(&self) -> Option<Index> {
         if self.canvas.get().is_none() {
             let canvas = self
                 .graph
@@ -71,7 +60,7 @@ impl Scene {
         self.canvas.get()
     }
 
-    pub fn getMainCamera(&self) -> Option<Index> {
+    pub fn get_main_camera(&self) -> Option<Index> {
         if self.camera.get().is_none() {
             let camera = self
                 .graph
@@ -81,6 +70,18 @@ impl Scene {
             self.camera.set(camera);
         }
         self.camera.get()
+    }
+
+    pub fn get_main_skybox(&self) -> Option<Index> {
+        if self.skybox.get().is_none() {
+            let skybox = self
+                .graph
+                .iter()
+                .find(|obj| obj.1.getComponent::<SkyBox>().is_some())
+                .map(|handle| handle.0);
+            self.skybox.set(skybox);
+        }
+        self.skybox.get()
     }
 
     pub fn update(&mut self, dt: f32, js: JsRealm, isolate: &mut v8::OwnedIsolate) {

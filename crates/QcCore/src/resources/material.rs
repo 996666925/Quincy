@@ -1,20 +1,18 @@
-
 use serde::{Deserialize, Serialize};
 use QcRender::resources::{Shader, Texture, UniformInfo};
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct Material {
     shader: Shader,
     uniformInfoList: Vec<UniformInfo>,
 }
 
 impl Material {
-    pub fn new(name: &str) -> Self {
-        Self {
-            shader: Shader::new(name),
-            uniformInfoList: vec![],
-        }
+    pub fn with_shader(mut self, shader: Shader) -> Self {
+        self.shader = shader;
+        self
     }
+
     pub fn bind(&self) {
         self.shader.bind();
 
@@ -36,7 +34,7 @@ impl Material {
     pub fn getUniformList(&self) -> &Vec<UniformInfo> {
         &self.uniformInfoList
     }
-    pub fn setUniformList(&mut self, uniformList: Vec<UniformInfo>)  {
+    pub fn setUniformList(&mut self, uniformList: Vec<UniformInfo>) {
         self.uniformInfoList = uniformList;
     }
 }

@@ -21,3 +21,4 @@ nalgebra = { version = "0.32.3", features = [
 serde = { version = "1", features = ["derive"] }
 ron = "0.8.1"
 ddsfile = "0.5.1"
+image = { version = "0.24", features = ["jpeg", "png"] }

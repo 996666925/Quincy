@@ -1,7 +1,10 @@
 use log::info;
 use nalgebra::{Matrix4, Point3, Rotation3, Vector3};
 use std::sync::Arc;
-use QcCore::{ecs::components::camera::Camera, resources::material::Material};
+use QcCore::{
+    ecs::components::{camera::Camera, skybox::SkyBox},
+    resources::material::Material,
+};
 
 use super::context::Context;
 use QcCore::ecs::components::transform::Transform;
@@ -19,7 +22,7 @@ pub struct GameRender {
 
 impl GameRender {
     pub fn new(context: Arc<Context>) -> Arc<GameRender> {
-        let material = Material::new("standard");
+        let material = Material::default();
         Arc::new(Self { context, material })
     }
 
@@ -27,28 +30,43 @@ impl GameRender {
         let mut sceneManager = self.context.sceneManager.try_write().unwrap();
         let mut window = self.context.window.try_read().unwrap();
         let size = window.inner_size().to_logical::<u32>(window.scale_factor());
-        sceneManager
+        let currnetScene = sceneManager
             .getCurrentSceneMut()
             .as_mut()
-            .map(|currnetScene| {
-                currnetScene.getMainCamera().map(|cameraObj| {
-                    let transform = currnetScene[cameraObj].getComponent::<Transform>().unwrap();
+            .expect("无法获取当前的场景对象");
+        if let Some(cameraObj) = currnetScene.get_main_camera() {
+            let transform = currnetScene[cameraObj].getComponent::<Transform>().unwrap();
 
-                    let mut camera = currnetScene[cameraObj]
-                        .getComponent::<Camera>()
-                        .cloned()
-                        .unwrap();
+            let mut camera = currnetScene[cameraObj]
+                .getComponent::<Camera>()
+                .cloned()
+                .unwrap();
 
-                    let position = transform.position();
-                    let rotation = transform.rotation();
-                    camera.cacheMatrices(size.width, size.height, &position, &rotation);
-                    camera.updateUBO(self.context.engineUBO.clone());
+            let position = transform.position();
+            let rotation = transform.rotation();
+            camera.cacheMatrices(size.width, size.height, &position, &rotation);
+            camera.updateUBO(self.context.engineUBO.clone());
+
+            let local_matrix = transform.get_world_position_matrix(&currnetScene)
+                * Matrix4::new_scaling(camera.far / 2f32.sqrt());
+
+            self.context
+                .engineUBO
+                .setSubData(0, local_matrix.as_slice());
+
+            let renderer = self.context.renderer.try_read().unwrap();
+            renderer.setClearColor(0.66, 0.66, 0.66, 1.);
+            renderer.clear(true, true, false);
+
+            {
+                currnetScene.get_main_skybox().map(|skybox| {
+                    let skybox = currnetScene[skybox].getComponent::<SkyBox>().unwrap();
+
+                    renderer.renderSkybox(skybox, self.context.engineUBO.clone());
                 });
+            }
 
-                let renderer = self.context.renderer.try_read().unwrap();
-                renderer.setClearColor(0.66, 0.66, 0.66, 1.);
-                renderer.clear(true, true, false);
-                renderer.renderScene(currnetScene, self.context.engineUBO.clone(), &self.material);
-            });
+            renderer.renderScene(currnetScene, self.context.engineUBO.clone(), &self.material);
+        };
     }
 }

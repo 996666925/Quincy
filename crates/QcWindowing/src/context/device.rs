@@ -4,26 +4,15 @@ use std::{
 };
 
 use glutin::{
-    api::egl::device::Device as eglDevice,
-    config::Config,
-    context::{
-        ContextApi, ContextAttributes, ContextAttributesBuilder, NotCurrentGlContext, PossiblyCurrentContext, Version
-    },
+    context::{ContextApi, ContextAttributesBuilder, NotCurrentGlContext, PossiblyCurrentContext},
     display::{Display, DisplayApiPreference},
     prelude::{GlConfig, GlDisplay},
     surface::{GlSurface, Surface, SwapInterval, WindowSurface},
 };
-use glutin_winit::{DisplayBuilder, GlWindow};
+use glutin_winit::GlWindow;
 
-use raw_window_handle::{
-    HasRawWindowHandle, HasWindowHandle, RawDisplayHandle, Win32WindowHandle, WindowsDisplayHandle
-};
-use winit::{
-    dpi::LogicalSize,
-    event::{Event, WindowEvent},
-    event_loop::{ControlFlow, EventLoop},
-    window::{Window, WindowBuilder},
-};
+use raw_window_handle::{HasRawWindowHandle, RawDisplayHandle, WindowsDisplayHandle};
+use winit::window::Window;
 
 use crate::settings::device_settings::DeviceSettings;
 

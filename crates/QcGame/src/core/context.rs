@@ -41,6 +41,7 @@ impl Context {
         let engineUBO = Arc::new(UniformBuffer::new(6));
         let jsRuntimeManager = Ref::new(JsRuntimeManager::new());
         let resourceManager = Arc::new(ResourceManager::new());
+        
         Arc::new(Self {
             device,
             inputManager,

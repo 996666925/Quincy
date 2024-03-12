@@ -6,11 +6,17 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+QcRender = { path = "../QcRender" }
+QcTools = { path = "../QcTools" }
+QcUI = { path = "../QcUI" }
+QcWindowing = { path = "../QcWindowing" }
+QcCore = { path = "../QcCore" }
+egui_tiles = "0.7.2"
 eframe="0.26"
 egui = "0.26"
 egui-winit = "0.26"
-egui_glow = { version = "0.26", features = ["winit"] }
-egui_tiles = "0.7.2"
+# egui_glow = { version = "0.26", features = ["winit"] }
+
 env_logger = "0.11.2"
 glutin = "0.31.3"
 glutin-winit = "0.4.2"

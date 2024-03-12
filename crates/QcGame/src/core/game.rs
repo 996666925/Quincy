@@ -68,7 +68,7 @@ impl Game {
                 let camera = Component::new(Camera::new());
                 let mut skybox = SkyBox::new();
 
-                let transform = Component::new(Transform::new(Point3::new(0., 2., 0.)));
+                let transform = Component::new(Transform::new(Point3::new(0., 0., 0.)));
                 let mut obj = GameObject::new("Camera");
                 obj.insert(camera);
                 obj.insert(Component::new(skybox));
@@ -90,9 +90,9 @@ impl Game {
                     let objId = currentScene.add_child_with_parent(obj, Some(parent));
                     let obj = &mut currentScene[objId];
 
-                    let mut transform = Transform::new(Point3::new(0., -2., 0.));
+                    let mut transform = Transform::new(Point3::new(0., -1., 0.));
 
-                    transform.set_scale(Vector3::new(3., 1., 3.));
+                    transform.set_scale(Vector3::new(5., 1., 5.));
                     let mut meshRender = MeshRender::new();
                     let mut model = Mesh::plane();
                     model.setMaterialIndex(0);

@@ -63,6 +63,8 @@ impl Texture {
         )
     }
 
+    
+
     pub fn new(res: Resource) -> Self {
         let Resource { file, name } = res;
         unsafe {
@@ -136,10 +138,7 @@ impl Texture {
 
                     gl::BindTexture(gl::TEXTURE_2D, 0);
                 }
-                TextureKind::Cube {
-                    mut width,
-                    mut height,
-                } => {
+                TextureKind::Cube { width, height } => {
                     gl::CreateTextures(gl::TEXTURE_CUBE_MAP, 1, &mut texture);
                     gl::BindTexture(gl::TEXTURE_CUBE_MAP, texture);
                     let mut dds =

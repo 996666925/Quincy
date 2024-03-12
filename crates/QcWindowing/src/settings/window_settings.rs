@@ -29,3 +29,15 @@ impl Default for WindowSettings {
         }
     }
 }
+
+impl WindowSettings {
+    pub fn with_width(mut self, width: i32) -> Self {
+        self.width = width;
+        self
+    }
+
+    pub fn with_height(mut self, height: i32) -> Self {
+        self.height = height;
+        self
+    }
+}

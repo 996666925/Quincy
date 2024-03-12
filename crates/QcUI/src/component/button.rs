@@ -1,4 +1,4 @@
-use egui::{Color32, CursorIcon, Frame, Key, Margin, RichText, Stroke, Vec2, WidgetText};
+use egui::{Color32, CursorIcon, Frame, Key, Margin, RichText, Rounding, Stroke, Vec2, WidgetText};
 use enum_variant_eq::{enum_variant_eq_derive::*, *};
 use serde::{Deserialize, Serialize};
 
@@ -13,12 +13,18 @@ use crate::{
 
 use super::UiNodeTrait;
 
-#[derive(Debug, Deserialize, Serialize, Clone, EnumVariantEq)]
+#[derive(Debug, Deserialize, Serialize, Copy, Clone, EnumVariantEq)]
 pub enum ButtonMessage {
     Clicked,
     Hovered,
     Pressed,
     Released,
+}
+
+impl Into<UiMessageType> for ButtonMessage {
+    fn into(self) -> UiMessageType {
+        UiMessageType::ButtonMessage(self)
+    }
 }
 
 #[derive(Control, Serialize, Deserialize, Debug)]
@@ -42,7 +48,7 @@ impl UiNodeTrait for Button {
 
     fn renderInner(&mut self, ctx: &mut UiContext) {
         let text = RichText::new(&self.text).size(self.font_size);
-      
+
         let color = if self.isClick {
             ctx.sender.sendMessage(UiMessage(
                 self.uuid,
@@ -56,8 +62,8 @@ impl UiNodeTrait for Button {
         };
         let button = egui::Button::new(text)
             .fill(color)
-            .stroke(Stroke::new(0.5, Color32::BLACK));
-
+            .rounding(self.radius)
+            .stroke(self.border);
         let result = ctx.ui.add_sized([self.width, self.height], button);
         let result = result.interact(egui::Sense::click_and_drag());
 
@@ -93,7 +99,8 @@ impl Default for Button {
             widget: Widget::default()
                 .with_width(100.)
                 .with_height(30.)
-                .with_background(Color32::from_rgb(239, 239, 239)),
+                .with_background(Color32::from_rgb(239, 239, 239))
+                .with_border(Stroke::new(0.5, Color32::BLACK)),
         }
     }
 }

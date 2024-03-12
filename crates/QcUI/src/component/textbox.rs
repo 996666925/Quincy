@@ -1,13 +1,16 @@
 use std::fmt::Debug;
 
-use egui::{text_edit::TextEditState, Align, Align2, Color32, Key, Stroke, TextBuffer, Vec2};
+use egui::{
+    text_edit::TextEditState, Align, Align2, Color32, FontDefinitions, FontFamily, FontId, Key,
+    Layout, RichText, Stroke, TextBuffer, TextStyle, Vec2,
+};
 use serde::{Deserialize, Serialize};
 use QcMacros::Control;
 use QcTools::{message::messageSender::MessageSender, utils::r#ref::Ref};
 use QcWindowing::{dpi::LogicalPosition, Window};
 
 use crate::{
-    core::context::UiContext,
+    core::{context::UiContext, ui_manager::DEFAULT_FONT},
     message::{ime::ImeMessage, UiMessage, UiMessageType},
 };
 
@@ -39,20 +42,31 @@ impl UiNodeTrait for TextBox {
 
             let width = self.width;
             let height = self.height;
+            let font_size = self.font_size;
+            let color = self.foreground;
+
+            let hint_text = RichText::new(&self.hint_text)
+                .size(font_size)
+                .line_height(Some(self.height));
+
+            let margin = self.padding.left_top();
 
             let input = if self.multiline {
                 egui::TextEdit::multiline(&mut self.text)
             } else {
                 egui::TextEdit::singleline(&mut self.text)
             }
-            .text_color(Color32::BLACK)
+            .text_color(color)
             .horizontal_align(self.align.x())
             .vertical_align(self.align.y())
-            .hint_text(&self.hint_text)
-            .min_size(Vec2::new(width, height));
+            .margin(margin)
+            .hint_text(hint_text)
+            .font(FontId {
+                size: font_size,
+                family: Default::default(),
+            });
 
-            ui.add(input)
-            // let result = ui.add_sized([width, height], input);
+            let result = ui.add_sized([width, height], input);
         });
     }
 }
@@ -63,7 +77,7 @@ impl TextBox {
             text: String::new(),
             focus: false,
             widget,
-            align: Align2::LEFT_TOP,
+            align: Align2::LEFT_CENTER,
             hint_text: String::new(),
             multiline: false,
         }
@@ -96,7 +110,7 @@ impl Default for TextBox {
             text: String::new(),
             focus: false,
             widget: Widget::default().with_width(100.).with_height(30.),
-            align: Align2::LEFT_TOP,
+            align: Align2::LEFT_CENTER,
             hint_text: String::new(),
             multiline: false,
         }

@@ -6,6 +6,7 @@ use thunderdome::Arena;
 
 use taffy::style::FlexDirection;
 
+use QcCore::ecs::graph::Graph;
 use QcMacros::Control;
 
 use QcTools::message::messageSender::MessageSender;
@@ -13,7 +14,7 @@ use QcWindowing::{CursorIcon, Window};
 
 use crate::{core::context::UiContext, message::UiMessage};
 
-use super::{UiNode, UiNodeTrait};
+use super::{Canvas, UiNode, UiNodeTrait};
 
 #[derive(Control, Serialize, Deserialize, Debug)]
 pub struct Panel {
@@ -38,7 +39,7 @@ impl UiNodeTrait for Panel {
         let UiContext { ui, sender } = ctx;
         ui.scope(|ui| {
             ui.style_mut().spacing.item_spacing = Vec2::new(self.spacing, self.spacing);
-    
+
             if self.width != 0.0 && self.height != 0.0 {
                 ui.set_width(self.width);
                 ui.set_height(self.height);
@@ -96,6 +97,14 @@ impl Panel {
         self
     }
 
+    pub fn with_children(mut self, children: Vec<UiNode>) -> Self {
+        self.children = Arena::new();
+        for child in children {
+            self.addChild(child);
+        }
+        self
+    }
+
     pub fn addChild(&mut self, node: UiNode) -> Index {
         let index = self.children.insert(node);
         self.children[index].value.setId(index);
@@ -104,5 +113,9 @@ impl Panel {
 
     pub fn removeChild(&mut self, node: Index) -> Option<UiNode> {
         self.children.remove(node)
+    }
+
+    pub fn build(self, canvas: &mut Canvas) -> Index {
+        canvas.addChild(UiNode::new(self))
     }
 }

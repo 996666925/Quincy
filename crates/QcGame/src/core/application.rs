@@ -13,7 +13,7 @@ use QcWindowing::{
     dpi::LogicalPosition,
     event::{ElementState, Event, Ime, WindowEvent},
     event_loop::{ControlFlow, EventLoop, EventLoopBuilder},
-    settings::window_settings::WindowSettings,
+    settings::WindowSettings,
     window::QcWindow,
     Window, WindowBuilder,
 };

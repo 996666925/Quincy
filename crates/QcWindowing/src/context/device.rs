@@ -14,7 +14,7 @@ use glutin_winit::GlWindow;
 use raw_window_handle::{HasRawWindowHandle, RawDisplayHandle, WindowsDisplayHandle};
 use winit::window::Window;
 
-use crate::settings::device_settings::DeviceSettings;
+use crate::settings::DeviceSettings;
 
 pub struct Device {
     vsync: bool,

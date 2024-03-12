@@ -11,20 +11,23 @@ use crate::{core::context::UiContext, message::UiMessage};
 #[typetag::serde(tag = "type")]
 pub trait UiNodeTrait: BaseComponentTrait + SetId {
     fn render(&mut self, ctx: &mut UiContext) {
-    
         let frame = self.renderFrame(ctx);
         let UiContext { ui, sender } = ctx;
-        
-        frame.show(ctx.ui, |ui| self.renderInner(&mut UiContext::new(ui, sender)));
+
+        frame.show(ctx.ui, |ui| {
+            self.renderInner(&mut UiContext::new(ui, sender))
+        });
     }
 
     fn renderTop(&mut self, ctx: &mut UiContext) {
         let frame = self.renderFrame(ctx);
         let UiContext { ui, sender } = ctx;
-        
+
         egui::CentralPanel::default()
             .frame(frame)
-            .show(ui.ctx(), move |ui| self.renderInner(&mut UiContext::new(ui, sender)));
+            .show(ui.ctx(), move |ui| {
+                self.renderInner(&mut UiContext::new(ui, sender))
+            });
     }
 
     fn renderFrame(&self, ctx: &mut UiContext) -> egui::Frame {
@@ -32,6 +35,19 @@ pub trait UiNodeTrait: BaseComponentTrait + SetId {
     }
 
     fn renderInner(&mut self, ctx: &mut UiContext) {}
+}
+
+pub trait ToUi: Sized + UiNodeTrait {
+    fn toUi(self) -> UiNode;
+}
+
+impl<T> ToUi for T
+where
+    Self: UiNodeTrait,
+{
+    fn toUi(self) -> UiNode {
+        UiNode::new(self)
+    }
 }
 
 pub trait SetId {

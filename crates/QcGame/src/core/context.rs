@@ -14,7 +14,7 @@ use QcTools::utils::r#ref::Ref;
 use QcUI::core::ui_manager::UiManager;
 use QcWindowing::{
     context::device::Device, event_loop::EventLoop, input::input_manager::InputManager,
-    settings::device_settings::DeviceSettings, window::QcWindow,
+    settings::DeviceSettings, window::QcWindow,
 };
 
 pub struct Context {
@@ -37,11 +37,11 @@ impl Context {
         let device = Device::new(&window_read, DeviceSettings::default());
         let uiManager = UiManager::new(&window_read, el);
         let renderer = Renderer::new(DriverSettings::default());
-        let sceneManager =SceneManager::new();
+        let sceneManager = SceneManager::new();
         let engineUBO = Arc::new(UniformBuffer::new(6));
         let jsRuntimeManager = Ref::new(JsRuntimeManager::new());
         let resourceManager = Arc::new(ResourceManager::new());
-        
+
         Arc::new(Self {
             device,
             inputManager,

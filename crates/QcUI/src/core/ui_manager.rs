@@ -37,6 +37,8 @@ pub struct UiManager {
     sender: MessageSender<UiMessage>,
 }
 
+pub static DEFAULT_FONT: &str = "OPPOSans";
+
 impl Debug for UiManager {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.pad("UiManager { .. }")
@@ -115,13 +117,13 @@ impl UiManager {
             let id = msg.0;
 
             let msg = msg.1;
-            
+
             for canvas in &canvasList {
                 let uiBind = canvas.getUiBind(id);
                 if let Some(bind) = uiBind {
                     let list = bind
                         .iter()
-                        .filter(|u| u.msgType.eq(&msg))
+                        .filter(|u| u.get_msg_type().eq(&msg))
                         .collect::<Vec<&UiBind>>();
 
                     if list.is_empty() {
@@ -129,6 +131,43 @@ impl UiManager {
                     }
 
                     Self::postUiMessage(scope, &list, &msg);
+                }
+            }
+        }
+    }
+
+    pub fn update_not_js(&mut self, canvasList: Vec<&mut Canvas>) {
+        let canvasList = canvasList
+            .iter()
+            .filter(|canvas| !canvas.uiBindList.is_empty())
+            .collect::<Vec<&&mut Canvas>>();
+
+        if canvasList.is_empty() {
+            return;
+        }
+        while let Ok(msg) = self.receiver.try_recv() {
+            let id = msg.0;
+
+            let msg = msg.1;
+
+            for canvas in &canvasList {
+                let uiBind = canvas.getUiBind(id);
+                if let Some(bind) = uiBind {
+                    let list = bind
+                        .iter()
+                        .filter(|u| u.get_msg_type().eq(&msg))
+                        .collect::<Vec<&UiBind>>();
+
+                    if list.is_empty() {
+                        return;
+                    }
+
+                    for e in list {
+                        match e {
+                            UiBind::NativeBind(bind) => bind.call(),
+                            UiBind::JsBind(_) => {}
+                        }
+                    }
                 }
             }
         }
@@ -162,5 +201,9 @@ impl UiManager {
         let undefined = v8::undefined(scope).into();
         let uiBind = serde_v8::to_v8(scope, bind).unwrap();
         func.call(scope, undefined, &[typeName, args, uiBind]);
+    }
+
+    pub fn defalut_font(&self) -> &str {
+        DEFAULT_FONT
     }
 }

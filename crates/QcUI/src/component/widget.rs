@@ -1,7 +1,9 @@
-use egui::{Color32, Margin};
+use egui::{Color32, Margin, Rounding, Stroke};
 use serde::{Deserialize, Deserializer, Serialize};
 use thunderdome::Index;
 use uuid::Uuid;
+
+use crate::message::{EventBuilder, UiMessageType};
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Widget {
@@ -14,6 +16,8 @@ pub struct Widget {
     pub padding: Margin,
     pub background: Color32,
     pub foreground: Color32,
+    pub radius: Rounding,
+    pub border: Stroke,
     pub visible: bool,
     pub children: Vec<Index>,
     pub parent: Index,
@@ -33,6 +37,8 @@ impl Default for Widget {
             height: 0.0,
             margin: Default::default(),
             padding: Default::default(),
+            radius: Default::default(),
+            border: Default::default(),
             background: Color32::TRANSPARENT,
             foreground: Color32::BLACK,
             visible: true,
@@ -81,4 +87,24 @@ impl Widget {
         self.padding = padding;
         self
     }
+
+    pub fn with_radius(mut self, radius: Rounding) -> Self {
+        self.radius = radius;
+        self
+    }
+
+    pub fn with_border(mut self, border: Stroke) -> Self {
+        self.border = border;
+        self
+    }
+
+    pub fn on_event(
+        self,
+        event: UiMessageType,
+        func: Box<dyn Fn(UiMessageType)>,
+    ) -> EventBuilder {
+        EventBuilder::new(self).on_event(event, func)
+    }
+
+
 }

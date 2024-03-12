@@ -1,18 +1,13 @@
-use std::{
-    ffi::CString,
-    ops::{Deref, DerefMut},
-    sync::{Arc, RwLock},
-};
+use std::ops::Deref;
 
 use winit::{
-    dpi::{LogicalPosition, LogicalSize},
-    event::{ElementState, Event, WindowEvent},
-    event_loop::{ControlFlow, EventLoop, EventLoopWindowTarget},
+    dpi::LogicalSize,
+    event_loop::EventLoop,
     window::{Window, WindowBuilder},
 };
-use QcTools::{eventing::event::Event as QcEvent, utils::r#ref::Ref};
+use QcTools::utils::r#ref::Ref;
 
-use crate::{context::device::Device, settings::window_settings::WindowSettings};
+use crate::settings::WindowSettings;
 
 #[derive(Debug)]
 pub struct QcWindow {
@@ -22,7 +17,7 @@ pub struct QcWindow {
 impl QcWindow {
     pub fn new(el: &EventLoop<()>, setting: WindowSettings) -> Ref<Self> {
         let window = Self::createWindow(el, setting);
-        window.set_ime_allowed(true);
+        // window.set_ime_allowed(true);
         Ref::new(Self { window })
     }
     pub fn handle(&self) -> &Window {
@@ -41,7 +36,7 @@ impl QcWindow {
         // window.set_ime_allowed(true);
         // window.set_cursor_visible(false);
         // window.set_ime_position(LogicalPosition::new(0, 0));
-        
+
         window
     }
 }

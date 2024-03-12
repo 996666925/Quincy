@@ -59,10 +59,11 @@ impl Canvas {
     }
 
     pub fn addUiBind(&mut self, comp: Uuid, bind: UiBind) {
-        self.uiBindList
-            .entry(comp)
-            .and_modify(|vec| vec.push(bind.clone()))
-            .or_insert(vec![bind.clone()]);
+        self.uiBindList.entry(comp).or_insert(vec![]).push(bind);
+    }
+
+    pub fn add_ui_bind_list(&mut self, comp: Uuid, mut bind: Vec<UiBind>) {
+        self.uiBindList.entry(comp).or_insert(vec![]).append(&mut bind);
     }
 
     pub fn getUiBind(&self, comp: Uuid) -> Option<&Vec<UiBind>> {

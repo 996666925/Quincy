@@ -47,7 +47,9 @@ impl UiNodeTrait for Button {
     }
 
     fn renderInner(&mut self, ctx: &mut UiContext) {
-        let text = RichText::new(&self.text).size(self.font_size);
+        let text = RichText::new(&self.text)
+            .size(self.font_size)
+            .color(self.foreground);
 
         let color = if self.isClick {
             ctx.sender.sendMessage(UiMessage(

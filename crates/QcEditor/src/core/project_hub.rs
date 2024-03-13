@@ -1,16 +1,17 @@
-use std::{cell::Cell, sync::Arc};
+use std::sync::mpsc::Sender;
 
-use QcRender::{core::Renderer, settings::driver_settings::DriverSettings};
-use QcTools::utils::r#ref::Ref;
-use QcUI::component::PanelWindow;
+use egui::{Color32, Vec2};
+
+use QcUI::component::{Button, ButtonMessage, Canvas, Grid, Panel, PanelWindow, ToUi, Widget};
 use QcWindowing::{
     event::{Event, WindowEvent},
     event_loop::{ControlFlow, EventLoop},
     settings::WindowSettings,
-    window::QcWindow,
 };
 
-use super::{context::Context, editor::Editor, project_hub_panel::ProjectHubPanel};
+use crate::core::message::Page;
+
+use super::{editor::Editor, message::EditorMessage};
 
 pub struct ProjectHub {
     editor: Editor,
@@ -75,5 +76,107 @@ impl ProjectHub {
                 }
             })
             .unwrap();
+    }
+}
+
+pub struct TestPanel {
+    canvas: Canvas,
+    sender: Sender<EditorMessage>,
+}
+
+impl TestPanel {
+    pub fn new(sender: Sender<EditorMessage>) -> Self {
+        let mut hub = TestPanel {
+            canvas: Canvas::new(),
+            sender,
+        };
+        hub.init_view();
+        hub
+    }
+
+    pub fn init_view(&mut self) {
+        let sender = self.sender.clone();
+
+        Grid::new(
+            Widget::default()
+                .with_padding(100f32.into())
+                .with_background(Color32::from_rgb(23, 23, 26)),
+        )
+        .with_columns(3)
+        .with_spacing(Vec2::new(20., 20.))
+        .with_children(vec![
+            Button::new(
+                Widget::default()
+                    .with_background(Color32::from_rgb(179, 128, 0))
+                    .with_height(30.)
+                    .with_width(100.)
+                    .on_event(
+                        ButtonMessage::Clicked.into(),
+                        Box::new(move |msg| {
+                            println!("切换界面");
+
+                            sender.send(EditorMessage::GoTo(Page::ProjectHub)).unwrap();
+                        }),
+                    )
+                    .build(&mut self.canvas),
+            )
+            .with_text("切换回去")
+            .toUi(),
+            Button::new(
+                Widget::default()
+                    .with_background(Color32::from_rgb(179, 128, 0))
+                    .with_height(30.)
+                    .with_width(100.),
+            )
+            .with_text("切换回去")
+            .toUi(),
+            Button::new(
+                Widget::default()
+                    .with_background(Color32::from_rgb(179, 128, 0))
+                    .with_height(30.)
+                    .with_width(100.),
+            )
+            .with_text("切换回去")
+            .toUi(),
+            Button::new(
+                Widget::default()
+                    .with_background(Color32::from_rgb(179, 128, 0))
+                    .with_height(30.)
+                    .with_width(100.),
+            )
+            .with_text("切换回去")
+            .toUi(),
+            Button::new(
+                Widget::default()
+                    .with_background(Color32::from_rgb(179, 128, 0))
+                    .with_height(30.)
+                    .with_width(100.),
+            )
+            .with_text("切换回去")
+            .toUi(),
+            Button::new(
+                Widget::default()
+                    .with_background(Color32::from_rgb(179, 128, 0))
+                    .with_height(30.)
+                    .with_width(100.),
+            )
+            .with_text("切换回去")
+            .toUi(),
+            Button::new(
+                Widget::default()
+                    .with_background(Color32::from_rgb(179, 128, 0))
+                    .with_height(30.)
+                    .with_width(100.),
+            )
+            .with_text("切换回去")
+            .toUi(),
+        ])
+        .build(&mut self.canvas);
+    }
+}
+
+impl PanelWindow for TestPanel {
+    fn get_canvas(&mut self) -> &mut Canvas {
+        &mut self.canvas
     }
 }

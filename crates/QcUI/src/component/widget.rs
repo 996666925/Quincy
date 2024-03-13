@@ -1,4 +1,4 @@
-use egui::{Color32, Margin, Rounding, Stroke};
+use egui::{Align2, Color32, Margin, Rounding, Stroke};
 use serde::{Deserialize, Deserializer, Serialize};
 use thunderdome::Index;
 use uuid::Uuid;
@@ -25,6 +25,7 @@ pub struct Widget {
     pub enabled: bool,
     pub opacity: f32,
     pub font_size: f32,
+    pub align: Align2,
 }
 
 impl Default for Widget {
@@ -48,6 +49,7 @@ impl Default for Widget {
             enabled: true,
             opacity: 1.0,
             font_size: 14.,
+            align: Align2::LEFT_TOP,
         }
     }
 }
@@ -98,13 +100,12 @@ impl Widget {
         self
     }
 
-    pub fn on_event(
-        self,
-        event: UiMessageType,
-        func: Box<dyn Fn(UiMessageType)>,
-    ) -> EventBuilder {
-        EventBuilder::new(self).on_event(event, func)
+    pub fn with_align(mut self, align: Align2) -> Self {
+        self.align = align;
+        self
     }
 
-
+    pub fn on_event(self, event: UiMessageType, func: Box<dyn Fn(UiMessageType)>) -> EventBuilder {
+        EventBuilder::new(self).on_event(event, func)
+    }
 }

@@ -135,7 +135,7 @@ impl Game {
                     obj.addComponent(Component::new(materialRender));
                     obj
                 };
-          
+
                 {
                     let mut canvas = Canvas::new();
 
@@ -214,9 +214,13 @@ impl Game {
                                 .with_spacing(20.);
 
                         let createTextbox = |align: Align2| {
-                            TextBox::new(Widget::default().with_height(100.).with_width(100.))
-                                .with_text("确定")
-                                .with_align(align)
+                            TextBox::new(
+                                Widget::default()
+                                    .with_height(100.)
+                                    .with_width(100.)
+                                    .with_align(align),
+                            )
+                            .with_text("确定")
                         };
 
                         let textbox = createTextbox(Align2::LEFT_TOP);

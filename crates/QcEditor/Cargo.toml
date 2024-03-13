@@ -11,8 +11,9 @@ QcTools = { path = "../QcTools" }
 QcUI = { path = "../QcUI" }
 QcWindowing = { path = "../QcWindowing" }
 QcCore = { path = "../QcCore" }
+thunderdome = { path = "../../../thunderdome" }
 egui_tiles = "0.7.2"
-eframe="0.26"
+eframe = "0.26"
 egui = "0.26"
 egui-winit = "0.26"
 # egui_glow = { version = "0.26", features = ["winit"] }

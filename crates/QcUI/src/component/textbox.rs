@@ -21,7 +21,6 @@ pub struct TextBox {
     text: String,
     focus: bool,
     widget: Widget,
-    align: Align2,
     hint_text: String,
     multiline: bool,
 }
@@ -44,6 +43,8 @@ impl UiNodeTrait for TextBox {
             let height = self.height;
             let font_size = self.font_size;
             let color = self.foreground;
+            let halign = self.align.x();
+            let valign = self.align.y();
 
             let hint_text = RichText::new(&self.hint_text)
                 .size(font_size)
@@ -57,8 +58,8 @@ impl UiNodeTrait for TextBox {
                 egui::TextEdit::singleline(&mut self.text)
             }
             .text_color(color)
-            .horizontal_align(self.align.x())
-            .vertical_align(self.align.y())
+            .horizontal_align(halign)
+            .vertical_align(valign)
             .margin(margin)
             .hint_text(hint_text)
             .font(FontId {
@@ -77,7 +78,6 @@ impl TextBox {
             text: String::new(),
             focus: false,
             widget,
-            align: Align2::LEFT_CENTER,
             hint_text: String::new(),
             multiline: false,
         }
@@ -85,11 +85,6 @@ impl TextBox {
 
     pub fn with_text(mut self, text: &str) -> Self {
         self.text = text.to_string();
-        self
-    }
-
-    pub fn with_align(mut self, align: Align2) -> Self {
-        self.align = align;
         self
     }
 
@@ -110,7 +105,6 @@ impl Default for TextBox {
             text: String::new(),
             focus: false,
             widget: Widget::default().with_width(100.).with_height(30.),
-            align: Align2::LEFT_CENTER,
             hint_text: String::new(),
             multiline: false,
         }

@@ -19,6 +19,8 @@ mod image;
 pub use image::*;
 mod image_loader;
 pub use image_loader::*;
+mod grid;
+pub use grid::*;
 
 use crate::core::ui_manager::UiManager;
 

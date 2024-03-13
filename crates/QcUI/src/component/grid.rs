@@ -1,6 +1,6 @@
 use std::sync::mpsc::Sender;
 
-use egui::{Frame, Layout, Ui, Vec2};
+use egui::{style::Spacing, Frame, Layout, Ui, Vec2};
 use serde::{Deserialize, Serialize};
 use thunderdome::Arena;
 
@@ -17,15 +17,15 @@ use crate::{core::context::UiContext, message::UiMessage};
 use super::{Canvas, UiNode, UiNodeTrait};
 
 #[derive(Control, Serialize, Deserialize, Debug)]
-pub struct Panel {
+pub struct Grid {
     pub widget: Widget,
-    pub orientation: FlexDirection,
     pub children: Arena<UiNode>,
-    pub spacing: f32,
+    pub columns: i32,
+    pub spacing: Vec2,
 }
 
 #[typetag::serde]
-impl UiNodeTrait for Panel {
+impl UiNodeTrait for Grid {
     fn renderFrame(&self, ctx: &mut UiContext) -> egui::Frame {
         let frame = Frame::none()
             .fill(self.background)
@@ -38,25 +38,24 @@ impl UiNodeTrait for Panel {
     fn renderInner(&mut self, ctx: &mut UiContext) {
         let UiContext { ui, sender } = ctx;
         ui.scope(|ui| {
-            ui.style_mut().spacing.item_spacing = Vec2::new(self.spacing, self.spacing);
-
             if self.width != 0.0 && self.height != 0.0 {
                 ui.set_width(self.width);
                 ui.set_height(self.height);
             }
 
-            let layout = match self.orientation {
-                FlexDirection::Column => Layout::top_down(self.align.x()),
-                FlexDirection::ColumnReverse => Layout::bottom_up(self.align.x()),
-                FlexDirection::Row => Layout::left_to_right(self.align.y()),
-                FlexDirection::RowReverse => Layout::right_to_left(self.align.y()),
-            };
+            let res = egui::Grid::new(&self.name)
+                .spacing(self.spacing)
+                .show(ui, |ui| {
+                    let mut index = 1;
+                    for (_, node) in self.children.iter_mut() {
+                        node.value.render(&mut UiContext::new(ui, sender));
 
-            let res = ui.with_layout(layout, |ui| {
-                for (_, node) in self.children.iter_mut() {
-                    node.value.render(&mut UiContext::new(ui, sender));
-                }
-            });
+                        if index % self.columns == 0 {
+                            ui.end_row();
+                        }
+                        index += 1;
+                    }
+                });
 
             let rect = res.response.rect;
             self.width = rect.width();
@@ -65,32 +64,33 @@ impl UiNodeTrait for Panel {
     }
 }
 
-impl Default for Panel {
+impl Default for Grid {
     fn default() -> Self {
         Self {
             widget: Default::default(),
-            orientation: FlexDirection::Row,
             children: Default::default(),
-            spacing: 0.,
+            columns: 1,
+            spacing: Default::default(),
         }
     }
 }
 
-impl Panel {
+impl Grid {
     pub fn new(widget: Widget) -> Self {
         Self {
             widget,
+            columns: 1,
             ..Default::default()
         }
     }
 
-    pub fn with_orientation(mut self, orientation: FlexDirection) -> Self {
-        self.orientation = orientation;
+    pub fn with_spacing(mut self, spacing: Vec2) -> Self {
+        self.spacing = spacing;
         self
     }
 
-    pub fn with_spacing(mut self, spacing: f32) -> Self {
-        self.spacing = spacing;
+    pub fn with_columns(mut self, columns: i32) -> Self {
+        self.columns = columns;
         self
     }
 

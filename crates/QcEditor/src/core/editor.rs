@@ -1,4 +1,10 @@
-use std::{cell::Cell, sync::Arc};
+use std::{
+    cell::Cell,
+    sync::{
+        mpsc::{channel, Receiver, Sender},
+        Arc,
+    },
+};
 
 use QcRender::{core::Renderer, settings::driver_settings::DriverSettings};
 use QcTools::utils::r#ref::Ref;
@@ -7,13 +13,22 @@ use QcWindowing::{
     event::WindowEvent, event_loop::EventLoop, settings::WindowSettings, window::QcWindow,
 };
 
-use super::{context::Context, project_hub_panel::ProjectHubPanel};
+use crate::managers::page_manager::PageManager;
+
+use super::{
+    context::Context,
+    message::{EditorMessage, Page},
+    project_hub::TestPanel,
+    project_hub_panel::ProjectHubPanel,
+};
 
 pub struct Editor {
     pub renderer: Arc<Renderer>,
     pub context: Arc<Context>,
+    pub page_manager: PageManager,
     pub window: Ref<QcWindow>,
-    pub main_panel: Box<dyn PanelWindow>,
+    receiver: Receiver<EditorMessage>,
+    sender: Sender<EditorMessage>,
 }
 
 impl Editor {
@@ -24,13 +39,22 @@ impl Editor {
 
         let renderer = Arc::new(Renderer::new(DriverSettings::default()));
 
-        let main_panel = Box::new(ProjectHubPanel::new());
+        let (sender, receiver) = channel();
+
+        let main_panel = Box::new(ProjectHubPanel::new(sender.clone()));
+
+        let mut page_manager = PageManager::new();
+
+        page_manager.add_page(Page::ProjectHub, main_panel);
+        page_manager.add_page(Page::Editor, Box::new(TestPanel::new(sender.clone())));
 
         Self {
             window,
             context,
             renderer,
-            main_panel,
+            page_manager,
+            sender,
+            receiver,
         }
     }
 
@@ -60,8 +84,18 @@ impl Editor {
         let mut uiManager = self.context.uiManager.try_write().unwrap();
         let window = self.window.try_read().unwrap();
 
-        self.main_panel.show(&window, &mut uiManager);
-        self.main_panel.update(&mut uiManager);
+        if let Some(page) = self.page_manager.get_current_mut() {
+            page.show(&window, &mut uiManager);
+            page.update(&mut uiManager);
+        }
+
+        while let Ok(msg) = self.receiver.try_recv() {
+            match msg {
+                EditorMessage::GoTo(page) => {
+                    self.page_manager.navigate_to(page);
+                }
+            }
+        }
     }
 
     pub fn post_update(&self) {

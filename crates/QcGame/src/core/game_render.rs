@@ -17,6 +17,7 @@ use QcTools::utils::r#ref::Ref;
 pub struct GameRender {
     context: Arc<Context>,
     //默认材质
+    //default material
     material: Material,
 }
 

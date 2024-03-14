@@ -29,9 +29,11 @@ impl Default for GameObject {
         Self {
             name: "GameObject".to_string(),
             //组件
+            //components 
             pool: Arena::new(),
             root: None,
             //对象
+            //objects 
             children: Arena::new(),
             parent: None,
             active: false,
@@ -72,6 +74,7 @@ impl GameObject {
             name: name.to_string(),
             pool: Arena::new(),
             //GameObject Pool中的id
+            //id in GameObject Pool
             root: None,
             children: Arena::new(),
             parent: None,
@@ -83,16 +86,19 @@ impl GameObject {
     }
 
     ///添加对象请使用Scene::add_child_with_parent方法
+    ///if you want to add object ,please use Scene::add_child_with_parent method 
     pub fn add_child(&mut self, gameobject: Index) -> Index {
         self.children.insert(gameobject)
     }
 
     ///移除对象请使用Scene::remove_child_with_parent方法
+    ///if you want to remove object ,please use Scene::remove_child_with_parent method 
     pub fn remove_child(&mut self, gameobject: Index) -> Option<Index> {
         self.children.remove(gameobject)
     }
 
     ///未添加到场景时，组件无法获取到对象
+    ///components can't access object when it has not been added in scene 
     pub fn addComponent(&mut self, mut component: Component) -> Index {
         component.set_parent(self.root);
         self.pool.insert(component)

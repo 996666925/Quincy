@@ -89,6 +89,7 @@ where
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, Default)]
 pub struct ComponentInner {
     //父对象的index
+    //index of parent object 
     pub parent: Option<Index>,
     pub active: bool,
 }

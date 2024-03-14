@@ -65,6 +65,7 @@ pub fn op_createGameObject<'a>(
     let obj = serde_v8::to_v8(scope, go).unwrap();
 
     //继承js GameObject
+    //inherit js gameobject 
     {
         let obj = obj.to_object(scope).unwrap();
         let global = scope.get_current_context().global(scope);

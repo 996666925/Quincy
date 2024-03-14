@@ -21,12 +21,16 @@ impl UiBind {
 #[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct JsUiBind {
     //事件类型
+    //event type 
     pub msgType: UiMessageType,
     //游戏对象id
+    //id of gameobject 
     objId: Index,
+    //id of component 
     //组件id
     compId: Index,
     //方法名
+    //method name 
     funcName: String,
 }
 
@@ -44,8 +48,10 @@ impl JsUiBind {
 #[derive(Deserialize, Serialize)]
 pub struct NativeUiBind {
     //事件类型
+    //event type
     pub msgType: UiMessageType,
     //方法名
+    //method name 
     #[serde(skip_serializing)]
     #[serde(deserialize_with = "deserializeFunc")]
     func: Box<dyn Fn(UiMessageType)>,

@@ -55,6 +55,7 @@ pub struct Game {
 
 impl Game {
     ///初始化场景(暂时)
+    //initialize scene (temporary)
     pub fn createScene(context: Arc<Context>) {
         let mut sceneManagerRef = context.sceneManager.try_write().unwrap();
         // sceneManagerRef.loadSceneFromStr(
@@ -85,6 +86,7 @@ impl Game {
                 let parent = currentScene.add_child(parent);
 
                 //添加平面
+                //add plane 
                 {
                     let obj = GameObject::new("Plane");
                     let objId = currentScene.add_child_with_parent(obj, Some(parent));
@@ -111,6 +113,7 @@ impl Game {
                 }
 
                 //添加猴头
+                //add monkey head 
                 let obj = {
                     let obj = GameObject::new("Monkey");
                     let objId = currentScene.add_child_with_parent(obj, Some(parent));
@@ -305,6 +308,7 @@ impl Game {
 
     pub fn new(context: Arc<Context>) -> Self {
         //加载js文件和scene文件
+        //load js and scene file
         {
             let mut jsRuntimeManager = context.jsRuntimeManager.try_write().unwrap();
             jsRuntimeManager
@@ -396,9 +400,11 @@ impl Game {
         {}
 
         //渲染游戏场景
+        //render game scene 
         self.gameRender.renderScene();
 
         //渲染游戏ui
+        //render game ui
         {
             let mut jsRuntimeManager = self.context.jsRuntimeManager.try_write().unwrap();
 

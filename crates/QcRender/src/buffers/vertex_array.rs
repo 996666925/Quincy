@@ -40,6 +40,7 @@ impl VertexArray {
     }
 
     ///注意此时没有绑定vao、vbo
+    ///notice that it doesn't bind the vao and vbo now
     pub fn bindAttribute(&self, index: u32, size: i32, r#type: Type, stride: usize, offset: usize) {
         unsafe {
             gl::VertexAttribPointer(

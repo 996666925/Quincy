@@ -32,5 +32,7 @@ export class Component  {
 
 
 //把组件实例暴露到全局作用域中，是为了方便rust中创建实例后设置原型对象
+//exposing component instance to global scope
+// to make it convenient to set prototype object after creating instance in rust
 globalThis.__Component__ = new Component();
 

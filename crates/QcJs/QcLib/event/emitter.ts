@@ -1,11 +1,12 @@
 
 /**
  * 用于包装事件的一个小类
+ * a little class to pack the event 
  */
 export class FuncPack {
-    /** 函数 */
+    /** 函数 function */
     public func: Function;
-    /** 上下文 */
+    /** 上下文 context */
     public context: any;
 
     constructor(func: Function, context: any) {
@@ -16,6 +17,7 @@ export class FuncPack {
 
 /**
  * 用于事件管理
+ * to manage event 
  */
 export class Emitter<T> {
     private _messageTable: Map<T, FuncPack[]>;
@@ -25,10 +27,11 @@ export class Emitter<T> {
     }
 
     /**
-     * 开始监听项
-     * @param eventType 监听类型
-     * @param handler 监听函数
-     * @param context 监听上下文
+     * 开始监听项 
+     * start listening item
+     * @param eventType 监听类型 listen type
+     * @param handler 监听函数 listen function 
+     * @param context 监听上下文 listen context
      */
     public on(eventType: T, handler: Function, context: any) {
         let list = this._messageTable.get(eventType);
@@ -44,8 +47,9 @@ export class Emitter<T> {
 
     /**
      * 移除监听项
-     * @param eventType 事件类型
-     * @param handler 事件函数
+     * remove listening item
+     * @param eventType 事件类型 event type
+     * @param handler 事件函数 event function 
      */
     public off(eventType: T, handler: Function) {
         let messageData = this._messageTable.get(eventType);
@@ -58,8 +62,9 @@ export class Emitter<T> {
 
     /**
      * 触发该事件
-     * @param eventType 事件类型
-     * @param data 事件数据
+     * trigger this event 
+     * @param eventType 事件类型 event type
+     * @param data 事件数据 event data
      */
     public emit(eventType: T, ...data: any[]) {
         let list = this._messageTable.get(eventType);
@@ -72,8 +77,9 @@ export class Emitter<T> {
 
     /**
      * 判断是否存在该类型的观察者
-     * @param eventType 事件类型
-     * @param handler 事件函数
+     * judge if the viewer of this type exist  
+     * @param eventType 事件类型 event type 
+     * @param handler 事件函数 event function 
      */
     public has(eventType: T, handler: Function): boolean {
         let list = this._messageTable.get(eventType);

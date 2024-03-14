@@ -28,6 +28,7 @@ pub fn op_addComponent<'a>(
 ) -> v8::Global<v8::Value> {
     let compV8 = v8::Global::new(scope, comp);
     //添加组件
+    //add component 
     {
         let mut state = state.borrow_mut();
         let scene = state.borrow_mut::<*mut Scene>();
@@ -38,6 +39,7 @@ pub fn op_addComponent<'a>(
         }
     }
     //调用组件onStart方法
+    //call the onStart method of component 
     {
         GoExt::setParentName(comp, scope, name);
         GoExt::onStart(comp, scope);

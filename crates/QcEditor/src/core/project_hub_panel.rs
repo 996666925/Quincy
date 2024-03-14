@@ -1,13 +1,9 @@
 use std::sync::mpsc::Sender;
 
-use egui::{Align2, Color32, Margin};
-use env_logger::fmt::style::Color;
+use egui::{Color32, Margin, Vec2};
+
 use QcUI::{
-    component::{
-        Button, ButtonMessage, Canvas, Label, Panel, PanelWindow, TextBox, ToUi, UiNodeTrait,
-        Widget,
-    },
-    core::ui_manager::UiManager,
+    component::{Button, ButtonMessage, Canvas, Label, Panel, PanelWindow, TextBox, ToUi, Widget},
     prelude::FlexDirection,
 };
 
@@ -43,7 +39,7 @@ impl ProjectHubPanel {
         for project in projects {
             let item = Panel::new(Widget::default().with_margin(Margin {
                 top: 20.,
-               ..Default::default()
+                ..Default::default()
             }))
             .with_spacing(20.)
             .with_children(vec![
@@ -138,5 +134,9 @@ impl ProjectHubPanel {
 impl PanelWindow for ProjectHubPanel {
     fn get_canvas(&mut self) -> &mut Canvas {
         &mut self.canvas
+    }
+
+    fn get_size(&self) -> Vec2 {
+        Vec2::new(1000., 580.)
     }
 }

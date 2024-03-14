@@ -1,5 +1,5 @@
 use std::sync::mpsc::Sender;
-
+#[derive(Debug, Clone)]
 pub struct MessageSender<T>(Sender<T>);
 
 impl<T> MessageSender<T> {

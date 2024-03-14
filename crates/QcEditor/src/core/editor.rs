@@ -6,20 +6,24 @@ use std::{
     },
 };
 
+use egui::Vec2;
 use QcRender::{core::Renderer, settings::driver_settings::DriverSettings};
 use QcTools::utils::r#ref::Ref;
 use QcUI::component::PanelWindow;
 use QcWindowing::{
-    event::WindowEvent, event_loop::EventLoop, settings::WindowSettings, window::QcWindow,
+    dpi::LogicalSize,
+    event::{Event, WindowEvent},
+    event_loop::{ControlFlow, EventLoop},
+    monitor::MonitorHandle,
+    settings::WindowSettings,
+    window::QcWindow,
+    Fullscreen,
 };
 
 use crate::managers::page_manager::PageManager;
 
 use super::{
-    context::Context,
-    message::{EditorMessage, Page},
-    project_hub::TestPanel,
-    project_hub_panel::ProjectHubPanel,
+    context::Context, editor_panel::EditorPanel, message::{EditorMessage, Page}, project_hub::TestPanel, project_hub_panel::ProjectHubPanel
 };
 
 pub struct Editor {
@@ -41,12 +45,14 @@ impl Editor {
 
         let (sender, receiver) = channel();
 
-        let main_panel = Box::new(ProjectHubPanel::new(sender.clone()));
+        let project_hub_panel = Box::new(ProjectHubPanel::new(sender.clone()));
+
+        let editor_panel = Box::new(EditorPanel::new(sender.clone()));
 
         let mut page_manager = PageManager::new();
 
-        page_manager.add_page(Page::ProjectHub, main_panel);
-        page_manager.add_page(Page::Editor, Box::new(TestPanel::new(sender.clone())));
+        page_manager.add_page(Page::ProjectHub, project_hub_panel);
+        page_manager.add_page(Page::Editor, editor_panel);
 
         Self {
             window,
@@ -82,17 +88,28 @@ impl Editor {
         self.renderer.clear(true, true, false);
 
         let mut uiManager = self.context.uiManager.try_write().unwrap();
+
         let window = self.window.try_read().unwrap();
 
         if let Some(page) = self.page_manager.get_current_mut() {
-            page.show(&window, &mut uiManager);
-            page.update(&mut uiManager);
+            let mut canvas_list = vec![page.get_canvas()];
+            uiManager.render(&window, &mut canvas_list);
+            uiManager.update_not_js(canvas_list);
         }
 
         while let Ok(msg) = self.receiver.try_recv() {
             match msg {
                 EditorMessage::GoTo(page) => {
                     self.page_manager.navigate_to(page);
+
+                    let page = self.page_manager.get_current().unwrap();
+                    let size: Vec2 = page.get_size();
+                    if size == Vec2::INFINITY {
+                        window.set_maximized(true);
+                    } else {
+                        window.set_maximized(false);
+                        let _ = window.request_inner_size(LogicalSize::new(size.x, size.y));
+                    }
                 }
             }
         }

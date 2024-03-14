@@ -7,7 +7,6 @@ use QcMacros::Comp;
 use QcRender::buffers::UniformBuffer;
 use QcTools::utils::r#ref::Ref;
 
-use crate::ecs::component::ComponentInner;
 
 #[derive(Debug, Comp, Clone, Copy, Serialize, Deserialize)]
 pub struct Camera {

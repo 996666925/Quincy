@@ -93,7 +93,7 @@ impl UiNodeTrait for Button {
 impl Default for Button {
     fn default() -> Self {
         Self {
-            text: Default::default(),
+            text: "按钮".to_string(),
             hoverColor: Color32::from_rgb(229, 229, 229),
             clickColor: Color32::from_rgb(245, 245, 245),
             isHover: false,

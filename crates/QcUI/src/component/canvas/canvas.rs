@@ -9,13 +9,14 @@ use thunderdome::{
     Arena, Index,
 };
 use uuid::Uuid;
-use QcMacros::{Component, UiComp};
+use QcMacros::{external, Comp, Component};
 
 use crate::{core::uiBind::UiBind, message::UiMessageType};
 
 use super::UiNode;
 
-#[derive(Debug, UiComp, Deserialize, Serialize)]
+#[derive(Debug, Comp, Deserialize, Serialize)]
+#[external]
 pub struct Canvas {
     inner: ComponentInner,
     pub pool: Arena<UiNode>,
@@ -63,7 +64,10 @@ impl Canvas {
     }
 
     pub fn add_ui_bind_list(&mut self, comp: Uuid, mut bind: Vec<UiBind>) {
-        self.uiBindList.entry(comp).or_insert(vec![]).append(&mut bind);
+        self.uiBindList
+            .entry(comp)
+            .or_insert(vec![])
+            .append(&mut bind);
     }
 
     pub fn getUiBind(&self, comp: Uuid) -> Option<&Vec<UiBind>> {

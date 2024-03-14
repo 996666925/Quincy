@@ -4,3 +4,5 @@ pub mod project_hub_panel;
 pub mod editor;
 pub mod message;
 pub mod project;
+pub mod application;
+pub mod editor_panel;

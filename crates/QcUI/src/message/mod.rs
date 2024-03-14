@@ -15,7 +15,7 @@ use self::ime::ImeMessage;
 
 pub mod ime;
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Clone, Copy)]
 pub struct UiMessage(pub Uuid, pub UiMessageType);
 
 #[derive(Debug, Deserialize, Serialize, Clone, Copy, EnumVariantEq)]

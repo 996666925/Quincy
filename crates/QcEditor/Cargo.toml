@@ -11,8 +11,13 @@ QcTools = { path = "../QcTools" }
 QcUI = { path = "../QcUI" }
 QcWindowing = { path = "../QcWindowing" }
 QcCore = { path = "../QcCore" }
+QcMacros = { path = "../QcMacros" }
 thunderdome = { path = "../../../thunderdome" }
+serde = { version = "1", features = ["derive"] }
+typetag = "0.2.13"
 egui_tiles = "0.7.2"
+
+
 eframe = "0.26"
 egui = "0.26"
 egui-winit = "0.26"

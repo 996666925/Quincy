@@ -2,7 +2,6 @@ use serde::{Deserialize, Serialize};
 use QcMacros::Comp;
 use QcRender::resources::Model;
 
-use crate::ecs::component::ComponentInner;
 
 #[derive(Debug, Comp, Clone, Serialize, Deserialize)]
 pub struct MeshRender {

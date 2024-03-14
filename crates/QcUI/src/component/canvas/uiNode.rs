@@ -96,4 +96,8 @@ impl UiNode {
     pub fn castMut<T: UiNodeTrait>(&mut self) -> Option<&mut T> {
         self.value.asAnyMut().downcast_mut::<T>()
     }
+
+    pub fn render(&mut self, ui: &mut UiContext) {
+        self.value.render(ui)
+    }
 }

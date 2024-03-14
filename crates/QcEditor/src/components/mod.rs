@@ -1,1 +1,1 @@
-pub mod dock_panel;
+pub mod dock;

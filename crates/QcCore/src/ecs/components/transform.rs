@@ -6,7 +6,7 @@ use nalgebra::{
 use QcMacros::Comp;
 use QcRender::buffers::UniformBuffer;
 
-use crate::ecs::{component::ComponentInner, graph::Graph, MvpUbo};
+use crate::ecs::{graph::Graph, MvpUbo};
 
 use serde::{Deserialize, Serialize};
 

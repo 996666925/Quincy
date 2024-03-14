@@ -170,10 +170,7 @@ mod test {
     use thunderdome::{Arena, Index};
     use QcMacros::Comp;
 
-    use crate::ecs::{
-        component::{Component, ComponentInner},
-        components::camera::Camera,
-    };
+    use crate::ecs::{component::Component, components::camera::Camera};
 
     use super::GameObject;
     use serde::{Deserialize, Serialize};

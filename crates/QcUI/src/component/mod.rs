@@ -1,6 +1,6 @@
 use std::any::Any;
 
-use egui::Ui;
+use egui::{Ui, Vec2};
 use QcWindowing::Window;
 
 mod widget;
@@ -29,12 +29,16 @@ pub trait Component: Any {
 }
 
 pub trait PanelWindow: Any {
-    fn show(&mut self, window: &Window, ui: &mut UiManager) {
-        ui.render(window, &mut vec![self.get_canvas()])
+
+    fn active(&mut self){
+
     }
-    fn update(&mut self, ui: &mut UiManager) {
-        ui.update_not_js(vec![self.get_canvas()]);
+
+    fn disable(&mut self){
+
     }
 
     fn get_canvas(&mut self) -> &mut Canvas;
+
+    fn get_size(&self) -> Vec2;
 }

@@ -9,7 +9,7 @@ use QcRender::{
     resources::{Mesh, Shader, Texture},
 };
 
-use crate::{ecs::component::ComponentInner, resources::material::Material};
+use crate::resources::material::Material;
 
 #[derive(Debug, Comp, Clone, Serialize, Deserialize)]
 pub struct SkyBox {

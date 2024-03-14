@@ -1,11 +1,13 @@
-use core::project_hub::ProjectHub;
+use core::{application::Application, editor::Editor, project_hub::ProjectHub};
 
-mod core;
+use QcWindowing::{event_loop::EventLoop, settings::WindowSettings};
+
 mod components;
+mod core;
 mod managers;
 
 fn main() {
-    let hub = ProjectHub::new();
+    let app = Application::new();
 
-    hub.run();
+    app.run();
 }

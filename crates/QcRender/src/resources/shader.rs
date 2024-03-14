@@ -34,11 +34,13 @@ impl Shader {
 
     pub fn new(name: &str) -> Self {
         //先查询现有的ShaderMap
+        //querying existing ShaderMap first 
         let mut map = SHADER_MAP.try_lock().unwrap();
         if let Some(shader) = map.iter().find(|shader| shader.name == name) {
             return shader.clone();
         }
         //查不到再创建Shader
+        //if querying nothing ,creating shader 
         let (vertex, fragment) = Shader::findShader(name);
         let program = Shader::createProgram(vertex, fragment);
         let shader = Self {

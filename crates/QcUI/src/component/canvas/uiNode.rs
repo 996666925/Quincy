@@ -61,6 +61,7 @@ pub struct UiNode {
     class: Vec<String>,
     pub value: Box<dyn UiNodeTrait>,
     //父对象的index
+    //index of parent object 
     parent: Option<Index>,
     // name: QualName,
     // data: String,

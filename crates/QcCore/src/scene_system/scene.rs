@@ -15,8 +15,10 @@ use crate::resources::ResourceManager;
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Scene {
     //场景内的所有对象
+    //all objects in scene 
     graph: Graph,
     //根节点下的对象
+    //objects contained in root node
     children: Arena<Index>,
     camera: Cell<Option<Index>>,
     canvas: Cell<Option<Index>>,

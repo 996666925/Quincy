@@ -4,6 +4,8 @@ import { Component } from "./component"
 
 
 //js创建go时,在rust处也创建一个go,rust存储全部的go,js保持go的映射,通过name
+//when creating gameobject with js,also creating a gameobject in rust side
+//rust stores all gameobjects and js contain the mapper of gameobject through name
 export class GameObject {
 
     transform: Transform;
@@ -46,6 +48,7 @@ export class GameObject {
     // }
 
     //不能使用自带的构造方法
+    //can't use the constructor method below
     constructor(private name: string) { }
 
 

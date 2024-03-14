@@ -5,6 +5,7 @@ use egui_tiles::{Container, Linear, SimplificationOptions};
 use egui_winit::winit;
 
 /// The majority of `GlutinWindowContext` is taken from `eframe`
+/// `GlutinWindowContext`的大部份内容是从`eframe`获取的
 struct GlutinWindowContext {
     window: winit::window::Window,
     gl_context: glutin::context::PossiblyCurrentContext,

@@ -25,6 +25,9 @@ pub struct Scene {
     skybox: Cell<Option<Index>>,
 }
 
+unsafe impl Sync for Scene{}
+unsafe impl Send for Scene{}
+
 impl Deref for Scene {
     type Target = Graph;
 

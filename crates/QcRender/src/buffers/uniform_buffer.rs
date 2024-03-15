@@ -2,7 +2,7 @@ use std::marker::PhantomData;
 use std::mem::size_of;
 use std::ptr;
 
-
+#[derive(Debug)]
 pub struct UniformBuffer<T> {
     buffer: u32,
     index: u32,

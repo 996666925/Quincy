@@ -155,9 +155,6 @@ pub fn uiNode(input: TokenStream) -> TokenStream {
 
     };
 
-    {
-        println!("expanded:{:?}", expanded);
-    }
     TokenStream::from(expanded)
 }
 

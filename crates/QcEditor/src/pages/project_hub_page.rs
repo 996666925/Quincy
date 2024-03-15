@@ -9,16 +9,16 @@ use QcUI::{
 
 use crate::core::message::Page;
 
-use super::{message::EditorMessage, project::ProjectConfig};
+use crate::core::{message::EditorMessage, project::ProjectConfig};
 
-pub struct ProjectHubPanel {
+pub struct ProjectHubPage {
     canvas: Canvas,
     sender: Sender<EditorMessage>,
 }
 
-impl ProjectHubPanel {
+impl ProjectHubPage {
     pub fn new(sender: Sender<EditorMessage>) -> Self {
-        let mut hub = ProjectHubPanel {
+        let mut hub = ProjectHubPage {
             canvas: Canvas::new(),
             sender,
         };
@@ -131,7 +131,7 @@ impl ProjectHubPanel {
     }
 }
 
-impl PanelWindow for ProjectHubPanel {
+impl PanelWindow for ProjectHubPage {
     fn get_canvas(&mut self) -> &mut Canvas {
         &mut self.canvas
     }

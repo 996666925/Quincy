@@ -20,6 +20,8 @@ pub enum PrimitiveMode {
     PATCHES = 0xE,
 }
 
+
+#[derive(Debug)]
 pub struct Renderer {}
 
 impl Renderer {

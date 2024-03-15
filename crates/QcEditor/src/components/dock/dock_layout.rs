@@ -16,7 +16,7 @@ impl Default for DockLayoutType {
     }
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Debug)]
 pub struct DockLayout {
     pub container: DockLayoutType,
     pub children: Vec<DockItem>,
@@ -91,4 +91,3 @@ impl DockLayout {
         self
     }
 }
-

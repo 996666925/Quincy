@@ -23,6 +23,7 @@ use super::{
     MvpUbo,
 };
 
+#[derive(Debug)]
 pub struct Renderer {
     parent: QcRenderer,
 }

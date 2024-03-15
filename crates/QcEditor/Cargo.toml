@@ -16,7 +16,7 @@ thunderdome = { path = "../../../thunderdome" }
 serde = { version = "1", features = ["derive"] }
 typetag = "0.2.13"
 egui_tiles = "0.7.2"
-
+nalgebra = { version = "0.32.3", features = ["serde"] }
 
 eframe = "0.26"
 egui = "0.26"

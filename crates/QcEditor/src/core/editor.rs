@@ -20,14 +20,17 @@ use QcWindowing::{
     Fullscreen,
 };
 
-use crate::managers::page_manager::PageManager;
+use crate::{
+    managers::page_manager::PageManager,
+    pages::{EditorPage, ProjectHubPage},
+};
 
 use super::{
-    context::Context, editor_panel::EditorPanel, message::{EditorMessage, Page}, project_hub::TestPanel, project_hub_panel::ProjectHubPanel
+    context::Context,
+    message::{EditorMessage, Page},
 };
 
 pub struct Editor {
-    pub renderer: Arc<Renderer>,
     pub context: Arc<Context>,
     pub page_manager: PageManager,
     pub window: Ref<QcWindow>,
@@ -41,23 +44,20 @@ impl Editor {
 
         let context = Context::new(window.clone(), &el);
 
-        let renderer = Arc::new(Renderer::new(DriverSettings::default()));
-
         let (sender, receiver) = channel();
 
-        let project_hub_panel = Box::new(ProjectHubPanel::new(sender.clone()));
+        let project_hub_panel = Box::new(ProjectHubPage::new(sender.clone()));
 
-        let editor_panel = Box::new(EditorPanel::new(sender.clone()));
+        let editor_panel = Box::new(EditorPage::new(context.clone(), sender.clone()));
 
         let mut page_manager = PageManager::new();
 
-        page_manager.add_page(Page::ProjectHub, project_hub_panel);
+        // page_manager.add_page(Page::ProjectHub, project_hub_panel);
         page_manager.add_page(Page::Editor, editor_panel);
 
         Self {
             window,
             context,
-            renderer,
             page_manager,
             sender,
             receiver,
@@ -84,8 +84,9 @@ impl Editor {
         }
     }
     pub fn update(&mut self) {
-        self.renderer.setClearColor(0.66, 0.66, 0.66, 1.);
-        self.renderer.clear(true, true, false);
+        let renderer = self.context.renderer.try_read().unwrap();
+        renderer.setClearColor(0.66, 0.66, 0.66, 1.);
+        renderer.clear(true, true, false);
 
         let mut uiManager = self.context.uiManager.try_write().unwrap();
 

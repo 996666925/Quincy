@@ -16,6 +16,8 @@ use winit::window::Window;
 
 use crate::settings::DeviceSettings;
 
+
+#[derive(Debug)]
 pub struct Device {
     vsync: bool,
     pub display: Display,

@@ -19,22 +19,31 @@ pub struct TreeBehavior {
     sender: MessageSender<UiMessage>,
 }
 
-#[derive(Control, Serialize, Deserialize, Debug)]
+#[derive(Control, Debug)]
 #[external]
 pub struct DockPanel {
     pub widget: Widget,
     pub children: Vec<DockLayout>,
 
-    #[serde(skip_serializing)]
-    #[serde(deserialize_with = "deserializeRoot")]
     pub root: Option<Tree<DockItem>>,
 }
 
-fn deserializeRoot<'de, D>(deserializer: D) -> Result<Option<Tree<DockItem>>, D::Error>
-where
-    D: Deserializer<'de>,
-{
-    Ok(None)
+impl Serialize for DockPanel {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        todo!()
+    }
+}
+
+impl<'de> Deserialize<'de> for DockPanel {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        todo!()
+    }
 }
 
 #[typetag::serde]
@@ -49,7 +58,6 @@ impl UiNodeTrait for DockPanel {
     }
 
     fn renderInner(&mut self, ctx: &mut UiContext) {
-
         if let Some(tree) = self.root.as_mut() {
             ctx.ui.scope(|ui| {
                 ui.ctx().set_visuals(Visuals::dark());

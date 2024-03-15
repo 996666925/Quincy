@@ -1,4 +1,4 @@
-use std::sync::mpsc::Sender;
+use std::sync::{mpsc::Sender, Arc};
 
 use egui::{Align2, Color32, Margin, Vec2};
 use env_logger::fmt::style::Color;
@@ -13,19 +13,23 @@ use QcUI::{
 
 use crate::{
     components::dock::{DockItem, DockLayout, DockPanel},
-    core::message::Page,
+    core::{
+        context::Context,
+        message::{EditorMessage, Page},
+    },
+    panel::{AttrPanel, GamePanel, LayerPanel, ResPanel, ResPreviewPanel},
 };
 
-use super::{message::EditorMessage, project::ProjectConfig};
-
-pub struct EditorPanel {
+pub struct EditorPage {
+    context: Arc<Context>,
     canvas: Canvas,
     sender: Sender<EditorMessage>,
 }
 
-impl EditorPanel {
-    pub fn new(sender: Sender<EditorMessage>) -> Self {
-        let mut hub = EditorPanel {
+impl EditorPage {
+    pub fn new(context: Arc<Context>, sender: Sender<EditorMessage>) -> Self {
+        let mut hub = EditorPage {
+            context,
             canvas: Canvas::new(),
             sender,
         };
@@ -36,43 +40,47 @@ impl EditorPanel {
     pub fn init_view(&mut self) {
         let sender = self.sender.clone();
 
+        let game_panel = {
+            let context = self.context.clone();
+            GamePanel::new(context)
+        };
+
+        let layer_panel = {
+            let context = self.context.clone();
+            LayerPanel::new(context)
+        };
+        let res_panel = {
+            let context = self.context.clone();
+            ResPanel::new(context)
+        };
+
+        let res_preview_panel = {
+            let context = self.context.clone();
+            ResPreviewPanel::new(context)
+        };
+
+        let attr_panel = {
+            let context = self.context.clone();
+            AttrPanel::new(context)
+        };
+
         let dock = DockPanel::default()
             .with_children(vec![
                 DockLayout::default()
                     .with_children(vec![
-                        DockItem::new("层级编辑器", {
-                            Panel::default()
-                                .with_children(vec![Button::default().toUi()])
-                                .toUi()
-                        })
-                        .with_share(0.6),
-                        DockItem::new("资源编辑器", {
-                            Panel::default()
-                                .with_children(vec![Button::default().toUi()])
-                                .toUi()
-                        })
-                        .with_share(0.4),
+                        DockItem::new("层级编辑器", Box::new(layer_panel)).with_share(0.6),
+                        DockItem::new("资源编辑器", { Box::new(res_panel) }).with_share(0.4),
                     ])
                     .with_share(0.2),
                 DockLayout::default()
                     .with_children(vec![
-                        DockItem::new("场景编辑器", {
-                            Panel::default()
-                                .with_children(vec![Button::default().toUi()])
-                                .toUi()
-                        }).with_share(0.7),
-                        DockItem::new("资源预览", {
-                            Panel::default()
-                                .with_children(vec![Button::default().toUi()])
-                                .toUi()
-                        }).with_share(0.3),
+                        DockItem::new("场景编辑器", { Box::new(game_panel) }).with_share(0.7),
+                        DockItem::new("资源预览", { Box::new(res_preview_panel) }).with_share(0.3),
                     ])
                     .with_share(0.6),
                 DockLayout::default()
                     .with_children(vec![DockItem::new("属性检查器", {
-                        Panel::default()
-                            .with_children(vec![Button::default().toUi()])
-                            .toUi()
+                        Box::new(attr_panel)
                     })])
                     .with_share(0.2),
             ])
@@ -91,7 +99,7 @@ impl EditorPanel {
     }
 }
 
-impl PanelWindow for EditorPanel {
+impl PanelWindow for EditorPage {
     fn get_canvas(&mut self) -> &mut Canvas {
         &mut self.canvas
     }

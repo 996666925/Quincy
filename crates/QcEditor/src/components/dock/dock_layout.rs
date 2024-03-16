@@ -1,32 +1,39 @@
-use egui_tiles::{Container, Grid, Linear, Tabs, TileId, Tiles};
+use egui_tiles::{Container, Grid, Linear, LinearDir, Tabs, TileId, Tiles};
 use serde::{Deserialize, Serialize};
 
-use super::DockItem;
+use super::{DockItem, DockWidget};
 
 #[derive(Serialize, Deserialize, Debug)]
-pub enum DockLayoutType {
+pub enum DockContainer {
     Tabs,
-    Linear,
+    Linear(LinearDir),
     Grid,
 }
 
-impl Default for DockLayoutType {
+impl Default for DockContainer {
     fn default() -> Self {
-        DockLayoutType::Linear
+        DockContainer::Linear(LinearDir::Horizontal)
     }
 }
 
+impl DockContainer {
+    pub fn linear_vertical() -> Self {
+        DockContainer::Linear(LinearDir::Vertical)
+    }
+}
+
+
 #[derive(Debug)]
 pub struct DockLayout {
-    pub container: DockLayoutType,
-    pub children: Vec<DockItem>,
+    pub container: DockContainer,
+    pub children: Vec<DockWidget>,
     pub share: f32,
 }
 
 impl Default for DockLayout {
     fn default() -> Self {
         Self {
-            container: DockLayoutType::Linear,
+            container: DockContainer::Linear(LinearDir::Horizontal),
             children: vec![],
             share: 0.,
         }
@@ -34,7 +41,7 @@ impl Default for DockLayout {
 }
 
 impl DockLayout {
-    pub fn new(container: DockLayoutType) -> Self {
+    pub fn new(container: DockContainer) -> Self {
         Self {
             container,
             children: vec![],
@@ -42,36 +49,42 @@ impl DockLayout {
         }
     }
 
-    pub fn with_children(mut self, children: Vec<DockItem>) -> Self {
+    pub fn with_container(mut self, container: DockContainer) -> Self {
+        self.container = container;
+        self
+    }
+
+
+    pub fn with_children(mut self, children: Vec<DockWidget>) -> Self {
         self.children = children;
         self
     }
 
     pub fn build(self, tiles: &mut Tiles<DockItem>) -> TileId {
-        let mut children = vec![];
+        let children = vec![];
 
         let children = match self.container {
-            DockLayoutType::Tabs => {
+            DockContainer::Tabs => {
                 let mut container = Tabs {
                     children,
                     ..Default::default()
                 };
                 for child in self.children {
-                    let id = tiles.insert_pane(child);
+                    let id = child.build(tiles);
                     container.children.push(id);
                 }
                 Container::Tabs(container)
             }
-            DockLayoutType::Linear => {
+            DockContainer::Linear(dir) => {
                 let mut container = Linear {
-                    dir: egui_tiles::LinearDir::Vertical,
+                    dir,
                     children,
                     ..Default::default()
                 };
 
                 for child in self.children {
-                    let share = child.share;
-                    let id = tiles.insert_pane(child);
+                    let share = child.get_share();
+                    let id = child.build(tiles);
 
                     container.children.push(id);
                     if share != 0. {
@@ -80,7 +93,7 @@ impl DockLayout {
                 }
                 Container::Linear(container)
             }
-            DockLayoutType::Grid => todo!(),
+            DockContainer::Grid => todo!(),
         };
 
         tiles.insert_container(children)
@@ -91,3 +104,5 @@ impl DockLayout {
         self
     }
 }
+
+

@@ -1,13 +1,33 @@
+use std::ops::{Deref, DerefMut};
+
+use egui_tiles::{Container, Tabs, Tile, TileId, Tiles};
 use serde::{Deserialize, Serialize};
 use QcUI::component::UiNode;
 
+use crate::panel::NavPanel;
+
 use super::DockView;
 
-#[derive( Debug)]
+#[derive(Debug)]
 pub struct DockItem {
     pub name: String,
     pub child: Box<dyn DockView>,
     pub share: f32,
+    pub show_tab: bool,
+}
+
+impl Deref for DockItem {
+    type Target = Box<dyn DockView>;
+
+    fn deref(&self) -> &Self::Target {
+        &self.child
+    }
+}
+
+impl DerefMut for DockItem {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.child
+    }
 }
 
 impl DockItem {
@@ -16,6 +36,7 @@ impl DockItem {
             name: name.to_string(),
             child,
             share: 0.,
+            show_tab: true,
         }
     }
 
@@ -23,4 +44,20 @@ impl DockItem {
         self.share = share;
         self
     }
+
+    /// 是否显示标题
+    pub fn with_show_tab(mut self, show: bool) -> Self {
+        self.show_tab = show;
+        self
+    }
+
+    pub fn build(self, tiles: &mut Tiles<DockItem>) -> TileId {
+        let id = tiles.insert_pane(self);
+        id
+    }
 }
+
+#[derive(Debug)]
+pub struct TestPanel;
+
+impl DockView for TestPanel {}

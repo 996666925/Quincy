@@ -8,7 +8,7 @@ use QcWindowing::{
     context::device::Device, event_loop::EventLoop, settings::DeviceSettings, window::QcWindow,
 };
 use nalgebra::Matrix4;
-use super::editor_renderer::EditorRenderer;
+use super::editor_render::EditorRender;
 
 #[derive(Debug)]
 pub struct Context {

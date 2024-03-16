@@ -74,13 +74,10 @@ impl Editor {
             .unwrap()
             .handleEvent(&window, event);
 
-        match event {
-            WindowEvent::MouseInput { state, .. } => {}
-            _ => {
-                if result.consumed {
-                    return;
-                }
-            }
+
+        if result.repaint {
+            window.request_redraw();
+            return;
         }
     }
     pub fn update(&mut self) {

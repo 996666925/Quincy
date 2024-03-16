@@ -1,11 +1,11 @@
-use core::{application::Application, editor::Editor, project_hub::ProjectHub};
+use core::{application::Application, editor::Editor};
 
 use QcWindowing::{event_loop::EventLoop, settings::WindowSettings};
 
 mod components;
 mod core;
-mod pages;
 mod managers;
+mod pages;
 mod panel;
 
 fn main() {

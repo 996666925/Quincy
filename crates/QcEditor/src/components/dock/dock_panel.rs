@@ -1,7 +1,7 @@
 use std::cell::Cell;
 
 use egui::{Color32, Frame, Visuals};
-use egui_tiles::{Container, Linear, SimplificationOptions, Tabs, Tree};
+use egui_tiles::{Container, Linear, LinearDir, SimplificationOptions, Tabs, Tree};
 use serde::{Deserialize, Deserializer, Serialize};
 use thunderdome::Arena;
 use QcMacros::{external, Control};
@@ -12,7 +12,7 @@ use QcUI::{
     message::UiMessage,
 };
 
-use super::{DockItem, DockLayout};
+use super::{DockItem, DockLayout, DockWidget};
 
 #[derive(Debug)]
 pub struct TreeBehavior {
@@ -23,9 +23,9 @@ pub struct TreeBehavior {
 #[external]
 pub struct DockPanel {
     pub widget: Widget,
-    pub children: Vec<DockLayout>,
-
+    pub children: Vec<DockWidget>,
     pub root: Option<Tree<DockItem>>,
+    pub orientation: LinearDir,
 }
 
 impl Serialize for DockPanel {
@@ -83,8 +83,8 @@ impl egui_tiles::Behavior<DockItem> for TreeBehavior {
             prune_single_child_tabs: true,
             prune_empty_containers: true,
             prune_single_child_containers: true,
-            all_panes_must_have_tabs: true,
-            join_nested_linear_containers: true,
+            all_panes_must_have_tabs: false,
+            join_nested_linear_containers: false,
         }
     }
 
@@ -96,10 +96,20 @@ impl egui_tiles::Behavior<DockItem> for TreeBehavior {
     ) -> egui_tiles::UiResponse {
         let sender = self.sender.clone();
 
+        let res = if pane.show_tab {
+            Some(pane.tab_ui(ui, &pane.name))
+        } else {
+            None
+        };
+
         let mut ctx = UiContext::new(ui, &sender);
         pane.child.render(&mut ctx);
 
-        egui_tiles::UiResponse::None
+        match res {
+            Some(res) if res.drag_started() => egui_tiles::UiResponse::DragStarted,
+            _ => egui_tiles::UiResponse::None,
+        }
+
     }
 }
 
@@ -109,6 +119,7 @@ impl Default for DockPanel {
             widget: Widget::default(),
             children: Vec::new(),
             root: None,
+            orientation: LinearDir::Vertical,
         }
     }
 }
@@ -121,9 +132,14 @@ impl DockPanel {
         }
     }
 
-    pub fn with_children(mut self, children: Vec<DockLayout>) -> Self {
+    pub fn with_children(mut self, children: Vec<DockWidget>) -> Self {
         self.children = children;
 
+        self
+    }
+
+    pub fn with_orientation(mut self, orientation: LinearDir) -> Self {
+        self.orientation = orientation;
         self
     }
 
@@ -132,7 +148,7 @@ impl DockPanel {
         let mut tiles = egui_tiles::Tiles::default();
 
         let mut container = Linear {
-            dir: egui_tiles::LinearDir::Horizontal,
+            dir: self.orientation,
             children: vec![],
             ..Default::default()
         };
@@ -141,7 +157,7 @@ impl DockPanel {
         children.append(&mut self.children);
 
         for layout in children {
-            let share = layout.share;
+            let share = layout.get_share();
             let id = layout.build(&mut tiles);
             container.children.push(id);
             if share != 0. {

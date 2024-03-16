@@ -1,5 +1,8 @@
 use QcWindowing::{
-    event::{Event, WindowEvent}, event_loop::{ControlFlow, EventLoop}, platform::run_on_demand::EventLoopExtRunOnDemand, settings::WindowSettings
+    event::{Event, WindowEvent},
+    event_loop::{ControlFlow, EventLoop},
+    platform::run_on_demand::EventLoopExtRunOnDemand,
+    settings::WindowSettings,
 };
 
 use super::editor::Editor;
@@ -11,11 +14,10 @@ pub struct Application {
 
 impl Application {
     pub fn new() -> Self {
-
         let mut el = EventLoop::new().unwrap();
 
         let setting = WindowSettings::default().with_height(580).with_width(1000);
-    
+
         let editor = Editor::new(setting, &el);
 
         Application { editor, el }
@@ -34,18 +36,17 @@ impl Application {
                             WindowEvent::CloseRequested => {
                                 el.exit();
                             }
-                            WindowEvent::Resized(size) => {
-                                // let renderer = self.context.renderer.try_read().unwrap();
-                                // renderer.set_viewport(0, 0, size.width as _, size.height as _);
+                            WindowEvent::Resized(size) => {}
+                            WindowEvent::RedrawRequested => {
+                                self.editor.update();
+                                self.editor.post_update();
                             }
-                            _ => {
-                                // println!("event:{:?}", event);
-                            }
+                            _ => {}
                         }
                     }
+
                     Event::AboutToWait => {
-                        self.editor.update();
-                        self.editor.post_update();
+
                         // clock.update();
                     }
 

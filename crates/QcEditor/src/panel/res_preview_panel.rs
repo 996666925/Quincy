@@ -12,7 +12,7 @@ pub struct ResPreviewPanel{
 }
 
 impl DockView for ResPreviewPanel{
-    fn render(&mut self, ctx: &mut UiContext) {
+    fn render(&mut self, ctx: &mut UiContext, show_tab: bool) {
         
     }
 }

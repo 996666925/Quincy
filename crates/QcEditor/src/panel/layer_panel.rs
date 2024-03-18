@@ -11,7 +11,7 @@ pub struct LayerPanel {
 }
 
 impl DockView for LayerPanel {
-    fn render(&mut self, ctx: &mut UiContext) {
+    fn render(&mut self, ctx: &mut UiContext, show_tab: bool) {
         self.list.ui(ctx.ui)
     }
 }

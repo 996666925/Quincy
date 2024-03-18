@@ -27,6 +27,7 @@ use crate::{
 
 use super::{
     context::Context,
+    editor_renderer::EditorRenderer,
     message::{EditorMessage, Page},
 };
 
@@ -34,6 +35,7 @@ pub struct Editor {
     pub context: Arc<Context>,
     pub page_manager: PageManager,
     pub window: Ref<QcWindow>,
+    pub editor_renderer: Arc<EditorRenderer>,
     receiver: Receiver<EditorMessage>,
     sender: Sender<EditorMessage>,
 }
@@ -46,9 +48,15 @@ impl Editor {
 
         let (sender, receiver) = channel();
 
+        let editor_renderer = Arc::new(EditorRenderer::new(context.clone()));
+
         let project_hub_panel = Box::new(ProjectHubPage::new(sender.clone()));
 
-        let editor_panel = Box::new(EditorPage::new(context.clone(), sender.clone()));
+        let editor_panel = Box::new(EditorPage::new(
+            context.clone(),
+            editor_renderer.clone(),
+            sender.clone(),
+        ));
 
         let mut page_manager = PageManager::new();
 
@@ -59,6 +67,7 @@ impl Editor {
             window,
             context,
             page_manager,
+            editor_renderer,
             sender,
             receiver,
         }
@@ -73,7 +82,6 @@ impl Editor {
             .try_write()
             .unwrap()
             .handleEvent(&window, event);
-
 
         if result.repaint {
             window.request_redraw();

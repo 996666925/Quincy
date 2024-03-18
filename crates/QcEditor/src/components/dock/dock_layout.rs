@@ -22,7 +22,6 @@ impl DockContainer {
     }
 }
 
-
 #[derive(Debug)]
 pub struct DockLayout {
     pub container: DockContainer,
@@ -53,7 +52,6 @@ impl DockLayout {
         self.container = container;
         self
     }
-
 
     pub fn with_children(mut self, children: Vec<DockWidget>) -> Self {
         self.children = children;
@@ -104,5 +102,3 @@ impl DockLayout {
         self
     }
 }
-
-

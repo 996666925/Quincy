@@ -10,7 +10,7 @@ pub struct ResPanel{
 }
 
 impl DockView for ResPanel{
-    fn render(&mut self, ctx: &mut UiContext) {
+    fn render(&mut self, ctx: &mut UiContext, show_tab: bool) {
         
     }
 }

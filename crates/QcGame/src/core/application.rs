@@ -76,17 +76,16 @@ impl Application {
                                 let renderer = self.context.renderer.try_read().unwrap();
                                 renderer.set_viewport(0, 0, size.width as _, size.height as _);
                             }
+                            WindowEvent::RedrawRequested=>{
+                                self.game.update(&clock);
+                                self.game.postUpdate();
+                                clock.update();
+                            }
                             _ => {
                                 // println!("event:{:?}", event);
                             }
                         }
                     }
-                    Event::AboutToWait => {
-                        self.game.update(&clock);
-                        self.game.postUpdate();
-                        clock.update();
-                    }
-
                     _ => {}
                 }
             })

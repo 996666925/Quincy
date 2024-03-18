@@ -86,7 +86,7 @@ impl Game {
                 let parent = currentScene.add_child(parent);
 
                 //添加平面
-                //add plane 
+                //add plane
                 {
                     let obj = GameObject::new("Plane");
                     let objId = currentScene.add_child_with_parent(obj, Some(parent));
@@ -113,7 +113,7 @@ impl Game {
                 }
 
                 //添加猴头
-                //add monkey head 
+                //add monkey head
                 let obj = {
                     let obj = GameObject::new("Monkey");
                     let objId = currentScene.add_child_with_parent(obj, Some(parent));
@@ -352,6 +352,8 @@ impl Game {
             .try_write()
             .unwrap()
             .handleEvent(&window, event);
+        
+        window.request_redraw();
 
         match event {
             WindowEvent::MouseInput { state, .. } => {}
@@ -361,6 +363,7 @@ impl Game {
                 }
             }
         }
+
 
         let jsManager = self.context.jsRuntimeManager.clone();
         self.context
@@ -400,7 +403,7 @@ impl Game {
         {}
 
         //渲染游戏场景
-        //render game scene 
+        //render game scene
         self.gameRender.renderScene();
 
         //渲染游戏ui

@@ -21,12 +21,12 @@ use crate::{
 };
 
 #[derive(Debug)]
-pub struct GamePanel {
+pub struct ScenePanel {
     pub context: Arc<Context>,
     pub editor_renderer: Arc<EditorRenderer>,
 }
 
-impl DockView for GamePanel {
+impl DockView for ScenePanel {
     fn render(&mut self, ctx: &mut UiContext, show_tab: bool) {
         let mut rect = ctx.ui.clip_rect();
         if show_tab {
@@ -45,7 +45,7 @@ impl DockView for GamePanel {
     }
 }
 
-impl GamePanel {
+impl ScenePanel {
     pub fn new(context: Arc<Context>, editor_renderer: Arc<EditorRenderer>) -> Self {
         {
             let mut scene_manager = context.scene_manager.try_write().unwrap();

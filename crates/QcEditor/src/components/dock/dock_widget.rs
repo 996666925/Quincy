@@ -9,10 +9,25 @@ pub enum DockWidget {
 }
 
 impl DockWidget {
+
+    pub fn get_name(&self) -> &str {
+        match self {
+            DockWidget::Layout(layout) => "DockLayout",
+            DockWidget::Item(item) => &item.name,
+        }
+    }
+
     pub fn get_share(&self) -> f32 {
         match self {
             DockWidget::Layout(layout) => layout.share,
             DockWidget::Item(item) => item.share,
+        }
+    }
+
+    pub fn set_show_tab(&mut self, show: bool) {
+        match self {
+            DockWidget::Layout(_) => {}
+            DockWidget::Item(item) => item.show_tab = show,
         }
     }
 

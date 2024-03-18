@@ -11,7 +11,7 @@ pub struct AttrPanel{
 }
 
 impl DockView for AttrPanel{
-    fn render(&mut self, ctx: &mut UiContext) {
+    fn render(&mut self, ctx: &mut UiContext, show_tab: bool) {
         
     }
 }

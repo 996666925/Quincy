@@ -11,8 +11,8 @@ pub trait DockView: Debug {
             ui.painter()
                 .rect_filled(rect, Rounding::ZERO, Color32::BLACK);
             let width = text.len() / 3 * 14 + 10;
-     
-            let text = RichText::new(text).size(14.);
+
+            let text = RichText::new(text).color(Color32::WHITE).size(14.);
 
             ui.style_mut().spacing.button_padding = Vec2::new(5., 0.);
 
@@ -29,5 +29,7 @@ pub trait DockView: Debug {
         .inner
     }
 
-    fn render(&mut self, ctx: &mut UiContext) {}
+    fn render(&mut self, ctx: &mut UiContext, show_tab: bool) {
+        
+    }
 }

@@ -14,7 +14,7 @@ pub struct NavPanel {
 }
 
 impl DockView for NavPanel {
-    fn render(&mut self, ctx: &mut UiContext) {
+    fn render(&mut self, ctx: &mut UiContext, show_tab: bool) {
         Label::default()
             .with_text("Quincy 游戏引擎")
             .with_color(Color32::WHITE)

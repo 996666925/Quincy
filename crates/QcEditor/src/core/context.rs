@@ -1,14 +1,15 @@
 use std::sync::Arc;
 
-use QcCore::ecs::renderer::Renderer;
+use nalgebra::Matrix4;
+use QcCore::{ecs::renderer::Renderer, scene_system::scene_manager::SceneManager};
 use QcRender::{buffers::UniformBuffer, settings::driver_settings::DriverSettings};
 use QcTools::utils::r#ref::Ref;
 use QcUI::core::ui_manager::UiManager;
 use QcWindowing::{
     context::device::Device, event_loop::EventLoop, settings::DeviceSettings, window::QcWindow,
 };
-use nalgebra::Matrix4;
-use super::editor_render::EditorRender;
+
+use super::editor_renderer::EditorRenderer;
 
 #[derive(Debug)]
 pub struct Context {
@@ -16,11 +17,12 @@ pub struct Context {
     pub uiManager: Ref<UiManager>,
     pub window: Ref<QcWindow>,
     pub renderer: Ref<Renderer>,
+    pub scene_manager: Ref<SceneManager>,
     pub engineUBO: Arc<UniformBuffer<[Matrix4<f32>; 3]>>,
 }
 
-unsafe impl Send for Context{}
-unsafe impl Sync for Context{}
+unsafe impl Send for Context {}
+unsafe impl Sync for Context {}
 
 impl Context {
     pub fn new(window: Ref<QcWindow>, el: &EventLoop<()>) -> Arc<Context> {
@@ -30,13 +32,14 @@ impl Context {
         let uiManager = UiManager::new(&window_read, el);
         let renderer = Renderer::new(DriverSettings::default());
         let engineUBO = Arc::new(UniformBuffer::new(6));
-
+        let scene_manager = SceneManager::new();
         Arc::new(Self {
             device,
             uiManager,
             window,
             renderer,
-            engineUBO
+            engineUBO,
+            scene_manager,
         })
     }
 }

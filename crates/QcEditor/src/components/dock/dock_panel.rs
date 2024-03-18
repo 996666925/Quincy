@@ -1,7 +1,7 @@
 use std::cell::Cell;
 
-use egui::{Color32, Frame, Visuals};
-use egui_tiles::{Container, Linear, LinearDir, SimplificationOptions, Tabs, Tree};
+use egui::{Color32, CursorIcon, Frame, Response, RichText, Visuals};
+use egui_tiles::{Container, Linear, LinearDir, SimplificationOptions, Tabs, TileId, Tiles, Tree};
 use serde::{Deserialize, Deserializer, Serialize};
 use thunderdome::Arena;
 use QcMacros::{external, Control};
@@ -17,6 +17,7 @@ use super::{DockItem, DockLayout, DockWidget};
 #[derive(Debug)]
 pub struct TreeBehavior {
     sender: MessageSender<UiMessage>,
+    show_tab: bool,
 }
 
 #[derive(Control, Debug)]
@@ -64,6 +65,7 @@ impl UiNodeTrait for DockPanel {
                 tree.ui(
                     &mut TreeBehavior {
                         sender: ctx.sender.clone(),
+                        show_tab: true,
                     },
                     ui,
                 );
@@ -74,7 +76,10 @@ impl UiNodeTrait for DockPanel {
 
 impl egui_tiles::Behavior<DockItem> for TreeBehavior {
     fn tab_title_for_pane(&mut self, pane: &DockItem) -> egui::WidgetText {
-        (&pane.name).into()
+        //如果tab_title_for_pane被调用说明自带的tab被显示了，需要隐藏我弄的tab
+        self.show_tab = false;
+        let text = RichText::new(&pane.name).color(Color32::WHITE).size(14.);
+        text.into()
     }
 
     fn simplification_options(&self) -> egui_tiles::SimplificationOptions {
@@ -96,20 +101,33 @@ impl egui_tiles::Behavior<DockItem> for TreeBehavior {
     ) -> egui_tiles::UiResponse {
         let sender = self.sender.clone();
 
-        let res = if pane.show_tab {
+        let show_tab = pane.show_tab && self.show_tab;
+
+        let res = if show_tab {
             Some(pane.tab_ui(ui, &pane.name))
         } else {
             None
         };
 
         let mut ctx = UiContext::new(ui, &sender);
-        pane.child.render(&mut ctx);
+        pane.child.render(&mut ctx, show_tab);
+
+        //重置状态，避免影响到其他Panel
+        self.show_tab = true;
 
         match res {
-            Some(res) if res.drag_started() => egui_tiles::UiResponse::DragStarted,
+            Some(res) => {
+                if res.hovered() {
+                    ui.ctx().set_cursor_icon(CursorIcon::Move);
+                }
+                if res.drag_started() {
+                    egui_tiles::UiResponse::DragStarted
+                } else {
+                    egui_tiles::UiResponse::None
+                }
+            }
             _ => egui_tiles::UiResponse::None,
         }
-
     }
 }
 

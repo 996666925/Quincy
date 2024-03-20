@@ -5,7 +5,7 @@ use serde::{Serialize, Deserialize};
 
 #[derive(Debug,Clone, Serialize, Deserialize)]
 pub struct IndexBuffer {
-    buffer: u32,
+    pub buffer: u32,
 }
 
 impl IndexBuffer {
@@ -36,8 +36,5 @@ impl IndexBuffer {
         }
     }
 
-    pub fn buffer(&self) -> u32 {
-        self.buffer
-    }
 }
 

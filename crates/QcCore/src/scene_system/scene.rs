@@ -15,7 +15,7 @@ use crate::resources::ResourceManager;
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Scene {
     //场景内的所有对象
-    //all objects in scene 
+    //all objects in scene
     graph: Graph,
     //根节点下的对象
     //objects contained in root node
@@ -25,8 +25,8 @@ pub struct Scene {
     skybox: Cell<Option<Index>>,
 }
 
-unsafe impl Sync for Scene{}
-unsafe impl Send for Scene{}
+unsafe impl Sync for Scene {}
+unsafe impl Send for Scene {}
 
 impl Deref for Scene {
     type Target = Graph;
@@ -120,7 +120,7 @@ impl Scene {
                 let mut materials = materialRender.getMaterialList().clone();
                 for material in materials.iter_mut() {
                     let mut uniformList = material.getUniformList().clone();
-                    for uniform in uniformList.iter_mut() {
+                    for (name, uniform) in uniformList.iter_mut() {
                         match uniform {
                             UniformInfo::Texture(texture) => {
                                 let image = res
@@ -128,6 +128,8 @@ impl Scene {
                                     .expect(&format!("无法加载图片：{}", texture.getName()));
                                 *texture = Texture::new(image);
                             }
+
+                            _=>{}
                         }
                     }
 

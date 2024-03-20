@@ -206,7 +206,7 @@ impl HierarchicalDragAndDrop {
 
     fn add_leaf(&mut self, parent_id: ItemId) {
         let id = ItemId::new();
-        let item = Item::Leaf(format!("Item {id:?}"));
+        let item = Item::Leaf(format!("Item"));
 
         self.items.insert(id, item);
 
@@ -270,7 +270,7 @@ impl HierarchicalDragAndDrop {
             )
             .show_header(ui, |ui| {
                 ui.add(
-                    egui::Label::new(format!("Container {item_id:?}"))
+                    egui::Label::new(format!("Container"))
                         .selectable(false)
                         .sense(egui::Sense::click_and_drag()),
                 )

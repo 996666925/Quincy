@@ -23,7 +23,7 @@ use crate::{
 #[derive(Debug)]
 pub struct GamePanel {
     pub context: Arc<Context>,
-    pub editor_renderer: Arc<EditorRenderer>,
+    pub editor_renderer: Ref<EditorRenderer>,
 }
 
 impl DockView for GamePanel {
@@ -38,6 +38,8 @@ impl DockView for GamePanel {
         let callback = egui::PaintCallback {
             rect,
             callback: Arc::new(CallbackFn::new(move |info, painter| {
+                let editor_renderer = editor_renderer.try_read().unwrap();
+
                 editor_renderer.render_scene();
             })),
         };
@@ -46,10 +48,10 @@ impl DockView for GamePanel {
 }
 
 impl GamePanel {
-    pub fn new(context: Arc<Context>, editor_renderer: Arc<EditorRenderer>) -> Self {
+    pub fn new(context: Arc<Context>, editor_renderer: Ref<EditorRenderer>) -> Self {
         {
             let mut scene_manager = context.scene_manager.try_write().unwrap();
-            let scene = scene_manager.getCurrentSceneMut().as_mut().unwrap();
+            let scene = scene_manager.get_current_scene_mut().as_mut().unwrap();
             let camera = Component::new(Camera::new());
             let skybox = SkyBox::new();
 
@@ -60,6 +62,7 @@ impl GamePanel {
             obj.insert(transform);
             scene.add_child(obj);
         }
+        
         Self {
             context,
             editor_renderer,

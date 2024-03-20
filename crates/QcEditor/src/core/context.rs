@@ -6,19 +6,22 @@ use QcRender::{buffers::UniformBuffer, settings::driver_settings::DriverSettings
 use QcTools::utils::r#ref::Ref;
 use QcUI::core::ui_manager::UiManager;
 use QcWindowing::{
-    context::device::Device, event_loop::EventLoop, settings::DeviceSettings, window::QcWindow,
+    context::device::Device, event_loop::EventLoop, input::input_manager::InputManager,
+    settings::DeviceSettings, window::QcWindow,
 };
 
-use super::editor_renderer::EditorRenderer;
+use super::{editor_renderer::EditorRenderer, gizmo_behavior::GizmoBehavior};
 
 #[derive(Debug)]
 pub struct Context {
     pub device: Device,
-    pub uiManager: Ref<UiManager>,
+    pub ui_manager: Ref<UiManager>,
     pub window: Ref<QcWindow>,
     pub renderer: Ref<Renderer>,
     pub scene_manager: Ref<SceneManager>,
-    pub engineUBO: Arc<UniformBuffer<[Matrix4<f32>; 3]>>,
+    pub engine_ubo: Arc<UniformBuffer<[Matrix4<f32>; 3]>>,
+    pub gizmo_behavior: Ref<GizmoBehavior>,
+    pub input_manager: Ref<InputManager>,
 }
 
 unsafe impl Send for Context {}
@@ -29,17 +32,22 @@ impl Context {
         let window_ref = window.clone();
         let window_read = window_ref.try_read().unwrap();
         let device = Device::new(&window_read, DeviceSettings::default());
-        let uiManager = UiManager::new(&window_read, el);
+        let ui_manager = UiManager::new(&window_read, el);
         let renderer = Renderer::new(DriverSettings::default());
-        let engineUBO = Arc::new(UniformBuffer::new(6));
+        let engine_ubo = Arc::new(UniformBuffer::new(6));
         let scene_manager = SceneManager::new();
+        let gizmo_behavior = GizmoBehavior::new();
+        let input_manager = InputManager::new();
+
         Arc::new(Self {
             device,
-            uiManager,
+            ui_manager,
             window,
             renderer,
-            engineUBO,
+            engine_ubo,
             scene_manager,
+            gizmo_behavior,
+            input_manager,
         })
     }
 }

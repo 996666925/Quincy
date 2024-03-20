@@ -32,7 +32,7 @@ impl GameRender {
         let mut window = self.context.window.try_read().unwrap();
         let size = window.inner_size().to_logical::<u32>(window.scale_factor());
         let currnetScene = sceneManager
-            .getCurrentSceneMut()
+            .get_current_scene_mut()
             .as_mut()
             .expect("无法获取当前的场景对象");
         if let Some(cameraObj) = currnetScene.get_main_camera() {

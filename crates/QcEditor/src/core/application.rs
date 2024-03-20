@@ -14,7 +14,7 @@ pub struct Application {
 
 impl Application {
     pub fn new() -> Self {
-        let mut el = EventLoop::new().unwrap();
+        let el = EventLoop::new().unwrap();
 
         let setting = WindowSettings::default().with_height(580).with_width(1000);
 
@@ -47,7 +47,6 @@ impl Application {
 
                     Event::AboutToWait => {
 
-                        // clock.update();
                     }
 
                     _ => {}

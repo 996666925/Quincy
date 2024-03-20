@@ -1,38 +1,41 @@
-use std::marker::PhantomData;
 use std::mem::size_of;
+use std::{cell::Cell, marker::PhantomData};
 
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
-#[derive(Debug,Clone, Serialize, Deserialize)]
+use super::AccessSpecifier;
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ShaderStorageBuffer {
-    buffer: u32,
+    pub buffer: u32,
+    pub binding_point: Cell<u32>,
 }
 
 impl ShaderStorageBuffer {
-    pub fn new<E: bytemuck::Pod>(value: &[E]) -> Self {
+    pub fn new(value: AccessSpecifier) -> Self {
         unsafe {
             let mut buffer = 0;
             gl::CreateBuffers(1, &mut buffer);
-            gl::BindBuffer(gl::ELEMENT_ARRAY_BUFFER, buffer);
-            let data: &[u8] = bytemuck::cast_slice(value);
-            gl::NamedBufferStorage(
+
+            gl::NamedBufferStorage(buffer, 0, std::ptr::null() as _, value as _);
+
+            Self {
                 buffer,
-                data.len() as isize,
-                data.as_ptr() as _,
-                gl::DYNAMIC_STORAGE_BIT,
-            );
-            Self { buffer }
+                binding_point: Cell::new(0),
+            }
         }
     }
-    pub fn bind(&self) {
+    pub fn bind(&self, point: u32) {
         unsafe {
-            gl::BindBuffer(gl::ELEMENT_ARRAY_BUFFER, self.buffer);
+            self.binding_point.set(point);
+            gl::BindBufferBase(gl::SHADER_STORAGE_BUFFER, point, self.buffer);
         }
     }
 
     pub fn unbind(&self) {
         unsafe {
-            gl::BindBuffer(gl::ELEMENT_ARRAY_BUFFER, 0);
+            let point = self.binding_point.take();
+            gl::BindBufferBase(gl::SHADER_STORAGE_BUFFER, point, 0);
         }
     }
 
@@ -40,4 +43,3 @@ impl ShaderStorageBuffer {
         self.buffer
     }
 }
-

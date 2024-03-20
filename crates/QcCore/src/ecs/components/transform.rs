@@ -22,8 +22,6 @@ pub struct Transform {
 
     pub local_matrix: Cell<Matrix4<f32>>,
 
-    pub world_matrix: Cell<Matrix4<f32>>,
-
     pub dirty: Cell<bool>,
 }
 
@@ -35,7 +33,6 @@ impl Transform {
             rotation: Vector3::zeros(),
             scale: Vector3::new(1., 1., 1.),
             local_matrix: Cell::new(Matrix4::identity()),
-            world_matrix: Cell::new(Matrix4::identity()),
             dirty: Cell::new(true),
         }
     }

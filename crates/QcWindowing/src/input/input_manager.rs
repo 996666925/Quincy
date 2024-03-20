@@ -9,7 +9,7 @@ use deno_core::{
 };
 use serde::Serialize;
 use winit::{
-    event::{ElementState, WindowEvent},
+    event::{ElementState, MouseButton, WindowEvent},
     keyboard::{KeyCode, PhysicalKey},
 };
 use QcTools::{eventing::event::EventId, sync::OnceCell, utils::r#ref::Ref};
@@ -18,52 +18,64 @@ use crate::window::QcWindow as Window;
 
 use super::event::{KeyBoardEvent, MouseEvent, MouseMoveEvent};
 
-static INPUTMANAGER: OnceCell<Ref<InputManager>> = OnceCell::new();
-
 #[derive(Debug)]
 pub struct InputManager {
-    map: HashMap<KeyCode, ElementState>,
-    mousePosition: (f64, f64),
+    key_events: HashMap<KeyCode, ElementState>,
+    mouse_events: HashMap<MouseButton, ElementState>,
+    mouse_position: (f64, f64),
 }
 
 impl InputManager {
-    pub fn getInstance() -> Ref<InputManager> {
-        INPUTMANAGER.get().unwrap().clone()
-    }
     pub fn new() -> Ref<InputManager> {
         let input_manager = Ref::new(InputManager {
-            map: HashMap::new(),
-            mousePosition: (0., 0.),
+            key_events: HashMap::new(),
+            mouse_events: HashMap::new(),
+            mouse_position: (0., 0.),
         });
-        INPUTMANAGER.set(input_manager.clone()).unwrap();
 
         input_manager
     }
 
     fn onKeyPressed(&mut self, key: KeyCode) {
-        self.map
+        self.key_events
             .entry(key)
             .and_modify(|value| *value = ElementState::Pressed)
             .or_insert(ElementState::Pressed);
     }
 
     fn onKeyReleased(&mut self, key: KeyCode) {
-        self.map
+        self.key_events
             .entry(key)
             .and_modify(|value| *value = ElementState::Released)
             .or_insert(ElementState::Released);
     }
 
     pub fn isKeyPressed(&self, key: KeyCode) -> bool {
-        if let Some(state) = self.map.get(&key) {
+        if let Some(state) = self.key_events.get(&key) {
             *state == ElementState::Pressed
         } else {
             false
         }
     }
-    
+
     pub fn isKeyReleased(&self, key: KeyCode) -> bool {
-        if let Some(state) = self.map.get(&key) {
+        if let Some(state) = self.key_events.get(&key) {
+            *state == ElementState::Released
+        } else {
+            false
+        }
+    }
+
+    pub fn isMousePressed(&self, mouse: MouseButton) -> bool {
+        if let Some(state) = self.mouse_events.get(&mouse) {
+            *state == ElementState::Pressed
+        } else {
+            false
+        }
+    }
+
+    pub fn isMouseReleased(&self, mouse: MouseButton) -> bool {
+        if let Some(state) = self.mouse_events.get(&mouse) {
             *state == ElementState::Released
         } else {
             false
@@ -71,7 +83,7 @@ impl InputManager {
     }
 
     pub fn lateUpdate(&mut self) {
-        self.map.clear();
+        self.key_events.clear();
     }
 
     pub fn handleEvent(&mut self, event: &WindowEvent, scope: &mut HandleScope) {
@@ -87,20 +99,15 @@ impl InputManager {
                         todo!()
                     }
                 };
-                // match event.state {
-                //     ElementState::Pressed => {
-                //         if let PhysicalKey::Code(key) = event.physical_key {
-                //             self.onKeyPressed(key);
-                //         }
-                //     }
-                //     ElementState::Released => {
+                match event.state {
+                    ElementState::Pressed => {
+                        self.onKeyPressed(key);
+                    }
+                    ElementState::Released => {
+                        self.onKeyReleased(key);
+                    }
+                }
 
-                //             self.onKeyReleased(key);
-                //         }
-                //     }
-                // }
-
-                // callback(input);
                 Self::postInputMessage(
                     scope,
                     "keyboard",
@@ -115,13 +122,13 @@ impl InputManager {
                 position,
                 ..
             } => {
-                self.mousePosition = (position.x, position.y);
+                self.mouse_position = (position.x, position.y);
                 Self::postInputMessage(
                     scope,
                     "mouse_move",
                     &MouseMoveEvent {
                         state: "Move".into(),
-                        position: self.mousePosition,
+                        position: self.mouse_position,
                     },
                 );
             }
@@ -137,7 +144,7 @@ impl InputManager {
                     &MouseEvent {
                         state: *state,
                         button: *button,
-                        position: self.mousePosition,
+                        position: self.mouse_position,
                     },
                 );
             }
@@ -159,21 +166,5 @@ impl InputManager {
         let typeName = serde_v8::to_v8(scope, name).unwrap();
         let undefined = v8::undefined(scope).into();
         func.call(scope, undefined, &[typeName, args]);
-    }
-}
-
-pub struct Input;
-
-impl Input {
-    pub fn isKeyPressed(key: KeyCode) -> bool {
-        let input = InputManager::getInstance();
-        let input = input.try_read().unwrap();
-        input.isKeyPressed(key)
-    }
-
-    pub fn isKeyReleased(key: KeyCode) -> bool {
-        let input = InputManager::getInstance();
-        let input = input.try_read().unwrap();
-        input.isKeyReleased(key)
     }
 }

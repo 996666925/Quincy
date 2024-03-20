@@ -5,7 +5,7 @@ mod resource;
 mod shader;
 mod texture;
 mod uniform_info;
-
+mod uniform_type;
 
 pub use mesh::*;
 pub use model::Model;

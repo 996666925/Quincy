@@ -1,7 +1,16 @@
+use std::ffi::c_void;
+
 use log::info;
 use QcTools::utils::r#ref::Ref;
 
-use crate::{context::driver::Driver, resources::Mesh, settings::driver_settings::DriverSettings};
+use crate::{
+    context::driver::Driver,
+    resources::Mesh,
+    settings::{
+        driver_settings::DriverSettings,
+        pixel_data::{PixelDataFormat, PixelDataType},
+    },
+};
 
 use super::DrawParameters;
 
@@ -19,7 +28,6 @@ pub enum PrimitiveMode {
     TRIANGLE_STRIP_ADJACENCY = 0x000D,
     PATCHES = 0xE,
 }
-
 
 #[derive(Debug)]
 pub struct Renderer {}
@@ -85,5 +93,20 @@ impl Renderer {
 
     pub fn set_viewport(&self, x: i32, y: i32, width: i32, height: i32) {
         unsafe { gl::Viewport(x, y, width, height) }
+    }
+
+    pub fn read_pixels(
+        &self,
+        x: i32,
+        y: i32,
+        width: i32,
+        height: i32,
+        format: PixelDataFormat,
+        type_: PixelDataType,
+        data: *mut c_void,
+    ) {
+        unsafe {
+            gl::ReadPixels(x, y, width, height, format as _, type_ as _, data);
+        }
     }
 }

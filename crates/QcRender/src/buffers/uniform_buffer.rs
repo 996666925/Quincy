@@ -4,7 +4,7 @@ use std::ptr;
 
 #[derive(Debug)]
 pub struct UniformBuffer<T> {
-    buffer: u32,
+    pub buffer: u32,
     index: u32,
     size: usize,
     maker: PhantomData<T>,
@@ -41,10 +41,6 @@ impl<T: bytemuck::Pod> UniformBuffer<T> {
         }
     }
 
-    pub fn buffer(&self) -> u32 {
-        self.buffer
-    }
-
     pub fn setSubData<E>(&self, offset: usize, data: &[E])
     where
         E: bytemuck::Pod,
@@ -66,7 +62,7 @@ impl<T: bytemuck::Pod> UniformBuffer<T> {
     pub fn getData(&self) -> T {
         unsafe {
             self.bind();
-            let mut ptr: *mut T = gl::MapNamedBuffer(self.buffer, gl::DYNAMIC_STORAGE_BIT) as _;
+            let ptr: *mut T = gl::MapNamedBuffer(self.buffer, gl::DYNAMIC_STORAGE_BIT) as _;
             let value = ptr.read().clone();
             gl::UnmapNamedBuffer(self.buffer);
             self.unbind();
@@ -74,4 +70,3 @@ impl<T: bytemuck::Pod> UniformBuffer<T> {
         }
     }
 }
-

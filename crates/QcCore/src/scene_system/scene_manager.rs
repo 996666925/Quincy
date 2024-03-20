@@ -18,18 +18,18 @@ impl SceneManager {
             currentScene: Some(Scene::new()),
         })
     }
-    pub fn loadScene(scene: Scene) -> Ref<Self> {
+    pub fn load_scene(scene: Scene) -> Ref<Self> {
         Ref::new(Self {
             currentScene: Some(Scene::new()),
         })
     }
-    pub fn loadSceneFromStr(&mut self, scene: &str, res: Arc<ResourceManager>) {
+    pub fn load_scene_from_str(&mut self, scene: &str, res: Arc<ResourceManager>) {
         self.currentScene = Some(Scene::load(scene, res));
     }
-    pub fn getCurrentScene(&self) -> &Option<Scene> {
+    pub fn get_current_scene(&self) -> &Option<Scene> {
         &self.currentScene
     }
-    pub fn getCurrentSceneMut(&mut self) -> &mut Option<Scene> {
+    pub fn get_current_scene_mut(&mut self) -> &mut Option<Scene> {
         &mut self.currentScene
     }
 }

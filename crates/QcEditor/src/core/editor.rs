@@ -35,7 +35,7 @@ pub struct Editor {
     pub context: Arc<Context>,
     pub page_manager: PageManager,
     pub window: Ref<QcWindow>,
-    pub editor_renderer: Arc<EditorRenderer>,
+    pub editor_renderer: Ref<EditorRenderer>,
     receiver: Receiver<EditorMessage>,
     sender: Sender<EditorMessage>,
 }
@@ -48,7 +48,7 @@ impl Editor {
 
         let (sender, receiver) = channel();
 
-        let editor_renderer = Arc::new(EditorRenderer::new(context.clone()));
+        let editor_renderer = Ref::new(EditorRenderer::new(context.clone()));
 
         let project_hub_panel = Box::new(ProjectHubPage::new(sender.clone()));
 
@@ -78,7 +78,7 @@ impl Editor {
 
         let result = self
             .context
-            .uiManager
+            .ui_manager
             .try_write()
             .unwrap()
             .handleEvent(&window, event);
@@ -93,7 +93,7 @@ impl Editor {
         renderer.setClearColor(0.66, 0.66, 0.66, 1.);
         renderer.clear(true, true, false);
 
-        let mut uiManager = self.context.uiManager.try_write().unwrap();
+        let mut uiManager = self.context.ui_manager.try_write().unwrap();
 
         let window = self.window.try_read().unwrap();
 

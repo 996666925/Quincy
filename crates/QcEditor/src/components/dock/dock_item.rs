@@ -56,8 +56,3 @@ impl DockItem {
         id
     }
 }
-
-#[derive(Debug)]
-pub struct TestPanel;
-
-impl DockView for TestPanel {}

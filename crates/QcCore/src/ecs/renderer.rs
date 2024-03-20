@@ -7,8 +7,11 @@ use std::{
 use nalgebra::Matrix4;
 use QcRender::{
     core::{DrawParameters, PrimitiveMode, Renderer as QcRenderer},
-    resources::Mesh,
-    settings::driver_settings::DriverSettings,
+    resources::{Mesh, Texture},
+    settings::{
+        driver_settings::DriverSettings,
+        pixel_data::{PixelDataFormat, PixelDataType},
+    },
 };
 use QcTools::utils::r#ref::Ref;
 
@@ -26,12 +29,14 @@ use super::{
 #[derive(Debug)]
 pub struct Renderer {
     parent: QcRenderer,
+    empty_texture: Texture,
 }
 
 impl Renderer {
     pub fn new(settings: DriverSettings) -> Ref<Renderer> {
         Ref::new(Self {
             parent: QcRenderer::new(settings),
+            empty_texture: Texture::empty1(),
         })
     }
 
@@ -69,7 +74,7 @@ impl Renderer {
     }
 
     pub fn drawMesh(&self, mesh: &Mesh, material: &Material) {
-        material.bind();
+        material.bind(&self.empty_texture);
 
         self.draw(mesh, PrimitiveMode::TRIANGLES, 1);
     }

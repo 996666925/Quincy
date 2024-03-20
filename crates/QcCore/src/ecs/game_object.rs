@@ -12,7 +12,7 @@ use super::{
 use deno_core::{v8, JsRealm};
 use log::info;
 use serde::{Deserialize, Serialize, Serializer};
-use thunderdome::{Arena, Index};
+use thunderdome::{Arena, Generation, Index};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct GameObject {
@@ -29,11 +29,11 @@ impl Default for GameObject {
         Self {
             name: "GameObject".to_string(),
             //组件
-            //components 
+            //components
             pool: Arena::new(),
             root: None,
             //对象
-            //objects 
+            //objects
             children: Arena::new(),
             parent: None,
             active: false,
@@ -86,19 +86,19 @@ impl GameObject {
     }
 
     ///添加对象请使用Scene::add_child_with_parent方法
-    ///if you want to add object ,please use Scene::add_child_with_parent method 
+    ///if you want to add object ,please use Scene::add_child_with_parent method
     pub fn add_child(&mut self, gameobject: Index) -> Index {
         self.children.insert(gameobject)
     }
 
     ///移除对象请使用Scene::remove_child_with_parent方法
-    ///if you want to remove object ,please use Scene::remove_child_with_parent method 
+    ///if you want to remove object ,please use Scene::remove_child_with_parent method
     pub fn remove_child(&mut self, gameobject: Index) -> Option<Index> {
         self.children.remove(gameobject)
     }
 
     ///未添加到场景时，组件无法获取到对象
-    ///components can't access object when it has not been added in scene 
+    ///components can't access object when it has not been added in scene
     pub fn addComponent(&mut self, mut component: Component) -> Index {
         component.set_parent(self.root);
         self.pool.insert(component)
@@ -152,7 +152,7 @@ impl GameObject {
     }
     pub fn set_root(&mut self, index: Index) {
         self.root = Some(index);
-
+        self.active = true;
         for (_, comp) in self.pool.iter_mut() {
             comp.set_parent(self.root);
         }
@@ -166,6 +166,8 @@ impl GameObject {
         self.parent = index;
         self.active = index.is_some();
     }
+
+  
 }
 
 #[cfg(test)]

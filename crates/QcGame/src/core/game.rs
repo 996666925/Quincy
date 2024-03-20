@@ -8,7 +8,7 @@ use std::{
 
 use env_logger::fmt::Color;
 use log::debug;
-use nalgebra::{Point3, Vector3};
+use nalgebra::{Point3, Vector3, Vector4};
 use thunderdome::Index;
 use QcCore::{
     ecs::{
@@ -23,7 +23,7 @@ use QcCore::{
     scene_system::scene::Scene,
 };
 use QcMacros::Comp;
-use QcRender::resources::Mesh;
+use QcRender::resources::{Mesh, UniformInfo};
 use QcRender::{
     gl,
     resources::{Model, Texture},
@@ -64,7 +64,7 @@ impl Game {
         // );
 
         {
-            let currentScene = sceneManagerRef.getCurrentSceneMut();
+            let currentScene = sceneManagerRef.get_current_scene_mut();
             if let Some(currentScene) = currentScene {
                 let camera = Component::new(Camera::new());
                 let mut skybox = SkyBox::new();
@@ -103,6 +103,10 @@ impl Game {
 
                     let mut materialRender = MaterialRender::new();
                     let mut material = Material::default();
+                    material.set_uniform_info(
+                        "uDiffuse",
+                        UniformInfo::Vec4(Vector4::new(0.2, 0.2, 0.2, 1.0)),
+                    );
                     let image = context.resourceManager.get("shitou.dds").unwrap();
                     let texture = Texture::new(image);
                     material.addTexture(texture);
@@ -267,7 +271,7 @@ impl Game {
 
         let global = context.global(scope);
 
-        let currentScene = sceneManagerRef.getCurrentSceneMut().as_mut().unwrap();
+        let currentScene = sceneManagerRef.get_current_scene_mut().as_mut().unwrap();
 
         for (_, go) in currentScene.iter_mut() {
             for (_, comp) in go.iter_mut() {
@@ -317,7 +321,7 @@ impl Game {
                 .put(context.sceneManager.clone());
             let sceneManager = context.sceneManager.clone();
             let mut sceneManager = sceneManager.try_write().unwrap();
-            let currentScene = sceneManager.getCurrentSceneMut().as_mut().unwrap();
+            let currentScene = sceneManager.get_current_scene_mut().as_mut().unwrap();
             jsRuntimeManager
                 .op_state()
                 .borrow_mut()
@@ -352,7 +356,7 @@ impl Game {
             .try_write()
             .unwrap()
             .handleEvent(&window, event);
-        
+
         window.request_redraw();
 
         match event {
@@ -363,7 +367,6 @@ impl Game {
                 }
             }
         }
-
 
         let jsManager = self.context.jsRuntimeManager.clone();
         self.context
@@ -388,7 +391,7 @@ impl Game {
             let jsRuntime = jsRuntimeManager.main_realm();
 
             let mut sceneManager = self.context.sceneManager.try_write().unwrap();
-            let currentScene = sceneManager.getCurrentSceneMut().as_mut().unwrap();
+            let currentScene = sceneManager.get_current_scene_mut().as_mut().unwrap();
             jsRuntimeManager
                 .op_state()
                 .borrow_mut()
@@ -412,7 +415,7 @@ impl Game {
             let mut jsRuntimeManager = self.context.jsRuntimeManager.try_write().unwrap();
 
             let mut sceneManager = self.context.sceneManager.try_write().unwrap();
-            let currentScene = sceneManager.getCurrentSceneMut().as_mut().unwrap();
+            let currentScene = sceneManager.get_current_scene_mut().as_mut().unwrap();
 
             let mut canvasList = vec![&mut self.debugDraw];
             if let Some(index) = currentScene.get_main_canvas() {

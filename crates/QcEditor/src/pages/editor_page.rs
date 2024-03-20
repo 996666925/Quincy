@@ -3,6 +3,7 @@ use std::sync::{mpsc::Sender, Arc};
 use egui::{Align2, Color32, Margin, Vec2};
 use env_logger::fmt::style::Color;
 use QcCore::scene_system::scene::Scene;
+use QcTools::utils::r#ref::Ref;
 use QcUI::{
     component::{
         Button, ButtonMessage, Canvas, Label, Panel, PanelWindow, TextBox, ToUi, UiNodeTrait,
@@ -24,7 +25,7 @@ use crate::{
 
 pub struct EditorPage {
     context: Arc<Context>,
-    editor_renderer: Arc<EditorRenderer>,
+    editor_renderer: Ref<EditorRenderer>,
     canvas: Canvas,
     sender: Sender<EditorMessage>,
 }
@@ -32,7 +33,7 @@ pub struct EditorPage {
 impl EditorPage {
     pub fn new(
         context: Arc<Context>,
-        editor_renderer: Arc<EditorRenderer>,
+        editor_renderer: Ref<EditorRenderer>,
         sender: Sender<EditorMessage>,
     ) -> Self {
         let mut hub = EditorPage {
@@ -106,8 +107,8 @@ impl EditorPage {
                             .with_children(vec![
                                 DockLayout::default()
                                     .with_children(vec![
-                                        DockItem::new("场景编辑器", Box::new(game_panel)).into(),
-                                        DockItem::new("游戏预览", Box::new(scene_panel)).into(),
+                                        DockItem::new("场景编辑器", Box::new(scene_panel)).into(),
+                                        DockItem::new("游戏预览", Box::new(game_panel)).into(),
                                     ])
                                     .with_container(DockContainer::Tabs)
                                     .with_share(0.7)

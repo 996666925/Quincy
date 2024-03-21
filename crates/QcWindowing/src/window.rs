@@ -39,6 +39,8 @@ impl QcWindow {
 
         window
     }
+
+
 }
 
 impl Deref for QcWindow {

@@ -11,5 +11,7 @@ impl<'a> UiContext<'a> {
     pub fn new(ui: &'a mut egui::Ui, sender: &'a MessageSender<UiMessage>) -> Self {
         Self { ui, sender }
     }
-
 }
+
+
+

@@ -6,9 +6,11 @@
 
 pub mod component;
 pub mod core;
+mod math;
 pub mod message;
 
 pub use egui::*;
 pub use egui_extras::*;
 pub use egui_glutin_gl::*;
+pub use math::*;
 pub use taffy::*;

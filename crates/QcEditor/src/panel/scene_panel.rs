@@ -20,14 +20,14 @@ use QcCore::{
 };
 
 use QcRender::{
-    buffers::FrameBuffer,
+    buffers::{DuckFrameBuffer, FrameBuffer},
     gl,
     resources::{Mesh, Texture, TextureKind},
     settings::pixel_data::{PixelDataFormat, PixelDataType},
 };
 
 use QcTools::utils::{index_ext::IndexExt, r#ref::Ref, unsafe_box::UnsafeBox};
-use QcUI::{core::context::UiContext, CallbackFn};
+use QcUI::{core::context::UiContext, rect::QcRect, CallbackFn};
 
 use crate::{
     components::dock::DockView,
@@ -38,7 +38,7 @@ use crate::{
 pub struct ScenePanel {
     pub context: Arc<Context>,
     pub editor_renderer: Ref<EditorRenderer>,
-    picking_framebuffer: FrameBuffer,
+    picking_framebuffer: DuckFrameBuffer,
 }
 
 impl DockView for ScenePanel {
@@ -66,7 +66,6 @@ impl DockView for ScenePanel {
             .allocate_response(ctx.ui.available_size(), egui::Sense::click());
 
         if res.hovered() && ctx.ui.input(|i| i.pointer.primary_pressed()) {
-        // if res.hovered() {
             self.handle_picking(ctx, rect);
         }
 
@@ -126,7 +125,8 @@ impl ScenePanel {
             let index = scene.add_child(obj);
         }
 
-        let picking_framebuffer = FrameBuffer::new(800, 600);
+        let picking_framebuffer = DuckFrameBuffer::new();
+
         Self {
             context,
             editor_renderer,
@@ -187,31 +187,17 @@ impl ScenePanel {
     }
 
     pub fn render_scene_for_picking(&self, rect: Rect) {
-        unsafe {
-            let window = self.context.window.try_read().unwrap();
-            let scale = window.scale_factor();
-            let size = window.inner_size();
-            gl::Enable(gl::SCISSOR_TEST);
+        let window = self.context.window.try_read().unwrap();
+        let scale = window.scale_factor();
+        let size = window.inner_size();
+        let rect = QcRect::to_gl_rect(rect, size, scale as _);
 
-            let rect = rect * scale as _;
-            gl::Scissor(
-                rect.min.x as _,
-                (size.height - rect.max.y as u32) as _,
-                rect.width() as _,
-                rect.height() as _,
-            );
-            gl::Viewport(
-                rect.min.x as _,
-                (size.height - rect.max.y as u32) as _,
-                rect.width() as _,
-                rect.height() as _,
-            );
-        }
-
-        // self.picking_framebuffer
-        //     .resize(rect.width() as _, rect.height() as _);
-
-        // self.picking_framebuffer.bind();
+        self.picking_framebuffer.resize(
+            rect.x as _,
+            rect.y as _,
+            rect.width as _,
+            rect.height as _,
+        );
 
         let renderer = self.context.renderer.try_read().unwrap();
         renderer.setClearColor(1.0, 1.0, 1.0, 1.0);
@@ -220,7 +206,5 @@ impl ScenePanel {
         let mut editor_renderer = self.editor_renderer.try_write().unwrap();
 
         editor_renderer.render_scene_for_picking();
-
-        self.picking_framebuffer.unbind();
     }
 }

@@ -25,6 +25,7 @@ pub struct Transform {
     pub dirty: Cell<bool>,
 }
 
+
 impl Transform {
     pub fn new(position: Point3<f32>) -> Self {
         Self {

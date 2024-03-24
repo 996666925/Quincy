@@ -40,7 +40,7 @@ impl DockView for GamePanel {
             callback: Arc::new(CallbackFn::new(move |info, painter| {
                 let editor_renderer = editor_renderer.try_read().unwrap();
 
-                editor_renderer.render_scene();
+                editor_renderer.render_scene(Vec2::new(rect.width(), rect.height()));
             })),
         };
         ctx.ui.painter().add(callback);
@@ -52,13 +52,13 @@ impl GamePanel {
         {
             let mut scene_manager = context.scene_manager.try_write().unwrap();
             let scene = scene_manager.get_current_scene_mut().as_mut().unwrap();
-            let camera = Component::new(Camera::new());
+            let camera = Component::Camera(Camera::new());
             let skybox = SkyBox::new();
 
-            let transform = Component::new(Transform::new(Point3::new(0., 0., 0.)));
+            let transform = Component::Transform(Transform::new(Point3::new(0., 0., 0.)));
             let mut obj = GameObject::new("Camera");
             obj.insert(camera);
-            obj.insert(Component::new(skybox));
+            obj.insert(Component::SkyBox(skybox));
             obj.insert(transform);
             scene.add_child(obj);
         }

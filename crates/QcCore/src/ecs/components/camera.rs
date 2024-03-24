@@ -7,7 +7,6 @@ use QcMacros::Comp;
 use QcRender::buffers::UniformBuffer;
 use QcTools::utils::r#ref::Ref;
 
-
 #[derive(Debug, Comp, Clone, Copy, Serialize, Deserialize)]
 pub struct Camera {
     inner: ComponentInner,
@@ -72,6 +71,21 @@ impl Camera {
     }
 
     pub fn new() -> Self {
+        Self {
+            inner: ComponentInner::default(),
+            fov: 45.,
+            near: 0.1,
+            far: 1000.,
+            aspect: 800. / 600.,
+            viewMatrix: Matrix4::zeros(),
+            projMatrix: Matrix4::zeros(),
+            viewProjMatrix: Matrix4::zeros(),
+        }
+    }
+}
+
+impl Default for Camera {
+    fn default() -> Self {
         Self {
             inner: ComponentInner::default(),
             fov: 45.,

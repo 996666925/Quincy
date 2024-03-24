@@ -19,15 +19,6 @@ egui_tiles = "0.7.2"
 nalgebra = { version = "0.32.3", features = ["serde"] }
 rand = "0.8.5"
 
-eframe = "0.26"
 egui = "0.26"
 egui-winit = "0.26"
-# egui_glow = { version = "0.26", features = ["winit"] }
-
-env_logger = "0.11.2"
-glutin = "0.31.3"
-glutin-winit = "0.4.2"
-log = "0.4.20"
-rwh_05 = { package = "raw-window-handle", version = "0.5.2", features = [
-  "std",
-] }
+serde_json = "1.0.114"

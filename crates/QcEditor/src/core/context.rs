@@ -10,7 +10,9 @@ use QcWindowing::{
     settings::DeviceSettings, window::QcWindow,
 };
 
-use super::{editor_renderer::EditorRenderer, gizmo_behavior::GizmoBehavior};
+use super::{
+    editor_actions::EditorActions, editor_renderer::EditorRenderer, gizmo_behavior::GizmoBehavior,
+};
 
 #[derive(Debug)]
 pub struct Context {
@@ -22,6 +24,7 @@ pub struct Context {
     pub engine_ubo: Arc<UniformBuffer<[Matrix4<f32>; 3]>>,
     pub gizmo_behavior: Ref<GizmoBehavior>,
     pub input_manager: Ref<InputManager>,
+    pub editor_actions: Arc<EditorActions>,
 }
 
 unsafe impl Send for Context {}
@@ -38,6 +41,7 @@ impl Context {
         let scene_manager = SceneManager::new();
         let gizmo_behavior = GizmoBehavior::new();
         let input_manager = InputManager::new();
+        let editor_actions = Arc::new(EditorActions::new());
 
         Arc::new(Self {
             device,
@@ -48,6 +52,7 @@ impl Context {
             scene_manager,
             gizmo_behavior,
             input_manager,
+            editor_actions,
         })
     }
 }

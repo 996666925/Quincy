@@ -117,7 +117,7 @@ impl GameObject {
             .iter_mut()
             .find(|handle| handle.1.getName() == T::typeName())
             .map(|handle| handle.1)
-            .and_then(|comp| comp.castMut::<T>())
+            .and_then(|comp| comp.cast_mut::<T>())
     }
 
     pub fn getComponentByName<T: ComponentTrait>(&self, name: &str) -> Option<&T> {
@@ -127,12 +127,12 @@ impl GameObject {
             .map(|handle| handle.1)
             .and_then(|comp| comp.cast::<T>())
     }
-    pub fn getComponentBoxByName(&self, name: &str) -> Option<&Box<dyn ComponentTrait>> {
+    pub fn getComponentBoxByName(&self, name: &str) -> Option<&dyn ComponentTrait> {
         self.pool
             .iter()
             .find(|handle| handle.1.getName() == name)
             .map(|handle| handle.1)
-            .map(|comp| comp.getValue())
+            .map(|comp| comp.get_inner())
     }
 
     pub fn isActive(&self) -> bool {
@@ -166,8 +166,6 @@ impl GameObject {
         self.parent = index;
         self.active = index.is_some();
     }
-
-  
 }
 
 #[cfg(test)]
@@ -191,7 +189,7 @@ mod test {
     #[test]
     fn addComp() {
         let mut obj = GameObject::default();
-        obj.addComponent(Component::new(Example::default()));
+        obj.addComponent(Component::Other(Box::new(Example::default())));
         let example = obj.getComponent::<Example>();
 
         println!("{:#?}", example);
@@ -215,7 +213,7 @@ mod test {
     #[test]
     fn serde() {
         let mut obj = GameObject::default();
-        obj.addComponent(Component::new(Example::default()));
+        obj.addComponent(Component::Other(Box::new(Example::default())));
         let str = ron::to_string(&obj).unwrap();
         println!("{:#?}", str);
         let ex: GameObject = ron::from_str(&str).unwrap();

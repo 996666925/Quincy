@@ -1,7 +1,6 @@
 use std::sync::{mpsc::Sender, Arc};
 
 use egui::{Align2, Color32, Margin, Vec2};
-use env_logger::fmt::style::Color;
 use QcCore::scene_system::scene::Scene;
 use QcTools::utils::r#ref::Ref;
 use QcUI::{

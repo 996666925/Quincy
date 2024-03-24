@@ -1,5 +1,6 @@
 use std::sync::Arc;
 
+use egui::Vec2;
 use nalgebra::{Matrix4, Vector4};
 use thunderdome::{Arena, Index};
 use QcCore::{
@@ -38,10 +39,10 @@ impl EditorRenderer {
     }
 
     /// 渲染游戏界面
-    pub fn render_scene(&self) {
+    pub fn render_scene(&self, size: Vec2) {
         let mut sceneManager = self.context.scene_manager.try_write().unwrap();
         let mut window = self.context.window.try_read().unwrap();
-        let size = window.inner_size().to_logical::<u32>(window.scale_factor());
+        let size = size * window.scale_factor() as f32;
         let currnetScene = sceneManager
             .get_current_scene_mut()
             .as_mut()
@@ -56,7 +57,7 @@ impl EditorRenderer {
 
             let position = transform.position();
             let rotation = transform.rotation();
-            camera.cacheMatrices(size.width, size.height, &position, &rotation);
+            camera.cacheMatrices(size.x as _, size.y as _, &position, &rotation);
             camera.updateUBO(self.context.engine_ubo.clone());
 
             let local_matrix = transform.get_world_position_matrix(&currnetScene)

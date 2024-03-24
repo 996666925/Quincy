@@ -55,7 +55,7 @@ impl DockView for ScenePanel {
             callback: Arc::new(CallbackFn::new(move |info, painter| {
                 let editor_renderer = editor_renderer.try_read().unwrap();
 
-                editor_renderer.render_scene();
+                editor_renderer.render_scene(Vec2::new(rect.width(), rect.height()));
             })),
         };
 
@@ -82,47 +82,48 @@ impl ScenePanel {
         {
             let mut scene_manager = context.scene_manager.try_write().unwrap();
             let scene = scene_manager.get_current_scene_mut().as_mut().unwrap();
-            let camera = Component::new(Camera::new());
+            let camera = Component::Camera(Camera::new());
             let skybox = SkyBox::new();
 
-            let transform = Component::new(Transform::new(Point3::new(0., 0., 3.)));
+            let transform = Component::Transform(Transform::new(Point3::new(0., 0., 3.)));
             let mut obj = GameObject::new("Camera");
             obj.insert(camera);
-            obj.insert(Component::new(skybox));
+            obj.insert(Component::SkyBox(skybox));
             obj.insert(transform);
 
             scene.add_child(obj);
 
-            let obj = {
-                let mut obj = GameObject::new("Monkey");
+            for i in 0..5 {
+                {
+                    let mut obj = GameObject::new(&format!("Monkey{}", i));
 
-                let transform = Transform::new(Point3::new(0., 0., -3.));
+                    let transform = Transform::new(Point3::new(i as f32 * 2.5 - 5., 0., -3.));
 
-                let mut meshRender = MeshRender::new();
-                let mut model = Mesh::new("monkey.mesh");
-                model.setMaterialIndex(0);
+                    let mut meshRender = MeshRender::new();
+                    let mut model = Mesh::new("monkey.mesh");
+                    model.setMaterialIndex(0);
 
-                meshRender.addModel(model.into());
+                    meshRender.addModel(model.into());
 
-                let mut materialRender = MaterialRender::new();
-                let mut material = Material::default();
-                let image = include_bytes!("../../assets/texture.dds");
-                let texture = Texture::from_bytes(
-                    vec![image],
-                    TextureKind::Rectangle {
-                        width: 0,
-                        height: 0,
-                    },
-                );
-                material.addTexture(texture);
-                materialRender.addMaterial(material);
-                obj.addComponent(Component::new(transform));
-                obj.addComponent(Component::new(meshRender));
-                obj.addComponent(Component::new(materialRender));
-                obj
-            };
+                    let mut materialRender = MaterialRender::new();
+                    let mut material = Material::default();
+                    let image = include_bytes!("../../assets/texture.dds");
+                    let texture = Texture::from_bytes(
+                        vec![image],
+                        TextureKind::Rectangle {
+                            width: 0,
+                            height: 0,
+                        },
+                    );
+                    material.addTexture(texture);
+                    materialRender.addMaterial(material);
+                    obj.addComponent(Component::Transform(transform));
+                    obj.addComponent(Component::MeshRender(meshRender));
+                    obj.addComponent(Component::MaterialRender(materialRender));
 
-            let index = scene.add_child(obj);
+                    scene.add_child(obj);
+                };
+            }
         }
 
         let picking_framebuffer = DuckFrameBuffer::new();
@@ -148,8 +149,6 @@ impl ScenePanel {
             let mouse_x = pos.x;
             let mouse_y = size.height as f32 - pos.y;
 
-            // self.picking_framebuffer.bind();
-
             let renderer = self.context.renderer.try_read().unwrap();
             let mut rgba = [0u8; 4];
 
@@ -162,7 +161,6 @@ impl ScenePanel {
                 PixelDataType::UNSIGNED_BYTE,
                 rgba.as_ptr() as _,
             );
-            // println!("{:?}", rgba);
 
             rgba[3] = 0;
 
@@ -176,9 +174,12 @@ impl ScenePanel {
                 .as_mut()
                 .expect("无法获取当前的场景对象");
 
-            if let Some((_, obj)) = &scene.get_by_slot(id.slot) {
+            let actions = self.context.editor_actions.clone();
+            if let Some((index, obj)) = &scene.get_by_slot(id.slot) {
+                actions.select(Some(*index));
                 println!("当前点击的是:{:?}", obj.name);
             } else {
+                actions.select(None);
                 println!("什么也没点中");
             }
 

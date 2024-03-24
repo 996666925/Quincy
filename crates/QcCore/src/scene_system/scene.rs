@@ -129,7 +129,7 @@ impl Scene {
                                 *texture = Texture::new(image);
                             }
 
-                            _=>{}
+                            _ => {}
                         }
                     }
 
@@ -192,7 +192,7 @@ mod test {
     fn serde() {
         let mut scene = Scene::new();
         let mut obj = GameObject::default();
-        obj.addComponent(Component::new(Camera::new()));
+        obj.addComponent(Component::Camera(Camera::new()));
         scene.insert(obj);
         let str = ron::to_string(&scene).unwrap();
         println!("{:#?}", str);

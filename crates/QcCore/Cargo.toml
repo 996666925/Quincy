@@ -21,4 +21,3 @@ typetag = "0.2.13"
 rust-embed = "8.0.0"
 deno_core = { git = "https://github.com/996666925/deno_core" }
 bytemuck = { version = "1.15.0" }
-

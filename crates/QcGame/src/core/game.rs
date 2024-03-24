@@ -66,19 +66,19 @@ impl Game {
         {
             let currentScene = sceneManagerRef.get_current_scene_mut();
             if let Some(currentScene) = currentScene {
-                let camera = Component::new(Camera::new());
+                let camera = Component::Camera(Camera::new());
                 let mut skybox = SkyBox::new();
 
-                let transform = Component::new(Transform::new(Point3::new(0., 0., 0.)));
+                let transform = Component::Transform(Transform::new(Point3::new(0., 0., 0.)));
                 let mut obj = GameObject::new("Camera");
                 obj.insert(camera);
-                obj.insert(Component::new(skybox));
+                obj.insert(Component::SkyBox(skybox));
                 obj.insert(transform);
                 // obj.insert(Component::new(Example));
                 currentScene.add_child(obj);
 
                 let mut parent = GameObject::default();
-                let transform = Component::new(Transform::new(Point3::new(0., 0., -5.)));
+                let transform = Component::Transform(Transform::new(Point3::new(0., 0., -5.)));
                 let tf = parent.addComponent(transform);
 
                 // parent.addComponent(component)
@@ -103,17 +103,14 @@ impl Game {
 
                     let mut materialRender = MaterialRender::new();
                     let mut material = Material::default();
-                    material.set_uniform_info(
-                        "uDiffuse",
-                        UniformInfo::Vec4(Vector4::new(0.2, 0.2, 0.2, 1.0)),
-                    );
+
                     let image = context.resourceManager.get("shitou.dds").unwrap();
                     let texture = Texture::new(image);
                     material.addTexture(texture);
                     materialRender.addMaterial(material);
-                    obj.addComponent(Component::new(transform));
-                    obj.addComponent(Component::new(meshRender));
-                    obj.addComponent(Component::new(materialRender));
+                    obj.addComponent(Component::Transform(transform));
+                    obj.addComponent(Component::MeshRender(meshRender));
+                    obj.addComponent(Component::MaterialRender(materialRender));
                 }
 
                 //添加猴头
@@ -137,9 +134,9 @@ impl Game {
                     let texture = Texture::new(image);
                     material.addTexture(texture);
                     materialRender.addMaterial(material);
-                    obj.addComponent(Component::new(transform));
-                    obj.addComponent(Component::new(meshRender));
-                    obj.addComponent(Component::new(materialRender));
+                    obj.addComponent(Component::Transform(transform));
+                    obj.addComponent(Component::MeshRender(meshRender));
+                    obj.addComponent(Component::MaterialRender(materialRender));
                     obj
                 };
 
@@ -169,7 +166,7 @@ impl Game {
                         panel1.addChild(UiNode::new(button));
 
                         let cube = JsComponent::new("Cube", None);
-                        let compId = obj.insert(Component::new(cube));
+                        let compId = obj.insert(Component::Other(Box::new(cube)));
                         // canvas.addUiBind(
                         //     index,
                         //     UiBind::new(
@@ -276,7 +273,7 @@ impl Game {
         for (_, go) in currentScene.iter_mut() {
             for (_, comp) in go.iter_mut() {
                 if comp.type_id() == TypeId::of::<JsComponent>() {
-                    let jsComp = comp.castMut::<JsComponent>().unwrap();
+                    let jsComp = comp.cast_mut::<JsComponent>().unwrap();
 
                     let jsValue = {
                         let objName =
@@ -300,7 +297,7 @@ impl Game {
             let name = go.getName().to_string();
             for (_, comp) in go.iter_mut() {
                 if comp.type_id() == TypeId::of::<JsComponent>() {
-                    let jsComp = comp.castMut::<JsComponent>().unwrap();
+                    let jsComp = comp.cast_mut::<JsComponent>().unwrap();
 
                     let comp = v8::Local::<v8::Value>::new(scope, jsComp.getV8Value());
                     GoExt::setParentName(comp, scope, &name);

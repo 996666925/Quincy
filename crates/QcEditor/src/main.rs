@@ -7,6 +7,9 @@ mod core;
 mod managers;
 mod pages;
 mod panel;
+mod inspector;
+
+
 
 fn main() {
     let app = Application::new();

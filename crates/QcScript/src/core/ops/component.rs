@@ -28,18 +28,18 @@ pub fn op_addComponent<'a>(
 ) -> v8::Global<v8::Value> {
     let compV8 = v8::Global::new(scope, comp);
     //添加组件
-    //add component 
+    //add component
     {
         let mut state = state.borrow_mut();
         let scene = state.borrow_mut::<*mut Scene>();
         let scene = unsafe { &mut **scene };
         if let Some(index) = scene.getGameObject(name) {
             let jsComp = JsComponent::new(compName, Some(compV8.clone().into()));
-            scene[index].addComponent(Component::new(jsComp));
+            scene[index].addComponent(Component::Other(Box::new(jsComp)));
         }
     }
     //调用组件onStart方法
-    //call the onStart method of component 
+    //call the onStart method of component
     {
         GoExt::setParentName(comp, scope, name);
         GoExt::onStart(comp, scope);

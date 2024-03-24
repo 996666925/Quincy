@@ -1,8 +1,10 @@
 use proc_macro::TokenStream;
 use quote::{format_ident, quote};
 
-use syn::{parse_macro_input, DeriveInput};
+use syn::{parse_macro_input, Data, DataStruct, DeriveInput, Fields, FieldsNamed};
 
+
+/// 内部组件使用
 #[proc_macro_derive(Comp)]
 pub fn comp(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as DeriveInput);
@@ -77,12 +79,14 @@ pub fn comp(input: TokenStream) -> TokenStream {
         impl V8 for #name{
 
         }
+        
 
     };
 
     TokenStream::from(expanded)
 }
 
+/// ui组件使用
 #[proc_macro_derive(Control)]
 pub fn uiNode(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as DeriveInput);
@@ -158,6 +162,7 @@ pub fn uiNode(input: TokenStream) -> TokenStream {
     TokenStream::from(expanded)
 }
 
+/// 外部组件使用
 #[proc_macro_derive(Component)]
 pub fn component(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as DeriveInput);
@@ -205,6 +210,7 @@ pub fn component(input: TokenStream) -> TokenStream {
                 #name_str
             }
         }
+
 
     };
 

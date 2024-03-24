@@ -1,18 +1,23 @@
 use deno_core::{
     serde_v8,
     v8::{self, ObjectTemplate},
-    JsRealm,
+    JsRealm, Op,
 };
 use erased_serde::{serialize_trait_object, Deserializer};
 use serde::{ser::SerializeStruct, Deserialize, Serialize};
 
 use std::{
-    any::Any,
+    any::{Any, TypeId},
     fmt::Debug,
     ops::{Deref, DerefMut},
     sync::{Arc, RwLock},
 };
 use thunderdome::Index;
+
+use super::components::{
+    camera::Camera, light::Light, material_render::MaterialRender, mesh_render::MeshRender,
+    skybox::SkyBox, transform::Transform,
+};
 
 pub trait V8 {
     fn toV8Global(&self, scope: &mut v8::HandleScope) -> v8::Global<v8::Value>
@@ -29,7 +34,7 @@ pub trait V8 {
         let obj: v8::Local<v8::Value> = obj.into();
         v8::Global::new(scope, obj)
     }
-    
+
     fn toV8Local<'a>(&self, scope: &mut v8::HandleScope<'a>) -> v8::Local<'a, v8::Value>
     where
         Self: Serialize,
@@ -89,7 +94,7 @@ where
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, Default)]
 pub struct ComponentInner {
     //父对象的index
-    //index of parent object 
+    //index of parent object
     pub parent: Option<Index>,
     pub active: bool,
 }
@@ -108,43 +113,59 @@ impl ComponentInner {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize)]
-pub struct Component {
-    pub value: Box<dyn ComponentTrait>,
-}
-
-// impl Serialize for Component {
-//     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-//     where
-//         S: serde::Serializer,
-//     {
-//         let mut s = serializer.serialize_struct("Component", 2)?;
-//         s.serialize_field("name", &self.value)?;
-//         s.serialize_field("parent", &self.parent)?;
-//         s.end()
-//     }
+// pub struct Component {
+//     pub value: Box<dyn ComponentTrait>,
 // }
+
+#[derive(Debug, Serialize, Deserialize)]
+pub enum Component {
+    Camera(Camera),
+    Light(Light),
+    MaterialRender(MaterialRender),
+    MeshRender(MeshRender),
+    SkyBox(SkyBox),
+    Transform(Transform),
+    Other(Box<dyn ComponentTrait>),
+}
 
 impl Component {
     pub fn getName(&self) -> &str {
-        self.value.getName()
+        let comp = self.get_inner();
+        comp.getName()
     }
 
-    pub fn new(comp: impl ComponentTrait) -> Self {
-        Self {
-            value: Box::new(comp),
+    pub fn get_inner(&self) -> &dyn ComponentTrait {
+        match self {
+            Component::Camera(comp) => comp,
+            Component::Light(comp) => comp,
+            Component::MaterialRender(comp) => comp,
+            Component::MeshRender(comp) => comp,
+            Component::SkyBox(comp) => comp,
+            Component::Transform(comp) => comp,
+            Component::Other(comp) => comp.deref(),
         }
     }
 
-    pub fn cast<T: Any>(&self) -> Option<&T> {
-        self.value.asAny().downcast_ref::<T>()
-    }
-    pub fn castMut<T: ComponentTrait>(&mut self) -> Option<&mut T> {
-        self.value.asAnyMut().downcast_mut::<T>()
+    pub fn get_inner_mut(&mut self) -> &mut dyn ComponentTrait {
+        match self {
+            Component::Camera(comp) => comp,
+            Component::Light(comp) => comp,
+            Component::MaterialRender(comp) => comp,
+            Component::MeshRender(comp) => comp,
+            Component::SkyBox(comp) => comp,
+            Component::Transform(comp) => comp,
+            Component::Other(comp) => comp.deref_mut(),
+        }
     }
 
-    pub fn getValue(&self) -> &Box<dyn ComponentTrait> {
-        &self.value
+    pub fn cast<T: 'static>(&self) -> Option<&T> {
+        let comp = self.get_inner();
+        comp.asAny().downcast_ref::<T>()
+    }
+
+    pub fn cast_mut<T: 'static>(&mut self) -> Option<&mut T> {
+        let comp = self.get_inner_mut();
+        comp.asAnyMut().downcast_mut::<T>()
     }
 }
 
@@ -152,12 +173,12 @@ impl Deref for Component {
     type Target = dyn ComponentTrait;
 
     fn deref(&self) -> &Self::Target {
-        self.value.deref()
+        self.get_inner()
     }
 }
 
 impl DerefMut for Component {
     fn deref_mut(&mut self) -> &mut Self::Target {
-        self.value.deref_mut()
+        self.get_inner_mut()
     }
 }

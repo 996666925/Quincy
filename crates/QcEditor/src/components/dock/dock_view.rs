@@ -29,6 +29,11 @@ pub trait DockView: Debug {
         .inner
     }
 
+
+    fn update(&mut self, ctx: &mut UiContext, show_tab: bool) {
+        
+    }
+
     fn render(&mut self, ctx: &mut UiContext, show_tab: bool) {
         
     }

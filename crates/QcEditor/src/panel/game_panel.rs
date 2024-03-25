@@ -49,20 +49,7 @@ impl DockView for GamePanel {
 
 impl GamePanel {
     pub fn new(context: Arc<Context>, editor_renderer: Ref<EditorRenderer>) -> Self {
-        {
-            let mut scene_manager = context.scene_manager.try_write().unwrap();
-            let scene = scene_manager.get_current_scene_mut().as_mut().unwrap();
-            let camera = Component::Camera(Camera::new());
-            let skybox = SkyBox::new();
-
-            let transform = Component::Transform(Transform::new(Point3::new(0., 0., 0.)));
-            let mut obj = GameObject::new("Camera");
-            obj.insert(camera);
-            obj.insert(Component::SkyBox(skybox));
-            obj.insert(transform);
-            scene.add_child(obj);
-        }
-        
+         
         Self {
             context,
             editor_renderer,

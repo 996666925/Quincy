@@ -1,7 +1,5 @@
 //! Helpers for drag and drop support. Works well in combination with [`crate::list_item::ListItem`].
 
-
-
 /// Context information related to a candidate drop target, used by [`find_drop_target`] to compute the [`DropTarget`],
 /// if any.
 pub struct DropItemDescription<ItemId: Copy> {
@@ -23,7 +21,7 @@ pub struct DropItemDescription<ItemId: Copy> {
 
 /// Drop target information, including where to draw the drop indicator and where to insert the dragged item.
 #[derive(Clone, Debug)]
-pub struct DropTarget<ItemId: Copy> {
+pub struct DropTarget<ItemId> {
     /// Range of X coordinates for the drag target indicator
     pub indicator_span_x: egui::Rangef,
 

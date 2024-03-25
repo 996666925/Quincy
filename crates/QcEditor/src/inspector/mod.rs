@@ -2,6 +2,8 @@ use QcCore::ecs::component::{Component, ComponentTrait};
 use QcUI::core::context::UiContext;
 
 mod transform;
+mod mesh_render;
+mod material_render;
 
 pub trait InspectorTrait {
     fn inspector(&mut self, ctx: &mut UiContext) {}

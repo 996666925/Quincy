@@ -1,18 +1,15 @@
 use egui::NumExt;
 use std::collections::HashMap;
+use thunderdome::Index;
 
-#[derive(Hash, Clone, Copy, PartialEq, Eq)]
-struct ItemId(u32);
-
-impl ItemId {
-    fn new() -> Self {
-        Self(rand::random())
-    }
+#[derive(Hash, Clone, Copy, PartialEq, Eq, Debug)]
+pub struct ItemId {
+    pub id: Index,
 }
 
-impl std::fmt::Debug for ItemId {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "#{:04x}", self.0)
+impl ItemId {
+    fn new(index: Index) -> Self {
+        Self { id: index }
     }
 }
 
@@ -24,12 +21,12 @@ impl From<ItemId> for egui::Id {
 
 #[derive(Debug)]
 enum Item {
-    Container(Vec<ItemId>),
+    Container(String, Vec<ItemId>),
     Leaf(String),
 }
 
 #[derive(Debug)]
-enum Command {
+pub enum Command {
     /// Set the selected item
     SetSelectedItem(Option<ItemId>),
 
@@ -50,15 +47,15 @@ pub struct HierarchicalDragAndDrop {
     items: HashMap<ItemId, Item>,
 
     /// Id of the root item (not displayed in the UI)
-    root_id: ItemId,
+    pub root_id: ItemId,
 
     /// Selected item, if any
-    selected_item: Option<ItemId>,
+    pub selected_item: Option<ItemId>,
 
     /// If a drag is ongoing, this is the id of the destination container (if any was identified)
     ///
     /// This is used to highlight the target container.
-    target_container: Option<ItemId>,
+    pub target_container: Option<ItemId>,
 
     /// Channel to receive commands from the UI
     command_receiver: std::sync::mpsc::Receiver<Command>,
@@ -69,12 +66,12 @@ pub struct HierarchicalDragAndDrop {
 
 impl Default for HierarchicalDragAndDrop {
     fn default() -> Self {
-        let root_item = Item::Container(Vec::new());
-        let root_id = ItemId::new();
+        let root_item = Item::Container("root".to_string(), Vec::new());
+        let root_id = ItemId::new(Index::DANGLING);
 
         let (command_sender, command_receiver) = std::sync::mpsc::channel();
 
-        let mut res = Self {
+        let res = Self {
             items: std::iter::once((root_id, root_item)).collect(),
             root_id,
             selected_item: None,
@@ -82,8 +79,6 @@ impl Default for HierarchicalDragAndDrop {
             command_receiver,
             command_sender,
         };
-
-        res.populate();
         res
     }
 }
@@ -92,29 +87,9 @@ impl Default for HierarchicalDragAndDrop {
 // Data stuff
 //
 impl HierarchicalDragAndDrop {
-    /// Add a bunch of items in the hierarchy.
-    fn populate(&mut self) {
-        let c1 = self.add_container(self.root_id);
-        let c2 = self.add_container(self.root_id);
-        let c3 = self.add_container(self.root_id);
-        self.add_leaf(self.root_id);
-        let c11 = self.add_container(c1);
-        self.add_leaf(self.root_id);
-        let c12 = self.add_container(c1);
-        self.add_leaf(c11);
-        self.add_leaf(c11);
-        self.add_leaf(c12);
-        self.add_leaf(c12);
-
-        // self.add_leaf(c2);
-        // self.add_leaf(c2);
-
-        // self.add_leaf(c3);
-    }
-
     fn container(&self, id: ItemId) -> Option<&Vec<ItemId>> {
         match self.items.get(&id) {
-            Some(Item::Container(children)) => Some(children),
+            Some(Item::Container(str, children)) => Some(children),
             _ => None,
         }
     }
@@ -151,7 +126,7 @@ impl HierarchicalDragAndDrop {
         // Remove the item from its current location. Note: we must adjust the target position if the item is
         // moved within the same container, as the removal might shift the positions by one.
         if let Some((source_parent_id, source_pos)) = self.parent_and_pos(item_id) {
-            if let Some(Item::Container(children)) = self.items.get_mut(&source_parent_id) {
+            if let Some(Item::Container(str, children)) = self.items.get_mut(&source_parent_id) {
                 children.remove(source_pos);
             }
 
@@ -160,7 +135,7 @@ impl HierarchicalDragAndDrop {
             }
         }
 
-        if let Some(Item::Container(children)) = self.items.get_mut(&container_id) {
+        if let Some(Item::Container(str, children)) = self.items.get_mut(&container_id) {
             children.insert(pos.at_most(children.len()), item_id);
         }
     }
@@ -191,26 +166,26 @@ impl HierarchicalDragAndDrop {
         None
     }
 
-    fn add_container(&mut self, parent_id: ItemId) -> ItemId {
-        let id = ItemId::new();
-        let item = Item::Container(Vec::new());
+    pub fn add_container(&mut self, parent_id: ItemId, str: &str, index: Index) -> ItemId {
+        let id = ItemId::new(index);
+        let item = Item::Container(str.to_string(), Vec::new());
 
         self.items.insert(id, item);
 
-        if let Some(Item::Container(children)) = self.items.get_mut(&parent_id) {
+        if let Some(Item::Container(str, children)) = self.items.get_mut(&parent_id) {
             children.push(id);
         }
 
         id
     }
 
-    fn add_leaf(&mut self, parent_id: ItemId) {
-        let id = ItemId::new();
-        let item = Item::Leaf(format!("Item"));
+    pub fn add_leaf(&mut self, parent_id: ItemId, text: &str, index: Index) {
+        let id = ItemId::new(index);
+        let item = Item::Leaf(text.to_string());
 
         self.items.insert(id, item);
 
-        if let Some(Item::Container(children)) = self.items.get_mut(&parent_id) {
+        if let Some(Item::Container(str, children)) = self.items.get_mut(&parent_id) {
             children.push(id);
         }
     }
@@ -225,7 +200,7 @@ impl HierarchicalDragAndDrop {
 // UI stuff
 //
 impl HierarchicalDragAndDrop {
-    pub fn ui(&mut self, ui: &mut egui::Ui) {
+    pub fn ui(&mut self, ui: &mut egui::Ui, func: impl Fn(Command)) {
         if let Some(top_level_items) = self.container(self.root_id) {
             self.container_children_ui(ui, top_level_items);
         }
@@ -247,6 +222,7 @@ impl HierarchicalDragAndDrop {
 
         while let Ok(command) = self.command_receiver.try_recv() {
             println!("Received command: {command:?}");
+
             match command {
                 Command::SetSelectedItem(item_id) => self.selected_item = item_id,
                 Command::MoveItem {
@@ -258,10 +234,18 @@ impl HierarchicalDragAndDrop {
                     self.target_container = Some(item_id);
                 }
             }
+
+            func(command)
         }
     }
 
-    fn container_ui(&self, ui: &mut egui::Ui, item_id: ItemId, children: &Vec<ItemId>) {
+    fn container_ui(
+        &self,
+        ui: &mut egui::Ui,
+        item_id: ItemId,
+        children: &Vec<ItemId>,
+        label: &str,
+    ) {
         let (response, head_response, body_resp) =
             egui::collapsing_header::CollapsingState::load_with_default_open(
                 ui.ctx(),
@@ -269,8 +253,9 @@ impl HierarchicalDragAndDrop {
                 true,
             )
             .show_header(ui, |ui| {
+                let text = egui::RichText::new(format!("{}", label)).size(14.);
                 ui.add(
-                    egui::Label::new(format!("Container"))
+                    egui::Label::new(text)
                         .selectable(false)
                         .sense(egui::Sense::click_and_drag()),
                 )
@@ -310,8 +295,8 @@ impl HierarchicalDragAndDrop {
             };
 
             match self.items.get(child_id) {
-                Some(Item::Container(children)) => {
-                    self.container_ui(ui, *child_id, children);
+                Some(Item::Container(str, children)) => {
+                    self.container_ui(ui, *child_id, children, str);
                 }
                 Some(Item::Leaf(label)) => {
                     self.leaf_ui(ui, *child_id, label);
@@ -322,8 +307,9 @@ impl HierarchicalDragAndDrop {
     }
 
     fn leaf_ui(&self, ui: &mut egui::Ui, item_id: ItemId, label: &str) {
+        let text = egui::RichText::new(format!("{}", label)).size(14.);
         let response = ui.add(
-            egui::Label::new(label)
+            egui::Label::new(text)
                 .selectable(false)
                 .sense(egui::Sense::click_and_drag()),
         );

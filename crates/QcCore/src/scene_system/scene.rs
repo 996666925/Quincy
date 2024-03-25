@@ -1,4 +1,4 @@
-use deno_core::{v8, JsRealm};
+use deno_core::{v8, JsRealm, Op};
 use serde::{Deserialize, Serialize};
 use std::cell::Cell;
 use std::ops::{Deref, DerefMut};
@@ -19,7 +19,7 @@ pub struct Scene {
     graph: Graph,
     //根节点下的对象
     //objects contained in root node
-    children: Arena<Index>,
+    pub children: Vec<Index>,
     camera: Cell<Option<Index>>,
     canvas: Cell<Option<Index>>,
     skybox: Cell<Option<Index>>,
@@ -145,6 +145,7 @@ impl Scene {
     pub fn add_child(&mut self, go: GameObject) -> Index {
         let index = self.insert(go);
         self[index].set_root(index);
+        self.children.push(index);
         index
     }
 
@@ -160,9 +161,25 @@ impl Scene {
         index
     }
 
-    pub fn remove_child_with_parent(&mut self, obj: Index, parent: Index) -> Option<Index> {
+    pub fn add_child_with_parent_by_id(&mut self, index: Index, parent: Option<Index>) -> Index {
+        self[index].set_parent(parent);
+        self[index].active = true;
+        if let Some(parent) = parent {
+            self[parent].add_child(index);
+        } else {
+            self.children.push(index);
+        }
+
+        index
+    }
+
+    pub fn remove_child_with_parent(&mut self, obj: Index, parent: Option<Index>) {
         self[obj].set_parent(None);
-        self[parent].remove_child(obj)
+        if let Some(parent) = parent {
+            self[parent].remove_child(obj)
+        } else {
+            self.children.retain(|id| *id != obj)
+        }
     }
 
     pub fn getGameObject(&self, name: &str) -> Option<Index> {

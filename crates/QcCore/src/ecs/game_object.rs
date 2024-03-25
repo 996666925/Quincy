@@ -20,7 +20,7 @@ pub struct GameObject {
     pub root: Option<Index>,
     pub parent: Option<Index>,
     pub pool: Arena<Component>,
-    pub children: Arena<Index>,
+    pub children: Vec<Index>,
     pub active: bool,
 }
 
@@ -34,7 +34,7 @@ impl Default for GameObject {
             root: None,
             //对象
             //objects
-            children: Arena::new(),
+            children: Vec::new(),
             parent: None,
             active: false,
         }
@@ -76,7 +76,7 @@ impl GameObject {
             //GameObject Pool中的id
             //id in GameObject Pool
             root: None,
-            children: Arena::new(),
+            children: Vec::new(),
             parent: None,
             active: false,
         }
@@ -87,14 +87,14 @@ impl GameObject {
 
     ///添加对象请使用Scene::add_child_with_parent方法
     ///if you want to add object ,please use Scene::add_child_with_parent method
-    pub fn add_child(&mut self, gameobject: Index) -> Index {
-        self.children.insert(gameobject)
+    pub fn add_child(&mut self, gameobject: Index) {
+        self.children.push(gameobject)
     }
 
     ///移除对象请使用Scene::remove_child_with_parent方法
     ///if you want to remove object ,please use Scene::remove_child_with_parent method
-    pub fn remove_child(&mut self, gameobject: Index) -> Option<Index> {
-        self.children.remove(gameobject)
+    pub fn remove_child(&mut self, gameobject: Index) {
+        self.children.retain(|id| *id != gameobject)
     }
 
     ///未添加到场景时，组件无法获取到对象
@@ -164,8 +164,8 @@ impl GameObject {
 
     pub fn set_parent(&mut self, index: Option<Index>) {
         self.parent = index;
-        self.active = index.is_some();
     }
+
 }
 
 #[cfg(test)]

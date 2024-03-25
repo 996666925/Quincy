@@ -3,15 +3,31 @@ use std::collections::HashMap;
 use serde::{Deserialize, Serialize};
 use QcRender::resources::{Shader, Texture, UniformInfo};
 
-#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Material {
     shader: Shader,
     uniformInfoList: HashMap<String, UniformInfo>,
+    pub gpu_instances: u32,
+}
+
+impl Default for Material {
+    fn default() -> Self {
+        Self {
+            shader: Default::default(),
+            uniformInfoList: Default::default(),
+            gpu_instances: 1,
+        }
+    }
 }
 
 impl Material {
     pub fn with_shader(mut self, shader: Shader) -> Self {
         self.shader = shader;
+        self
+    }
+
+    pub fn with_instances(mut self, instances: u32) -> Self {
+        self.gpu_instances = instances;
         self
     }
 

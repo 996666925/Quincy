@@ -31,7 +31,7 @@ use QcUI::{core::context::UiContext, rect::QcRect, CallbackFn};
 
 use crate::{
     components::dock::DockView,
-    core::{context::Context, editor_renderer::EditorRenderer},
+    core::{context::Context, editor_renderer::EditorRenderer, gizmo_behavior::GizmoOperation},
 };
 
 #[derive(Debug)]
@@ -56,6 +56,7 @@ impl DockView for ScenePanel {
                 let editor_renderer = editor_renderer.try_read().unwrap();
 
                 editor_renderer.render_scene(Vec2::new(rect.width(), rect.height()));
+                editor_renderer.render_gizmo(GizmoOperation::Translate);
             })),
         };
 
@@ -177,10 +178,8 @@ impl ScenePanel {
             let actions = self.context.editor_actions.clone();
             if let Some((index, obj)) = &scene.get_by_slot(id.slot) {
                 actions.select(Some(*index));
-                println!("当前点击的是:{:?}", obj.name);
             } else {
                 actions.select(None);
-                println!("什么也没点中");
             }
 
             self.picking_framebuffer.unbind();
@@ -191,13 +190,13 @@ impl ScenePanel {
         let window = self.context.window.try_read().unwrap();
         let scale = window.scale_factor();
         let size = window.inner_size();
-        let rect = QcRect::to_gl_rect(rect, size, scale as _);
+        let gl_rect = QcRect::to_gl_rect(rect, size, scale as _);
 
         self.picking_framebuffer.resize(
-            rect.x as _,
-            rect.y as _,
-            rect.width as _,
-            rect.height as _,
+            gl_rect.x as _,
+            gl_rect.y as _,
+            gl_rect.width as _,
+            gl_rect.height as _,
         );
 
         let renderer = self.context.renderer.try_read().unwrap();
@@ -207,5 +206,10 @@ impl ScenePanel {
         let mut editor_renderer = self.editor_renderer.try_write().unwrap();
 
         editor_renderer.render_scene_for_picking();
+
+        let editor_actions = self.context.editor_actions.clone();
+
+        // 如果游戏对象被选中
+        if let Some(target) = editor_actions.target.get() {}
     }
 }

@@ -63,26 +63,6 @@ impl Texture {
         )
     }
 
-    pub fn empty1() -> Self {
-        let textures = vec![
-            Asset::get("empty.dds").unwrap(),
-        ];
-
-        let textures = textures
-            .iter()
-            .map(|file| file.data.as_ref())
-            .collect::<Vec<&[u8]>>();
-
-        Self::from_bytes(
-            textures,
-            TextureKind::Rectangle  {
-                width: 0,
-                height: 0,
-            },
-        )
-    }
-
-
     pub fn new(res: Resource) -> Self {
         let Resource { file, name } = res;
         unsafe {
@@ -239,10 +219,9 @@ impl Texture {
             let mut texture = 0;
 
             gl::CreateTextures(gl::TEXTURE_2D, 1, &mut texture);
-            gl::BindTexture(gl::TEXTURE_2D, texture);
-            gl::TextureStorage2D(texture, 1, gl::RGBA, 1, 1);
+            gl::TextureStorage2D(texture, 1, gl::RGBA8, 1, 1);
 
-            let color = [0xffffffffu32];
+            let color = [255u8, 255, 255, 255];
 
             gl::TextureSubImage2D(
                 texture,
@@ -252,16 +231,13 @@ impl Texture {
                 1,
                 1,
                 gl::RGBA,
-                gl::RGBA,
+                gl::UNSIGNED_BYTE,
                 color.as_ptr() as _,
             );
-            gl::GenerateMipmap(gl::TEXTURE_2D);
-            gl::TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_WRAP_S, gl::REPEAT as _);
-            gl::TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_WRAP_T, gl::REPEAT as _);
-            gl::TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_MIN_FILTER, gl::NEAREST as _);
-            gl::TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_MAG_FILTER, gl::LINEAR as _);
-
-            gl::BindTexture(gl::TEXTURE_2D, 0);
+            gl::TextureParameteri(texture, gl::TEXTURE_WRAP_S, gl::REPEAT as _);
+            gl::TextureParameteri(texture, gl::TEXTURE_WRAP_T, gl::REPEAT as _);
+            gl::TextureParameteri(texture, gl::TEXTURE_MIN_FILTER, gl::NEAREST as _);
+            gl::TextureParameteri(texture, gl::TEXTURE_MAG_FILTER, gl::LINEAR as _);
 
             Self {
                 name: "Empty".to_string(),

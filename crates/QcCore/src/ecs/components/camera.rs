@@ -7,6 +7,8 @@ use QcMacros::Comp;
 use QcRender::buffers::UniformBuffer;
 use QcTools::utils::r#ref::Ref;
 
+use crate::ecs::MvpUbo;
+
 #[derive(Debug, Comp, Clone, Copy, Serialize, Deserialize)]
 pub struct Camera {
     inner: ComponentInner,
@@ -37,9 +39,10 @@ impl Camera {
         self.aspect
     }
 
-    pub fn updateUBO(&self, ubo: Arc<UniformBuffer<[Matrix4<f32>; 3]>>) {
+    pub fn updateUBO(&self, ubo: Arc<MvpUbo>, position: &Vector3<f32>) {
         ubo.setSubData(size_of::<Matrix4<f32>>(), self.viewMatrix.as_slice());
         ubo.setSubData(size_of::<Matrix4<f32>>() * 2, self.projMatrix.as_slice());
+        ubo.setSubData(size_of::<Matrix4<f32>>() * 3, position.as_slice());
     }
 
     pub fn cacheMatrices(

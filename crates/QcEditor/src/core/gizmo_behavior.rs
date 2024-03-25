@@ -1,5 +1,6 @@
 use QcTools::utils::r#ref::Ref;
 
+#[derive(Debug, PartialEq, Eq, Hash)]
 pub enum GizmoOperation {
     Translate,
     Rotate,

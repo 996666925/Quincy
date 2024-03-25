@@ -83,6 +83,14 @@ impl Renderer {
                             gl::UNSIGNED_SHORT,
                             std::ptr::null(),
                         );
+                    } else {
+                        gl::DrawElementsInstanced(
+                            mode as _,
+                            mesh.getIndexCount(),
+                            gl::UNSIGNED_SHORT,
+                            std::ptr::null(),
+                            instance as i32,
+                        );
                     }
                 }
             }

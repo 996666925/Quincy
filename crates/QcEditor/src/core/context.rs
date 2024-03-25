@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
 use nalgebra::Matrix4;
-use QcCore::{ecs::renderer::Renderer, scene_system::scene_manager::SceneManager};
+use QcCore::{ecs::{renderer::Renderer, MvpUbo}, scene_system::scene_manager::SceneManager};
 use QcRender::{buffers::UniformBuffer, settings::driver_settings::DriverSettings};
 use QcTools::utils::r#ref::Ref;
 use QcUI::core::ui_manager::UiManager;
@@ -21,7 +21,7 @@ pub struct Context {
     pub window: Ref<QcWindow>,
     pub renderer: Ref<Renderer>,
     pub scene_manager: Ref<SceneManager>,
-    pub engine_ubo: Arc<UniformBuffer<[Matrix4<f32>; 3]>>,
+    pub engine_ubo: Arc<MvpUbo>,
     pub gizmo_behavior: Ref<GizmoBehavior>,
     pub input_manager: Ref<InputManager>,
     pub editor_actions: Arc<EditorActions>,

@@ -36,7 +36,7 @@ impl Renderer {
     pub fn new(settings: DriverSettings) -> Ref<Renderer> {
         Ref::new(Self {
             parent: QcRenderer::new(settings),
-            empty_texture: Texture::empty1(),
+            empty_texture: Texture::empty(),
         })
     }
 
@@ -75,8 +75,7 @@ impl Renderer {
 
     pub fn drawMesh(&self, mesh: &Mesh, material: &Material) {
         material.bind(&self.empty_texture);
-
-        self.draw(mesh, PrimitiveMode::TRIANGLES, 1);
+        self.draw(mesh, PrimitiveMode::TRIANGLES, material.gpu_instances);
     }
 
     pub fn findAndSortDrawables(&self, scene: &Scene, defaultMaterial: &Material) -> Drawables {

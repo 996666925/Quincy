@@ -43,10 +43,10 @@ impl GameRender {
                 .cloned()
                 .unwrap();
 
-            let position = transform.position();
+            let position = transform.get_world_position(&currnetScene);
             let rotation = transform.rotation();
-            camera.cacheMatrices(size.width, size.height, &position, &rotation);
-            camera.updateUBO(self.context.engineUBO.clone());
+            camera.cacheMatrices(size.width, size.height, &position.into(), &rotation);
+            camera.updateUBO(self.context.engineUBO.clone(), &position);
 
             let local_matrix = transform.get_world_position_matrix(&currnetScene)
                 * Matrix4::new_scaling(camera.far / 2f32.sqrt());
@@ -60,11 +60,13 @@ impl GameRender {
             renderer.clear(true, true, false);
 
             {
-                currnetScene.get_main_skybox().map(|skybox: thunderdome::Index| {
-                    let skybox = currnetScene[skybox].getComponent::<SkyBox>().unwrap();
+                currnetScene
+                    .get_main_skybox()
+                    .map(|skybox: thunderdome::Index| {
+                        let skybox = currnetScene[skybox].getComponent::<SkyBox>().unwrap();
 
-                    renderer.renderSkybox(skybox, self.context.engineUBO.clone());
-                });
+                        renderer.renderSkybox(skybox, self.context.engineUBO.clone());
+                    });
             }
 
             renderer.renderScene(currnetScene, self.context.engineUBO.clone(), &self.material);

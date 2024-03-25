@@ -10,7 +10,7 @@ pub struct UniformBuffer<T> {
     maker: PhantomData<T>,
 }
 
-impl<T: bytemuck::Pod> UniformBuffer<T> {
+impl<T> UniformBuffer<T> {
     pub fn new(index: u32) -> Self {
         unsafe {
             let mut buffer = 0;
@@ -63,7 +63,7 @@ impl<T: bytemuck::Pod> UniformBuffer<T> {
         unsafe {
             self.bind();
             let ptr: *mut T = gl::MapNamedBuffer(self.buffer, gl::DYNAMIC_STORAGE_BIT) as _;
-            let value = ptr.read().clone();
+            let value = ptr.read();
             gl::UnmapNamedBuffer(self.buffer);
             self.unbind();
             return value;

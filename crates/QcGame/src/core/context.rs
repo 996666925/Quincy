@@ -1,4 +1,6 @@
 use nalgebra::{Matrix1, Matrix4, Vector3};
+use QcCore::ecs::MvpUbo;
+use std::mem::size_of;
 use std::sync::{Arc, RwLock};
 use QcCore::ecs::components::camera::Camera;
 use QcCore::ecs::game_object::GameObject;
@@ -24,7 +26,7 @@ pub struct Context {
     pub window: Ref<QcWindow>,
     pub renderer: Ref<Renderer>,
     pub sceneManager: Ref<SceneManager>,
-    pub engineUBO: Arc<UniformBuffer<[Matrix4<f32>; 3]>>,
+    pub engineUBO: Arc<MvpUbo>,
     pub jsRuntimeManager: Ref<JsRuntimeManager>,
     pub resourceManager: Arc<ResourceManager>,
 }

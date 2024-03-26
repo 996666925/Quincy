@@ -7,7 +7,7 @@ members = [
     "crates/QcUI",
     "crates/QcRender",
     "crates/QcMacros",
-    "crates/QcExport",
     "crates/QcScript",
     "crates/QcEditor",
+    "crates/QcExport/rust",
 ]

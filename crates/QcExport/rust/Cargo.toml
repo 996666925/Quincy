@@ -1,0 +1,18 @@
+[package]
+name = "rust"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[lib]
+crate-type=["staticlib", "cdylib"]
+
+[dependencies]
+cxx = "1.0"
+obj-rs = "0.7.1"
+ron = "0.8.1"
+QcRender = { path = "../../QcRender" }
+nalgebra = { version = "0.32.3", features = ["serde"] }
+
+[build-dependencies]
+cxx-build = "1.0"

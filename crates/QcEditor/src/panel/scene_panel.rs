@@ -145,39 +145,7 @@ impl ScenePanel {
                 }
             }
 
-            // 测试雪花定制功能
-            {
-                {
-                    let mut obj = GameObject::new("Monkey 雪花");
-                    obj.z_buffer = Some(2);
-
-                    let transform = Transform::new(Point3::new(0., 0., -10.));
-
-                    let mut meshRender = MeshRender::new();
-                    let mut model = Mesh::new("monkey.mesh");
-                    model.setMaterialIndex(0);
-
-                    meshRender.addModel(model.into());
-
-                    let mut materialRender = MaterialRender::new();
-                    let mut material = Material::default();
-                    let image = include_bytes!("../../assets/texture.dds");
-                    let texture = Texture::from_bytes(
-                        vec![image],
-                        TextureKind::Rectangle {
-                            width: 0,
-                            height: 0,
-                        },
-                    );
-                    material.addTexture(texture);
-                    materialRender.addMaterial(material);
-                    obj.addComponent(Component::Transform(transform));
-                    obj.addComponent(Component::MeshRender(meshRender));
-                    obj.addComponent(Component::MaterialRender(materialRender));
-
-                    scene.add_child(obj);
-                }
-            }
+           
         }
 
         let picking_framebuffer = DuckFrameBuffer::new();

@@ -2,6 +2,7 @@ export RUSTY_V8_MIRROR :="https://mirror.ghproxy.com/https://github.com/denoland
 set shell :=["powershell"]
 alias e := editor
 alias t := tokei
+alias ex := export
 
 default:
     cargo run --bin QcGame

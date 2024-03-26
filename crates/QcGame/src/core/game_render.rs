@@ -16,15 +16,11 @@ use QcTools::utils::r#ref::Ref;
 
 pub struct GameRender {
     context: Arc<Context>,
-    //默认材质
-    //default material
-    material: Material,
 }
 
 impl GameRender {
     pub fn new(context: Arc<Context>) -> Arc<GameRender> {
-        let material = Material::default();
-        Arc::new(Self { context, material })
+        Arc::new(Self { context })
     }
 
     pub fn renderScene(&self) {
@@ -69,7 +65,7 @@ impl GameRender {
                     });
             }
 
-            renderer.renderScene(currnetScene, self.context.engineUBO.clone(), &self.material);
+            renderer.renderScene(currnetScene, self.context.engineUBO.clone());
         };
     }
 }

@@ -3,6 +3,7 @@ use std::{
     ops::Deref,
     sync::{mpsc::Sender, Arc},
 };
+use thunderdome::Index;
 
 use nalgebra::Matrix4;
 use QcRender::{
@@ -30,6 +31,7 @@ use super::{
 pub struct Renderer {
     parent: QcRenderer,
     empty_texture: Texture,
+    default_material: Material,
 }
 
 impl Renderer {
@@ -37,6 +39,7 @@ impl Renderer {
         Ref::new(Self {
             parent: QcRenderer::new(settings),
             empty_texture: Texture::empty(),
+            default_material: Material::default(),
         })
     }
 
@@ -58,12 +61,18 @@ impl Renderer {
         self.drawDrawable(drawable);
     }
 
-    pub fn renderScene(&self, scene: &mut Scene, ubo: Arc<MvpUbo>, defaultMaterial: &Material) {
+    pub fn renderScene(&self, scene: &mut Scene, ubo: Arc<MvpUbo>) {
         self.preDraw(Default::default());
 
-        let drawables = self.findAndSortDrawables(scene, defaultMaterial);
+        let (drawables, zbuffer_drawables) = self.findAndSortDrawables(scene);
 
         for drawable in drawables {
+            ubo.setSubData(0, drawable.getModelMatrix().as_slice());
+            self.drawDrawable(drawable);
+        }
+
+        for drawable in zbuffer_drawables {
+            self.clear(false, true, false);
             ubo.setSubData(0, drawable.getModelMatrix().as_slice());
             self.drawDrawable(drawable);
         }
@@ -78,8 +87,17 @@ impl Renderer {
         self.draw(mesh, PrimitiveMode::TRIANGLES, material.gpu_instances);
     }
 
-    pub fn findAndSortDrawables(&self, scene: &Scene, defaultMaterial: &Material) -> Drawables {
+    pub fn findAndSortDrawables(&self, scene: &Scene) -> (Drawables, Drawables) {
+        self.findAndSortDrawablesWithFunc(scene, |d, _| d)
+    }
+
+    pub fn findAndSortDrawablesWithFunc(
+        &self,
+        scene: &Scene,
+        mut func: impl FnMut(Drawable, Index) -> Drawable,
+    ) -> (Drawables, Drawables) {
         let mut drawables = Drawables::new();
+        let mut zbuffer_drawables = Vec::<(i32, Drawable)>::new();
         for (_, go) in scene.iter() {
             if !go.isActive() {
                 continue;
@@ -95,13 +113,23 @@ impl Renderer {
                                 if let Some(index) = mesh.getMaterialIndex() {
                                     material = &materialList[index];
                                 } else {
-                                    material = defaultMaterial;
+                                    material = &self.default_material;
                                 }
-                                drawables.push(Drawable::new(
+                                let mut drawable = Drawable::new(
                                     transform.get_world_matrix(scene),
                                     mesh.clone(),
                                     material.clone(),
-                                ));
+                                );
+
+                                if let Some(index) = go.root {
+                                    drawable = func(drawable, index);
+                                }
+
+                                if let Some(zbuffer) = go.z_buffer {
+                                    zbuffer_drawables.push((zbuffer, drawable));
+                                } else {
+                                    drawables.push(drawable);
+                                }
                             }
                         }
                     } else {
@@ -110,7 +138,7 @@ impl Renderer {
                                 drawables.push(Drawable::new(
                                     transform.get_world_matrix(scene),
                                     mesh.clone(),
-                                    defaultMaterial.clone(),
+                                    self.default_material.clone(),
                                 ));
                             }
                         }
@@ -119,7 +147,13 @@ impl Renderer {
             });
         }
 
-        drawables
+        zbuffer_drawables.sort_by(|a, b| a.0.cmp(&b.0));
+
+        let zbuffer_drawables = zbuffer_drawables
+            .iter()
+            .map(|e| e.1.clone())
+            .collect::<Drawables>();
+        (drawables, zbuffer_drawables)
     }
 }
 

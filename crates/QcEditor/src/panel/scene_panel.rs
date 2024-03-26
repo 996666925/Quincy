@@ -79,7 +79,6 @@ impl DockView for ScenePanel {
             .ui
             .allocate_response(ctx.ui.available_size(), egui::Sense::click());
 
-        // if res.hovered() &&  {
         if res.hovered() {
             self.handle_picking(ctx, rect);
         }
@@ -88,7 +87,13 @@ impl DockView for ScenePanel {
             // println!("release")
         }
 
-        // ctx.ui.input(|input|input.key_released(Key::M))
+        if ctx.ui.input(|input| input.key_released(Key::W)) {
+            self.current_opertion = GizmoOperation::Translate
+        } else if ctx.ui.input(|input| input.key_released(Key::E)) {
+            self.current_opertion = GizmoOperation::Rotate
+        } else if ctx.ui.input(|input| input.key_released(Key::R)) {
+            self.current_opertion = GizmoOperation::Scale
+        }
     }
 }
 
@@ -113,6 +118,40 @@ impl ScenePanel {
                     let mut obj = GameObject::new(&format!("Monkey{}", i));
 
                     let transform = Transform::new(Point3::new(i as f32 * 2.5 - 5., 0., -3.));
+
+                    let mut meshRender = MeshRender::new();
+                    let mut model = Mesh::new("monkey.mesh");
+                    model.setMaterialIndex(0);
+
+                    meshRender.addModel(model.into());
+
+                    let mut materialRender = MaterialRender::new();
+                    let mut material = Material::default();
+                    let image = include_bytes!("../../assets/texture.dds");
+                    let texture = Texture::from_bytes(
+                        vec![image],
+                        TextureKind::Rectangle {
+                            width: 0,
+                            height: 0,
+                        },
+                    );
+                    material.addTexture(texture);
+                    materialRender.addMaterial(material);
+                    obj.addComponent(Component::Transform(transform));
+                    obj.addComponent(Component::MeshRender(meshRender));
+                    obj.addComponent(Component::MaterialRender(materialRender));
+
+                    scene.add_child(obj);
+                }
+            }
+
+            // 测试雪花定制功能
+            {
+                {
+                    let mut obj = GameObject::new("Monkey 雪花");
+                    obj.z_buffer = Some(2);
+
+                    let transform = Transform::new(Point3::new(0., 0., -10.));
 
                     let mut meshRender = MeshRender::new();
                     let mut model = Mesh::new("monkey.mesh");

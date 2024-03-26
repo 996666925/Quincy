@@ -27,7 +27,6 @@ use super::{context::Context, gizmo_behavior::GizmoOperation};
 #[derive(Debug)]
 pub struct EditorRenderer {
     context: Arc<Context>,
-    material: Material,
     picking_material: Material,
     gizmo_arrow_material: Material,
     gizmo_meshs: HashMap<GizmoOperation, Mesh>,
@@ -35,9 +34,8 @@ pub struct EditorRenderer {
 
 impl EditorRenderer {
     pub fn new(context: Arc<Context>) -> Self {
-        let material = Material::default();
-
         let picking_material = Material::default();
+
         let gizmo_arrow_material = Material::default()
             .with_shader(Shader::new("gizmo"))
             .with_instances(3);
@@ -49,7 +47,6 @@ impl EditorRenderer {
 
         Self {
             context,
-            material,
             picking_material,
             gizmo_arrow_material,
             gizmo_meshs,
@@ -98,11 +95,7 @@ impl EditorRenderer {
             }
 
             renderer.clear(false, true, false);
-            renderer.renderScene(
-                currnetScene,
-                self.context.engine_ubo.clone(),
-                &self.material,
-            );
+            renderer.renderScene(currnetScene, self.context.engine_ubo.clone());
         };
     }
 
@@ -139,48 +132,34 @@ impl EditorRenderer {
                 .setSubData(0, local_matrix.as_slice());
         }
 
-        let mut drawables = Drawables::new();
-        for (index, go) in scene.iter() {
-            if !go.isActive() {
-                continue;
-            }
-            if let Some(transform) = go.getComponent::<Transform>() {
-                let world_matrix = transform.get_world_matrix(&scene);
-
-                if let Some(mesh_render) = go.getComponent::<MeshRender>() {
-                    self.prepare_picking_material(index);
-
-                    if let Some(material_render) = go.getComponent::<MaterialRender>() {
-                        for model in mesh_render.getModels() {
-                            for mesh in model.meshes() {
-                                drawables.push(Drawable::new(
-                                    world_matrix,
-                                    mesh.clone(),
-                                    self.picking_material.clone(),
-                                ));
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        let ubo = self.context.engine_ubo.clone();
         let renderer = self.context.renderer.try_read().unwrap();
 
+        let (drawables, zbuffer_drawables) =
+            renderer.findAndSortDrawablesWithFunc(scene, |mut d, index| {
+                d.set_material(self.picking_material.clone());
+                Self::prepare_picking_material(d.get_material_mut(), index);
+                d
+            });
+
+        let ubo = self.context.engine_ubo.clone();
         for drawable in drawables {
+            ubo.setSubData(0, drawable.getModelMatrix().as_slice());
+            renderer.drawDrawable(drawable);
+        }
+
+        for drawable in zbuffer_drawables {
+            renderer.clear(false, true, false);
             ubo.setSubData(0, drawable.getModelMatrix().as_slice());
             renderer.drawDrawable(drawable);
         }
     }
 
     /// 设置上对应的id
-    pub fn prepare_picking_material(&mut self, obj: Index) {
+    pub fn prepare_picking_material(picking_material: &mut Material, obj: Index) {
         let [r, g, b, a] = IndexExt::to_rgba_f32(obj);
         let vec4 = Vector4::new(r, g, b, 1.0);
 
-        self.picking_material
-            .set_uniform_info("uDiffuse", UniformInfo::Vec4(vec4));
+        picking_material.set_uniform_info("uDiffuse", UniformInfo::Vec4(vec4));
     }
 
     pub fn render_gizmo(&mut self, operation: GizmoOperation, highlighted_gizmo_direction: i32) {
@@ -209,9 +188,11 @@ impl EditorRenderer {
 
             ubo.setSubData(0, world_matrix.as_slice());
 
-            self.gizmo_arrow_material
-                .set_uniform_info("uHighlightedAxis", UniformInfo::I32(highlighted_gizmo_direction));
-            
+            self.gizmo_arrow_material.set_uniform_info(
+                "uHighlightedAxis",
+                UniformInfo::I32(highlighted_gizmo_direction),
+            );
+
             renderer.drawMesh(&mesh, &self.gizmo_arrow_material);
         }
     }

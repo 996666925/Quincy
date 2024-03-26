@@ -22,6 +22,8 @@ pub struct GameObject {
     pub pool: Arena<Component>,
     pub children: Vec<Index>,
     pub active: bool,
+    //雪花想要的功能，z轴自定义深度，用于后面的物体显示在最前面
+    pub z_buffer: Option<i32>,
 }
 
 impl Default for GameObject {
@@ -37,6 +39,7 @@ impl Default for GameObject {
             children: Vec::new(),
             parent: None,
             active: false,
+            z_buffer: None,
         }
     }
 }
@@ -79,6 +82,7 @@ impl GameObject {
             children: Vec::new(),
             parent: None,
             active: false,
+            z_buffer: None,
         }
     }
     pub fn getName(&self) -> &str {
@@ -165,7 +169,6 @@ impl GameObject {
     pub fn set_parent(&mut self, index: Option<Index>) {
         self.parent = index;
     }
-
 }
 
 #[cfg(test)]

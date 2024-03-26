@@ -21,6 +21,7 @@ use QcRender::{
     resources::{Mesh, Shader, UniformInfo},
 };
 use QcTools::utils::index_ext::IndexExt;
+use QcUI::rect::QcRect;
 
 use super::{context::Context, gizmo_behavior::GizmoOperation};
 
@@ -102,7 +103,7 @@ impl EditorRenderer {
     pub fn render_camera(&self) {}
 
     /// 渲染3D拾取帧缓存
-    pub fn render_scene_for_picking(&mut self) {
+    pub fn render_scene_for_picking(&mut self, rect: &QcRect) {
         let context = self.context.clone();
         let mut scene_manager = context.scene_manager.try_write().unwrap();
 
@@ -111,9 +112,6 @@ impl EditorRenderer {
             .as_mut()
             .expect("无法获取当前的场景对象");
 
-        let mut window = context.window.try_read().unwrap();
-        let size = window.inner_size().to_logical::<u32>(window.scale_factor());
-
         if let Some(index) = scene.get_main_camera() {
             let transform = scene[index].getComponent::<Transform>().unwrap();
 
@@ -121,7 +119,7 @@ impl EditorRenderer {
 
             let position = transform.get_world_position(&scene);
             let rotation = transform.rotation();
-            camera.cacheMatrices(size.width, size.height, &position.into(), &rotation);
+            camera.cacheMatrices(rect.width as _, rect.height as _, &position.into(), &rotation);
             camera.updateUBO(self.context.engine_ubo.clone(), &position);
 
             let local_matrix = transform.get_world_position_matrix(&scene)

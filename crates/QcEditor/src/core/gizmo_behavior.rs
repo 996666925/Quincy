@@ -1,7 +1,7 @@
 use std::cell::Cell;
 
 use egui::Rgba;
-use nalgebra::Vector3;
+use nalgebra::{Vector2, Vector3};
 use thunderdome::Index;
 use QcTools::utils::r#ref::Ref;
 
@@ -21,19 +21,19 @@ pub enum Direction {
 
 #[derive(Debug)]
 pub struct GizmoBehavior {
-    pub direction: Cell<Option<Direction>>,
-    pub operation: Cell<Option<GizmoOperation>>,
-    pub target: Cell<Option<Index>>,
-    pub first_mouse: Cell<bool>,
+    pub direction: Option<Direction>,
+    pub operation: Option<GizmoOperation>,
+    pub target: Option<Index>,
+    pub first_mouse: bool,
 }
 
 impl GizmoBehavior {
     pub fn new() -> Self {
         let this = Self {
-            direction: Cell::new(None),
-            target: Cell::new(None),
-            first_mouse: Cell::new(false),
-            operation: Cell::new(None),
+            direction: None,
+            target: None,
+            first_mouse: false,
+            operation: None,
         };
         this
     }
@@ -51,22 +51,24 @@ impl GizmoBehavior {
     }
 
     pub fn is_picking(&self) -> bool {
-        self.target.get().is_some()
+        self.target.is_some()
     }
 
     pub fn start_picking(
-        &self,
+        &mut self,
         target: Index,
         position: Vector3<f32>,
         operation: GizmoOperation,
         direction: Direction,
     ) {
         println!("当前点击的坐标轴：{:?}", direction);
-        self.first_mouse.set(true);
+        self.first_mouse = true;
 
-        self.operation.set(Some(operation));
-        self.direction.set(Some(direction));
+        self.operation = Some(operation);
+        self.direction = Some(direction);
     }
 
-    pub fn stop_picking(&self) {}
+    pub fn stop_picking(&mut self) {}
+
+    pub fn set_current_mouse(&mut self, x: f32, y: f32) {}
 }

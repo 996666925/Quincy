@@ -11,8 +11,8 @@ pub struct QcRect {
 impl QcRect {
     pub fn to_gl_rect(rect: Rect, size: PhysicalSize<u32>, scale: f32) -> Self {
         Self {
-            x: (rect.min.x * scale) as _,
-            y: (size.height - (rect.max.y * scale) as u32) as _,
+            x: (rect.min.x * scale).ceil() as _,
+            y: (size.height as f32 - rect.max.y * scale).ceil() as _,
             width: (rect.width() * scale) as _,
             height: (rect.height() * scale) as _,
         }

@@ -22,7 +22,7 @@ pub struct Context {
     pub renderer: Ref<Renderer>,
     pub scene_manager: Ref<SceneManager>,
     pub engine_ubo: Arc<MvpUbo>,
-    pub gizmo_behavior: Arc<GizmoBehavior>,
+    pub gizmo_behavior: Ref<GizmoBehavior>,
     pub input_manager: Ref<InputManager>,
     pub editor_actions: Arc<EditorActions>,
 }
@@ -39,7 +39,7 @@ impl Context {
         let renderer = Renderer::new(DriverSettings::default());
         let engine_ubo = Arc::new(UniformBuffer::new(6));
         let scene_manager = SceneManager::new();
-        let gizmo_behavior = Arc::new(GizmoBehavior::new());
+        let gizmo_behavior = Ref::new(GizmoBehavior::new());
         let input_manager = InputManager::new();
         let editor_actions = Arc::new(EditorActions::new());
 

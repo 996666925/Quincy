@@ -62,6 +62,7 @@ impl DockView for ScenePanel {
             3
         };
 
+        let current_opertion = self.current_opertion;
         let callback = egui::PaintCallback {
             rect,
             callback: Arc::new(CallbackFn::new(move |info, painter| {
@@ -69,7 +70,7 @@ impl DockView for ScenePanel {
 
                 editor_renderer.render_scene(Vec2::new(rect.width(), rect.height()));
 
-                editor_renderer.render_gizmo(GizmoOperation::Translate, axis);
+                editor_renderer.render_gizmo(current_opertion, axis);
             })),
         };
 
@@ -144,8 +145,6 @@ impl ScenePanel {
                     scene.add_child(obj);
                 }
             }
-
-           
         }
 
         let picking_framebuffer = DuckFrameBuffer::new();
@@ -188,10 +187,10 @@ impl ScenePanel {
 
             rgba[3] = 0;
 
-            let gizmo = self.context.gizmo_behavior.clone();
+            let mut gizmo = self.context.gizmo_behavior.try_write().unwrap();
 
             let direction = if gizmo.is_picking() {
-                gizmo.direction.get()
+                gizmo.direction
             } else {
                 gizmo.get_direction_by_rgba(&rgba)
             };
@@ -231,7 +230,9 @@ impl ScenePanel {
             }
 
             // gizmo的拖拽处理
-            if gizmo.is_picking() {}
+            if gizmo.is_picking() {
+                gizmo.set_current_mouse(mouse_x, mouse_y);
+            }
         }
     }
 
@@ -257,13 +258,13 @@ impl ScenePanel {
         });
         let mut editor_renderer = self.editor_renderer.try_write().unwrap();
 
-        editor_renderer.render_scene_for_picking();
+        editor_renderer.render_scene_for_picking(&gl_rect);
 
         let editor_actions = self.context.editor_actions.clone();
 
         // 如果游戏对象被选中
         if let Some(target) = editor_actions.target.get() {
-            editor_renderer.render_gizmo(GizmoOperation::Translate, 666);
+            editor_renderer.render_gizmo(self.current_opertion, 666);
         }
     }
 }

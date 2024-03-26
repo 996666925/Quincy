@@ -13,7 +13,6 @@ use QcTools::sync::Lazy;
 
 use super::UniformInfo;
 
-
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Shader {
     name: String,
@@ -37,7 +36,6 @@ impl Shader {
     }
 
     pub fn new(name: &str) -> Self {
- 
         //抛弃了ShaderMap
         let (vertex, fragment) = Shader::findShader(name);
         let program = Shader::createProgram(vertex, fragment);
@@ -179,6 +177,16 @@ impl Shader {
                 vec.y,
                 vec.z,
                 vec.w,
+            )
+        }
+    }
+
+    pub fn set_uniform_i32(&self, name: &str, i32: i32) {
+        unsafe {
+            let name = CString::new(name).unwrap();
+            gl::Uniform1i(
+                gl::GetUniformLocation(self.program, name.as_ptr() as _),
+                i32,
             )
         }
     }

@@ -97,6 +97,7 @@ impl EditorRenderer {
                     });
             }
 
+            renderer.clear(false, true, false);
             renderer.renderScene(
                 currnetScene,
                 self.context.engine_ubo.clone(),
@@ -182,7 +183,7 @@ impl EditorRenderer {
             .set_uniform_info("uDiffuse", UniformInfo::Vec4(vec4));
     }
 
-    pub fn render_gizmo(&self, operation: GizmoOperation) {
+    pub fn render_gizmo(&mut self, operation: GizmoOperation, highlighted_gizmo_direction: i32) {
         let editor_actions = self.context.editor_actions.clone();
 
         if let Some(target) = editor_actions.target.get() {
@@ -207,6 +208,10 @@ impl EditorRenderer {
             let ubo = self.context.engine_ubo.clone();
 
             ubo.setSubData(0, world_matrix.as_slice());
+
+            self.gizmo_arrow_material
+                .set_uniform_info("uHighlightedAxis", UniformInfo::I32(highlighted_gizmo_direction));
+            
             renderer.drawMesh(&mesh, &self.gizmo_arrow_material);
         }
     }

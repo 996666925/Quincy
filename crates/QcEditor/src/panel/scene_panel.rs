@@ -4,7 +4,7 @@ use std::{
 };
 
 use egui::{Key, Pos2, Rect, Vec2};
-use nalgebra::{Matrix4, Point3};
+use nalgebra::{Matrix4, Point3, Vector3};
 use serde::{Deserialize, Serialize};
 use thunderdome::Index;
 use QcCore::{
@@ -21,6 +21,7 @@ use QcCore::{
 
 use QcRender::{
     buffers::{DuckFrameBuffer, FrameBuffer},
+    core::DrawParameters,
     gl,
     resources::{Mesh, Texture, TextureKind},
     settings::pixel_data::{PixelDataFormat, PixelDataType},
@@ -31,7 +32,11 @@ use QcUI::{core::context::UiContext, rect::QcRect, CallbackFn};
 
 use crate::{
     components::dock::DockView,
-    core::{context::Context, editor_renderer::EditorRenderer, gizmo_behavior::GizmoOperation},
+    core::{
+        context::Context,
+        editor_renderer::EditorRenderer,
+        gizmo_behavior::{Direction, GizmoOperation},
+    },
 };
 
 #[derive(Debug)]
@@ -39,6 +44,8 @@ pub struct ScenePanel {
     pub context: Arc<Context>,
     pub editor_renderer: Ref<EditorRenderer>,
     picking_framebuffer: DuckFrameBuffer,
+    current_opertion: GizmoOperation,
+    highlighted_gizmo_direction: Option<Direction>,
 }
 
 impl DockView for ScenePanel {
@@ -49,14 +56,20 @@ impl DockView for ScenePanel {
         }
 
         let editor_renderer = self.editor_renderer.clone();
+        let axis = if let Some(axis) = self.highlighted_gizmo_direction {
+            axis as i32
+        } else {
+            3
+        };
 
         let callback = egui::PaintCallback {
             rect,
             callback: Arc::new(CallbackFn::new(move |info, painter| {
-                let editor_renderer = editor_renderer.try_read().unwrap();
+                let mut editor_renderer = editor_renderer.try_write().unwrap();
 
                 editor_renderer.render_scene(Vec2::new(rect.width(), rect.height()));
-                editor_renderer.render_gizmo(GizmoOperation::Translate);
+
+                editor_renderer.render_gizmo(GizmoOperation::Translate, axis);
             })),
         };
 
@@ -66,7 +79,8 @@ impl DockView for ScenePanel {
             .ui
             .allocate_response(ctx.ui.available_size(), egui::Sense::click());
 
-        if res.hovered() && ctx.ui.input(|i| i.pointer.primary_pressed()) {
+        // if res.hovered() &&  {
+        if res.hovered() {
             self.handle_picking(ctx, rect);
         }
 
@@ -123,7 +137,7 @@ impl ScenePanel {
                     obj.addComponent(Component::MaterialRender(materialRender));
 
                     scene.add_child(obj);
-                };
+                }
             }
         }
 
@@ -133,10 +147,12 @@ impl ScenePanel {
             context,
             editor_renderer,
             picking_framebuffer,
+            current_opertion: GizmoOperation::Translate,
+            highlighted_gizmo_direction: None,
         }
     }
 
-    pub fn handle_picking(&self, ctx: &mut UiContext, rect: Rect) {
+    pub fn handle_picking(&mut self, ctx: &mut UiContext, rect: Rect) {
         self.render_scene_for_picking(rect);
 
         let pos = ctx.ui.input(|i| i.pointer.interact_pos());
@@ -165,7 +181,13 @@ impl ScenePanel {
 
             rgba[3] = 0;
 
-            let id = IndexExt::u8_to_index(rgba);
+            let gizmo = self.context.gizmo_behavior.clone();
+
+            let direction = if gizmo.is_picking() {
+                gizmo.direction.get()
+            } else {
+                gizmo.get_direction_by_rgba(&rgba)
+            };
 
             let context = self.context.clone();
             let mut scene_manager = context.scene_manager.try_write().unwrap();
@@ -175,14 +197,34 @@ impl ScenePanel {
                 .as_mut()
                 .expect("无法获取当前的场景对象");
 
-            let actions = self.context.editor_actions.clone();
-            if let Some((index, obj)) = &scene.get_by_slot(id.slot) {
-                actions.select(Some(*index));
-            } else {
-                actions.select(None);
+            self.highlighted_gizmo_direction = direction;
+
+            // 如果触发点击，进行选中处理
+            if ctx.ui.input(|i| i.pointer.primary_pressed()) {
+                if let Some(direction) = direction {
+                    let actions = self.context.editor_actions.clone();
+
+                    gizmo.start_picking(
+                        actions.target.get().unwrap(),
+                        Vector3::identity(),
+                        self.current_opertion,
+                        direction,
+                    );
+                } else {
+                    let id = IndexExt::u8_to_index(rgba);
+
+                    // 设置选中对象
+                    let actions = self.context.editor_actions.clone();
+                    if let Some((index, obj)) = &scene.get_by_slot(id.slot) {
+                        actions.select(Some(*index));
+                    } else {
+                        actions.select(None);
+                    }
+                }
             }
 
-            self.picking_framebuffer.unbind();
+            // gizmo的拖拽处理
+            if gizmo.is_picking() {}
         }
     }
 
@@ -202,7 +244,10 @@ impl ScenePanel {
         let renderer = self.context.renderer.try_read().unwrap();
         renderer.setClearColor(1.0, 1.0, 1.0, 1.0);
         renderer.clear(true, true, true);
-
+        renderer.preDraw(DrawParameters {
+            depth_test: true,
+            ..Default::default()
+        });
         let mut editor_renderer = self.editor_renderer.try_write().unwrap();
 
         editor_renderer.render_scene_for_picking();
@@ -210,6 +255,8 @@ impl ScenePanel {
         let editor_actions = self.context.editor_actions.clone();
 
         // 如果游戏对象被选中
-        if let Some(target) = editor_actions.target.get() {}
+        if let Some(target) = editor_actions.target.get() {
+            editor_renderer.render_gizmo(GizmoOperation::Translate, 666);
+        }
     }
 }

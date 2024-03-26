@@ -7,4 +7,5 @@ use serde::{Deserialize, Serialize};
 pub enum UniformInfo {
     Texture(Texture),
     Vec4(Vector4<f32>),
+    I32(i32)
 }

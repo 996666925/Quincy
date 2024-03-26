@@ -16,4 +16,4 @@ build:
     cargo build --release --bin QcGame
 
 @tokei:
-    tokei -t Rust,TypeScript
+    tokei -t Rust,TypeScript,GLSL

@@ -1,7 +1,10 @@
 use std::sync::Arc;
 
 use nalgebra::Matrix4;
-use QcCore::{ecs::{renderer::Renderer, MvpUbo}, scene_system::scene_manager::SceneManager};
+use QcCore::{
+    ecs::{renderer::Renderer, MvpUbo},
+    scene_system::scene_manager::SceneManager,
+};
 use QcRender::{buffers::UniformBuffer, settings::driver_settings::DriverSettings};
 use QcTools::utils::r#ref::Ref;
 use QcUI::core::ui_manager::UiManager;
@@ -11,7 +14,8 @@ use QcWindowing::{
 };
 
 use super::{
-    editor_actions::EditorActions, editor_renderer::EditorRenderer, gizmo_behavior::GizmoBehavior,
+    editor_actions::EditorActions, editor_renderer::EditorRenderer,
+    editor_resources::EditorResources, gizmo_behavior::GizmoBehavior,
 };
 
 #[derive(Debug)]
@@ -25,6 +29,7 @@ pub struct Context {
     pub gizmo_behavior: Ref<GizmoBehavior>,
     pub input_manager: Ref<InputManager>,
     pub editor_actions: Arc<EditorActions>,
+    pub editor_resources: Arc<EditorResources>,
 }
 
 unsafe impl Send for Context {}
@@ -42,6 +47,7 @@ impl Context {
         let gizmo_behavior = Ref::new(GizmoBehavior::new());
         let input_manager = InputManager::new();
         let editor_actions = Arc::new(EditorActions::new());
+        let editor_resources = Arc::new(EditorResources::new());
 
         Arc::new(Self {
             device,
@@ -53,6 +59,7 @@ impl Context {
             gizmo_behavior,
             input_manager,
             editor_actions,
+            editor_resources,
         })
     }
 }

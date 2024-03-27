@@ -35,6 +35,7 @@ impl Driver {
             gl::Enable(gl::CULL_FACE);
             gl::Enable(gl::DEPTH_TEST);
             gl::Enable(gl::BLEND);
+
             gl::BlendFunc(gl::SRC_ALPHA, gl::ONE_MINUS_SRC_ALPHA);
             gl::CullFace(gl::BACK);
             gl::Enable(gl::TEXTURE_CUBE_MAP_SEAMLESS);

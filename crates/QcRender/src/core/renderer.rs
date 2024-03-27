@@ -69,6 +69,13 @@ impl Renderer {
             } else {
                 gl::Disable(gl::DEPTH_TEST);
             }
+
+            if params.blend {
+                gl::Enable(gl::BLEND);
+                gl::BlendFunc(gl::SRC_ALPHA, gl::ONE_MINUS_SRC_ALPHA);
+            } else {
+                gl::Disable(gl::BLEND);
+            }
         }
     }
     pub fn draw(&self, mesh: &Mesh, mode: PrimitiveMode, instance: u32) {

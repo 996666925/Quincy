@@ -44,6 +44,9 @@ impl Material {
                 UniformInfo::Vec4(vec4) => {
                     self.shader.set_uniform_vec4(name, vec4);
                 }
+                UniformInfo::Vec3(vec3) => {
+                    self.shader.set_uniform_vec3(name, vec3);
+                }
                 UniformInfo::I32(i32) => {
                     self.shader.set_uniform_i32(name, *i32);
                 }

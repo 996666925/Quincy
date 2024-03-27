@@ -46,11 +46,7 @@ impl Renderer {
     ///临时渲染天空盒，以后必改
     ///temporarily render the skybox ,I must edit this method in future  
     pub fn renderSkybox(&self, skybox: &SkyBox, ubo: Arc<MvpUbo>) {
-        self.preDraw(DrawParameters {
-            cull_face: None,
-            depth_test: false,
-            depth_write: false,
-        });
+        self.preDraw(DrawParameters::none());
 
         let drawable = Drawable::new(
             Matrix4::identity(),

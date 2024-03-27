@@ -4,7 +4,7 @@ use egui::{
     ahash::{HashMap, HashMapExt},
     Vec2,
 };
-use nalgebra::{Matrix4, Point3, Vector4};
+use nalgebra::{Matrix4, Point3, Vector3, Vector4};
 use thunderdome::{Arena, Index};
 use QcCore::{
     ecs::{
@@ -30,7 +30,7 @@ pub struct EditorRenderer {
     context: Arc<Context>,
     picking_material: Material,
     gizmo_arrow_material: Material,
-    gizmo_meshs: HashMap<GizmoOperation, Mesh>,
+    grid_material: Material,
 }
 
 impl EditorRenderer {
@@ -41,16 +41,15 @@ impl EditorRenderer {
             .with_shader(Shader::new("gizmo"))
             .with_instances(3);
 
-        let mut gizmo_meshs = HashMap::new();
-        gizmo_meshs.insert(GizmoOperation::Translate, Mesh::new("translate.mesh"));
-        gizmo_meshs.insert(GizmoOperation::Rotate, Mesh::new("rotate.mesh"));
-        gizmo_meshs.insert(GizmoOperation::Scale, Mesh::new("scale.mesh"));
+        let grid_color = Vector3::new(0.176, 0.176, 0.176);
+        let mut grid_material = Material::default().with_shader(Shader::new("grid"));
+        grid_material.set_uniform_info("uColor", UniformInfo::Vec3(grid_color));
 
         Self {
             context,
             picking_material,
             gizmo_arrow_material,
-            gizmo_meshs,
+            grid_material,
         }
     }
 
@@ -95,6 +94,8 @@ impl EditorRenderer {
                     });
             }
 
+            self.render_grid(position);
+
             renderer.clear(false, true, false);
             renderer.renderScene(currnetScene, self.context.engine_ubo.clone());
         };
@@ -119,7 +120,12 @@ impl EditorRenderer {
 
             let position = transform.get_world_position(&scene);
             let rotation = transform.rotation();
-            camera.cacheMatrices(rect.width as _, rect.height as _, &position.into(), &rotation);
+            camera.cacheMatrices(
+                rect.width as _,
+                rect.height as _,
+                &position.into(),
+                &rotation,
+            );
             camera.updateUBO(self.context.engine_ubo.clone(), &position);
 
             let local_matrix = transform.get_world_position_matrix(&scene)
@@ -181,7 +187,11 @@ impl EditorRenderer {
 
             renderer.clear(false, true, true);
 
-            let mesh = self.gizmo_meshs.get(&operation).unwrap();
+            let mesh = self
+                .context
+                .editor_resources
+                .get_mesh(operation.into())
+                .unwrap();
             let ubo = self.context.engine_ubo.clone();
 
             ubo.setSubData(0, world_matrix.as_slice());
@@ -193,5 +203,26 @@ impl EditorRenderer {
 
             renderer.drawMesh(&mesh, &self.gizmo_arrow_material);
         }
+    }
+
+    pub fn render_grid(&self, view_pos: Vector3<f32>) {
+        let grid_size = 5000f32;
+        let transform = Matrix4::new_translation(&Vector3::new(view_pos.x, 0., view_pos.z));
+
+        let scale =
+            Matrix4::new_nonuniform_scaling(&Vector3::new(grid_size * 2., 1., grid_size * 2.));
+
+        let model_matrix = transform * scale;
+
+        let renderer = self.context.renderer.try_read().unwrap();
+
+        renderer.clear(false, true, false);
+        let ubo = self.context.engine_ubo.clone();
+
+        ubo.setSubData(0, model_matrix.as_slice());
+
+        let mesh = self.context.editor_resources.get_mesh("plane").unwrap();
+        renderer.preDraw(Default::default());
+        renderer.drawMesh(mesh, &self.grid_material);
     }
 }

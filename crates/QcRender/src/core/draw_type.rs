@@ -7,7 +7,7 @@ pub struct DrawParameters {
     pub depth_write: bool,
     // pub stencil_test: Option<StencilFunc>,
     pub depth_test: bool,
-    // pub blend: Option<BlendParameters>,
+    pub blend: bool,
     // pub stencil_op: StencilOp,
 }
 
@@ -17,6 +17,18 @@ impl Default for DrawParameters {
             cull_face: None,
             depth_test: true,
             depth_write: false,
+            blend: true,
+        }
+    }
+}
+
+impl DrawParameters {
+    pub fn none() -> Self {
+        Self {
+            cull_face: None,
+            depth_test: false,
+            depth_write: false,
+            blend: false,
         }
     }
 }

@@ -3,7 +3,7 @@ use std::{
     sync::{Arc, RwLock},
 };
 
-use egui::{Key, Pos2, Rect, Vec2};
+use egui::{Key, Pos2, Rect, Rgba, Vec2};
 use nalgebra::{Matrix4, Point3, Vector3};
 use serde::{Deserialize, Serialize};
 use thunderdome::Index;
@@ -46,6 +46,7 @@ pub struct ScenePanel {
     picking_framebuffer: DuckFrameBuffer,
     current_opertion: GizmoOperation,
     highlighted_gizmo_direction: Option<Direction>,
+
 }
 
 impl DockView for ScenePanel {
@@ -106,7 +107,9 @@ impl ScenePanel {
             let camera = Component::Camera(Camera::new());
             let skybox = SkyBox::new();
 
-            let transform = Component::Transform(Transform::new(Point3::new(0., 0., 3.)));
+            let mut transform=Transform::new(Point3::new(0., 3., 1.));
+            transform.set_rotation(Vector3::new(-45.,0.,0.));
+            let transform = Component::Transform(transform);
             let mut obj = GameObject::new("Camera");
             obj.insert(camera);
             obj.insert(Component::SkyBox(skybox));
@@ -148,6 +151,7 @@ impl ScenePanel {
         }
 
         let picking_framebuffer = DuckFrameBuffer::new();
+
 
         Self {
             context,
@@ -232,6 +236,13 @@ impl ScenePanel {
             // gizmo的拖拽处理
             if gizmo.is_picking() {
                 gizmo.set_current_mouse(mouse_x, mouse_y);
+
+                if let Some(camera) = scene.get_main_camera() {
+                    let camera = scene[camera].getComponent::<Camera>().unwrap();
+
+                    let rect = rect * scale as f32;
+                    gizmo.apply_operation(camera.viewMatrix, camera.projMatrix, rect);
+                }
             }
         }
     }

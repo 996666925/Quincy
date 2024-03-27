@@ -1,7 +1,7 @@
 use crate::Asset;
 
 use crate::resources::uniform_type::UniformType;
-use nalgebra::Vector4;
+use nalgebra::{Vector3, Vector4};
 use rust_embed::EmbeddedFile;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
@@ -177,6 +177,18 @@ impl Shader {
                 vec.y,
                 vec.z,
                 vec.w,
+            )
+        }
+    }
+
+    pub fn set_uniform_vec3(&self, name: &str, vec: &Vector3<f32>) {
+        unsafe {
+            let name = CString::new(name).unwrap();
+            gl::Uniform3f(
+                gl::GetUniformLocation(self.program, name.as_ptr() as _),
+                vec.x,
+                vec.y,
+                vec.z,
             )
         }
     }

@@ -4,7 +4,7 @@ use std::{
 };
 
 use egui::{Key, Pos2, Rect, Rgba, Vec2};
-use nalgebra::{Matrix4, Point3, Vector3};
+use nalgebra::{Matrix4, Point3, Vector, Vector3};
 use serde::{Deserialize, Serialize};
 use thunderdome::Index;
 use QcCore::{
@@ -29,10 +29,12 @@ use QcRender::{
 
 use QcTools::utils::{index_ext::IndexExt, r#ref::Ref, unsafe_box::UnsafeBox};
 use QcUI::{core::context::UiContext, rect::QcRect, CallbackFn};
+use QcWindowing::{dpi::LogicalPosition, CursorGrabMode};
 
 use crate::{
     components::dock::DockView,
     core::{
+        camera_controller::CameraController,
         context::Context,
         editor_renderer::EditorRenderer,
         gizmo_behavior::{Direction, GizmoOperation},
@@ -46,7 +48,7 @@ pub struct ScenePanel {
     picking_framebuffer: DuckFrameBuffer,
     current_opertion: GizmoOperation,
     highlighted_gizmo_direction: Option<Direction>,
-
+    camera_controller: Ref<CameraController>,
 }
 
 impl DockView for ScenePanel {
@@ -64,12 +66,18 @@ impl DockView for ScenePanel {
         };
 
         let current_opertion = self.current_opertion;
+        let camera_controller = self.camera_controller.clone();
         let callback = egui::PaintCallback {
             rect,
             callback: Arc::new(CallbackFn::new(move |info, painter| {
                 let mut editor_renderer = editor_renderer.try_write().unwrap();
+                let camera_controller = camera_controller.try_read().unwrap();
+                editor_renderer
+                    .prepare_camrea(&camera_controller, Vec2::new(rect.width(), rect.height()));
 
-                editor_renderer.render_scene(Vec2::new(rect.width(), rect.height()));
+                editor_renderer.render_skybox(&camera_controller);
+                editor_renderer.render_grid(&camera_controller);
+                editor_renderer.render_scene();
 
                 editor_renderer.render_gizmo(current_opertion, axis);
             })),
@@ -79,11 +87,14 @@ impl DockView for ScenePanel {
 
         let res = ctx
             .ui
-            .allocate_response(ctx.ui.available_size(), egui::Sense::click());
-
+            .allocate_response(ctx.ui.available_size(), egui::Sense::click())
+            .interact(egui::Sense::click_and_drag());
         if res.hovered() {
             self.handle_picking(ctx, rect);
         }
+        let mut camera_controller = self.camera_controller.try_write().unwrap();
+
+        camera_controller.handle_input(ctx, &res);
 
         if res.hovered() && ctx.ui.input(|i| i.pointer.primary_released()) {
             // println!("release")
@@ -107,8 +118,8 @@ impl ScenePanel {
             let camera = Component::Camera(Camera::new());
             let skybox = SkyBox::new();
 
-            let mut transform=Transform::new(Point3::new(0., 3., 1.));
-            transform.set_rotation(Vector3::new(-45.,0.,0.));
+            let mut transform = Transform::new(Point3::new(0., 3., 1.));
+            transform.set_rotation(Vector3::new(-45., 0., 0.));
             let transform = Component::Transform(transform);
             let mut obj = GameObject::new("Camera");
             obj.insert(camera);
@@ -123,13 +134,13 @@ impl ScenePanel {
 
                     let transform = Transform::new(Point3::new(i as f32 * 2.5 - 5., 0., -3.));
 
-                    let mut meshRender = MeshRender::new();
+                    let mut mesh_render = MeshRender::new();
                     let mut model = Mesh::new("monkey.mesh");
                     model.setMaterialIndex(0);
 
-                    meshRender.addModel(model.into());
+                    mesh_render.addModel(model.into());
 
-                    let mut materialRender = MaterialRender::new();
+                    let mut material_render = MaterialRender::new();
                     let mut material = Material::default();
                     let image = include_bytes!("../../assets/texture.dds");
                     let texture = Texture::from_bytes(
@@ -140,10 +151,10 @@ impl ScenePanel {
                         },
                     );
                     material.addTexture(texture);
-                    materialRender.addMaterial(material);
+                    material_render.addMaterial(material);
                     obj.addComponent(Component::Transform(transform));
-                    obj.addComponent(Component::MeshRender(meshRender));
-                    obj.addComponent(Component::MaterialRender(materialRender));
+                    obj.addComponent(Component::MeshRender(mesh_render));
+                    obj.addComponent(Component::MaterialRender(material_render));
 
                     scene.add_child(obj);
                 }
@@ -152,6 +163,7 @@ impl ScenePanel {
 
         let picking_framebuffer = DuckFrameBuffer::new();
 
+        let camera_controller = Ref::new(CameraController::new());
 
         Self {
             context,
@@ -159,6 +171,7 @@ impl ScenePanel {
             picking_framebuffer,
             current_opertion: GizmoOperation::Translate,
             highlighted_gizmo_direction: None,
+            camera_controller,
         }
     }
 
@@ -208,18 +221,25 @@ impl ScenePanel {
                 .expect("无法获取当前的场景对象");
 
             self.highlighted_gizmo_direction = direction;
+            let camera_controller = self.camera_controller.try_read().unwrap();
 
             // 如果触发点击，进行选中处理
             if ctx.ui.input(|i| i.pointer.primary_pressed()) {
                 if let Some(direction) = direction {
                     let actions = self.context.editor_actions.clone();
+                    if let Some(target) = actions.target.get() {
+                        let (transform_id, transform) =
+                            scene[target].getComponentAndId::<Transform>().unwrap();
 
-                    gizmo.start_picking(
-                        actions.target.get().unwrap(),
-                        Vector3::identity(),
-                        self.current_opertion,
-                        direction,
-                    );
+                        let distance = transform.position.coords - camera_controller.position;
+                        gizmo.start_picking(
+                            target,
+                            transform_id,
+                            distance.norm(),
+                            self.current_opertion,
+                            direction,
+                        );
+                    }
                 } else {
                     let id = IndexExt::u8_to_index(rgba);
 
@@ -237,12 +257,10 @@ impl ScenePanel {
             if gizmo.is_picking() {
                 gizmo.set_current_mouse(mouse_x, mouse_y);
 
-                if let Some(camera) = scene.get_main_camera() {
-                    let camera = scene[camera].getComponent::<Camera>().unwrap();
+                let camera = &camera_controller.camera;
 
-                    let rect = rect * scale as f32;
-                    gizmo.apply_operation(camera.viewMatrix, camera.projMatrix, rect);
-                }
+                let rect = rect * scale as f32;
+                gizmo.apply_operation(scene, camera.viewMatrix, camera.projMatrix, rect);
             }
         }
     }
@@ -268,14 +286,16 @@ impl ScenePanel {
             ..Default::default()
         });
         let mut editor_renderer = self.editor_renderer.try_write().unwrap();
+        let camera_controller = self.camera_controller.try_read().unwrap();
 
-        editor_renderer.render_scene_for_picking(&gl_rect);
+        editor_renderer.prepare_camrea(
+            &camera_controller,
+            Vec2::new(gl_rect.width as _, gl_rect.height as _),
+        );
+        editor_renderer.render_scene_for_picking();
 
-        let editor_actions = self.context.editor_actions.clone();
-
-        // 如果游戏对象被选中
-        if let Some(target) = editor_actions.target.get() {
-            editor_renderer.render_gizmo(self.current_opertion, 666);
-        }
+        editor_renderer.render_gizmo(self.current_opertion, 666);
     }
 }
+
+

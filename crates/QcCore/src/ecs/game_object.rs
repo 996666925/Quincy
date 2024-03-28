@@ -108,6 +108,21 @@ impl GameObject {
         self.pool.insert(component)
     }
 
+    pub fn getComponentId<T: ComponentTrait + Named>(&self) -> Option<Index> {
+        self.pool
+            .iter()
+            .find(|handle| handle.1.getName() == T::typeName())
+            .map(|handle| handle.0)
+    }
+
+    pub fn getComponentAndId<T: ComponentTrait + Named>(&self) -> Option<(Index, &T)> {
+        self.pool
+            .iter()
+            .find(|handle| handle.1.getName() == T::typeName())
+            .map(|handle| handle)
+            .and_then(|h| Some((h.0, h.1.cast::<T>().unwrap())))
+    }
+
     pub fn getComponent<T: ComponentTrait + Named>(&self) -> Option<&T> {
         self.pool
             .iter()

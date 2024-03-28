@@ -7,3 +7,4 @@ pub mod message;
 pub mod project;
 pub mod editor_actions;
 pub mod editor_resources;
+pub mod camera_controller;

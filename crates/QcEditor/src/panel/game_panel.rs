@@ -38,9 +38,9 @@ impl DockView for GamePanel {
         let callback = egui::PaintCallback {
             rect,
             callback: Arc::new(CallbackFn::new(move |info, painter| {
-                let editor_renderer = editor_renderer.try_read().unwrap();
+                let mut editor_renderer = editor_renderer.try_write().unwrap();
 
-                editor_renderer.render_scene(Vec2::new(rect.width(), rect.height()));
+                editor_renderer.render_game(Vec2::new(rect.width(), rect.height()));
             })),
         };
         ctx.ui.painter().add(callback);
@@ -49,7 +49,6 @@ impl DockView for GamePanel {
 
 impl GamePanel {
     pub fn new(context: Arc<Context>, editor_renderer: Ref<EditorRenderer>) -> Self {
-         
         Self {
             context,
             editor_renderer,

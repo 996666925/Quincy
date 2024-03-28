@@ -25,7 +25,6 @@ pub struct Transform {
     pub dirty: Cell<bool>,
 }
 
-
 impl Transform {
     pub fn new(position: Point3<f32>) -> Self {
         Self {
@@ -138,4 +137,14 @@ impl Transform {
     }
 
     pub fn updateUBO(&self, ubo: Arc<MvpUbo>) {}
+}
+
+#[test]
+fn test() {
+    let p1 = Point3::new(1., 2., 3.);
+    let p2 = Point3::new(1., 2., 4.);
+
+    let p3 = p2 - p1;
+
+    println!("{:?}", p3);
 }

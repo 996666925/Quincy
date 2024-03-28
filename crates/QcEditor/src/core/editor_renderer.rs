@@ -23,7 +23,9 @@ use QcRender::{
 use QcTools::utils::index_ext::IndexExt;
 use QcUI::rect::QcRect;
 
-use super::{context::Context, gizmo_behavior::GizmoOperation};
+use super::{
+    camera_controller::CameraController, context::Context, gizmo_behavior::GizmoOperation,
+};
 
 #[derive(Debug)]
 pub struct EditorRenderer {
@@ -53,58 +55,56 @@ impl EditorRenderer {
         }
     }
 
-    /// 渲染游戏界面
-    pub fn render_scene(&self, size: Vec2) {
-        let mut sceneManager = self.context.scene_manager.try_write().unwrap();
-        let mut window = self.context.window.try_read().unwrap();
-        let size = size * window.scale_factor() as f32;
-        let currnetScene = sceneManager
+    pub fn prepare_camrea(&self, camera_controller: &CameraController, size: Vec2) {
+        let mut camera = camera_controller.camera;
+        let position = camera_controller.position;
+        let rotation = camera_controller.get_rotation();
+        camera.cacheMatrices(size.x as _, size.y as _, &position.into(), &rotation);
+        camera.updateUBO(self.context.engine_ubo.clone(), &position);
+    }
+
+    pub fn render_skybox(&self, camera_controller: &CameraController) {
+        let mut scene_manager = self.context.scene_manager.try_write().unwrap();
+
+        let scene = scene_manager
             .get_current_scene_mut()
             .as_mut()
             .expect("无法获取当前的场景对象");
-        if let Some(index) = currnetScene.get_main_camera() {
-            let transform = currnetScene[index].getComponent::<Transform>().unwrap();
 
-            let mut camera = currnetScene[index]
-                .getComponent::<Camera>()
-                .cloned()
-                .unwrap();
+        let camera = camera_controller.camera;
+        let local_matrix = Matrix4::new_translation(&camera_controller.position)
+            * Matrix4::new_scaling(camera.far / 2f32.sqrt());
 
-            let position = transform.get_world_position(&currnetScene);
-            let rotation = transform.rotation();
-            camera.cacheMatrices(size.x as _, size.y as _, &position.into(), &rotation);
-            camera.updateUBO(self.context.engine_ubo.clone(), &position);
+        self.context
+            .engine_ubo
+            .setSubData(0, local_matrix.as_slice());
 
-            let local_matrix = transform.get_world_position_matrix(&currnetScene)
-                * Matrix4::new_scaling(camera.far / 2f32.sqrt());
-
-            self.context
-                .engine_ubo
-                .setSubData(0, local_matrix.as_slice());
+        if let Some(skybox) = scene.get_main_skybox() {
+            let skybox = scene[skybox].getComponent::<SkyBox>().unwrap();
 
             let renderer = self.context.renderer.try_read().unwrap();
+            renderer.renderSkybox(skybox, self.context.engine_ubo.clone());
+        }
+    }
 
-            {
-                currnetScene
-                    .get_main_skybox()
-                    .map(|skybox: thunderdome::Index| {
-                        let skybox = currnetScene[skybox].getComponent::<SkyBox>().unwrap();
+    /// 渲染游戏界面
+    pub fn render_scene(&self) {
+        let mut scene_manager = self.context.scene_manager.try_write().unwrap();
 
-                        renderer.renderSkybox(skybox, self.context.engine_ubo.clone());
-                    });
-            }
+        let scene = scene_manager
+            .get_current_scene_mut()
+            .as_mut()
+            .expect("无法获取当前的场景对象");
 
-            self.render_grid(position);
-
-            renderer.clear(false, true, false);
-            renderer.renderScene(currnetScene, self.context.engine_ubo.clone());
-        };
+        let renderer = self.context.renderer.try_read().unwrap();
+        renderer.clear(false, true, false);
+        renderer.renderScene(scene, self.context.engine_ubo.clone());
     }
 
     pub fn render_camera(&self) {}
 
     /// 渲染3D拾取帧缓存
-    pub fn render_scene_for_picking(&mut self, rect: &QcRect) {
+    pub fn render_scene_for_picking(&mut self) {
         let context = self.context.clone();
         let mut scene_manager = context.scene_manager.try_write().unwrap();
 
@@ -112,29 +112,6 @@ impl EditorRenderer {
             .get_current_scene_mut()
             .as_mut()
             .expect("无法获取当前的场景对象");
-
-        if let Some(index) = scene.get_main_camera() {
-            let transform = scene[index].getComponent::<Transform>().unwrap();
-
-            let mut camera = scene[index].getComponent::<Camera>().cloned().unwrap();
-
-            let position = transform.get_world_position(&scene);
-            let rotation = transform.rotation();
-            camera.cacheMatrices(
-                rect.width as _,
-                rect.height as _,
-                &position.into(),
-                &rotation,
-            );
-            camera.updateUBO(self.context.engine_ubo.clone(), &position);
-
-            let local_matrix = transform.get_world_position_matrix(&scene)
-                * Matrix4::new_scaling(camera.far / 2f32.sqrt());
-
-            self.context
-                .engine_ubo
-                .setSubData(0, local_matrix.as_slice());
-        }
 
         let renderer = self.context.renderer.try_read().unwrap();
 
@@ -205,7 +182,8 @@ impl EditorRenderer {
         }
     }
 
-    pub fn render_grid(&self, view_pos: Vector3<f32>) {
+    pub fn render_grid(&self, camera_controller: &CameraController) {
+        let view_pos = camera_controller.position;
         let grid_size = 5000f32;
         let transform = Matrix4::new_translation(&Vector3::new(view_pos.x, 0., view_pos.z));
 
@@ -224,5 +202,44 @@ impl EditorRenderer {
         let mesh = self.context.editor_resources.get_mesh("plane").unwrap();
         renderer.preDraw(Default::default());
         renderer.drawMesh(mesh, &self.grid_material);
+    }
+
+    pub fn render_game(&self, size: Vec2) {
+        let mut scene_manager = self.context.scene_manager.try_write().unwrap();
+
+        let scene = scene_manager
+            .get_current_scene_mut()
+            .as_mut()
+            .expect("无法获取当前的场景对象");
+        if let Some(index) = scene.get_main_camera() {
+            let transform = scene[index].getComponent::<Transform>().unwrap();
+
+            let mut camera = scene[index].getComponent::<Camera>().cloned().unwrap();
+
+            let position = transform.get_world_position(&scene);
+            let rotation = transform.rotation();
+            camera.cacheMatrices(size.x as _, size.y as _, &position.into(), &rotation);
+            camera.updateUBO(self.context.engine_ubo.clone(), &position);
+
+            let local_matrix = transform.get_world_position_matrix(&scene)
+                * Matrix4::new_scaling(camera.far / 2f32.sqrt());
+
+            self.context
+                .engine_ubo
+                .setSubData(0, local_matrix.as_slice());
+
+            let renderer = self.context.renderer.try_read().unwrap();
+
+            {
+                scene.get_main_skybox().map(|skybox: thunderdome::Index| {
+                    let skybox = scene[skybox].getComponent::<SkyBox>().unwrap();
+
+                    renderer.renderSkybox(skybox, self.context.engine_ubo.clone());
+                });
+            }
+
+            renderer.clear(false, true, false);
+            renderer.renderScene(scene, self.context.engine_ubo.clone());
+        };
     }
 }

@@ -1,7 +1,7 @@
 use std::{mem::size_of, sync::Arc};
 
 use log::info;
-use nalgebra::{Matrix, Matrix4, Point3, Rotation3, UnitQuaternion, Vector3};
+use nalgebra::{Matrix, Matrix4, Perspective3, Point3, Rotation3, UnitQuaternion, Vector3};
 use serde::{Deserialize, Serialize};
 use QcMacros::Comp;
 use QcRender::buffers::UniformBuffer;
@@ -58,7 +58,8 @@ impl Camera {
     }
 
     fn calculateProjMatrix(&self, width: u32, height: u32) -> Matrix4<f32> {
-        Matrix4::new_perspective(width as f32 / height as f32, self.fov, self.near, self.far)
+
+        Matrix4::new_perspective(width as f32 / height as f32, self.fov.to_radians(), self.near, self.far)
     }
 
     fn calculateViewMatrix(
@@ -85,6 +86,27 @@ impl Camera {
             viewProjMatrix: Matrix4::zeros(),
         }
     }
+
+    pub fn with_fov(mut self, fov: f32) -> Self {
+        self.fov = fov;
+        self
+    }
+
+    pub fn with_near(mut self, near: f32) -> Self {
+        self.near = near;
+        self
+    }
+
+    pub fn with_far(mut self, far: f32) -> Self {
+        self.far = far;
+        self
+    }
+
+    pub fn with_aspect(mut self, aspect: f32) -> Self {
+        self.aspect = aspect;
+        self
+    }
+
 }
 
 impl Default for Camera {

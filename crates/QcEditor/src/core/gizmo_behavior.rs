@@ -3,6 +3,7 @@ use std::cell::Cell;
 use egui::{Rect, Rgba};
 use nalgebra::{Matrix4, Vector2, Vector3};
 use thunderdome::Index;
+use QcCore::scene_system::scene::Scene;
 use QcTools::utils::r#ref::Ref;
 use QcUI::rect::QcRect;
 
@@ -46,9 +47,12 @@ pub struct GizmoBehavior {
     pub direction: Option<Direction>,
     pub operation: Option<GizmoOperation>,
     pub target: Option<Index>,
+    pub transform: Option<Index>,
     pub first_mouse: bool,
     pub origin_mouse: Vector2<f32>,
     pub current_mouse: Vector2<f32>,
+    // 选中物体到摄像机的距离
+    pub distance: f32,
 }
 
 impl GizmoBehavior {
@@ -56,10 +60,12 @@ impl GizmoBehavior {
         let this = Self {
             direction: None,
             target: None,
+            transform: None,
             first_mouse: false,
             operation: None,
             origin_mouse: Vector2::identity(),
             current_mouse: Vector2::identity(),
+            distance: 0.,
         };
         this
     }
@@ -83,13 +89,14 @@ impl GizmoBehavior {
     pub fn start_picking(
         &mut self,
         target: Index,
-        position: Vector3<f32>,
+        transform: Index,
+        distance: f32,
         operation: GizmoOperation,
         direction: Direction,
     ) {
         println!("当前点击的坐标轴：{:?}", direction);
         self.first_mouse = true;
-
+        self.distance = distance;
         self.operation = Some(operation);
         self.direction = Some(direction);
     }
@@ -108,28 +115,60 @@ impl GizmoBehavior {
 
     pub fn apply_operation(
         &mut self,
+        scene: &mut Scene,
         view_matrix: Matrix4<f32>,
         proj_matrix: Matrix4<f32>,
         rect: Rect,
     ) {
         if let Some(operation) = self.operation {
             match operation {
-                GizmoOperation::Translate => self.apply_translate(view_matrix, proj_matrix, rect),
-                GizmoOperation::Rotate => self.apply_rotate(view_matrix, proj_matrix, rect),
-                GizmoOperation::Scale => self.apply_scale(view_matrix, proj_matrix, rect),
+                GizmoOperation::Translate => {
+                    self.apply_translate(scene, view_matrix, proj_matrix, rect)
+                }
+                GizmoOperation::Rotate => self.apply_rotate(scene, view_matrix, proj_matrix, rect),
+                GizmoOperation::Scale => self.apply_scale(scene, view_matrix, proj_matrix, rect),
             }
         }
     }
 
     fn apply_translate(
         &mut self,
+        scene: &mut Scene,
+        view_matrix: Matrix4<f32>,
+        proj_matrix: Matrix4<f32>,
+        rect: Rect,
+    ) {
+        let units_per_pixel = 0.001 * self.distance;
+
+        // let
+    }
+
+    fn apply_rotate(
+        &mut self,
+        scene: &mut Scene,
         view_matrix: Matrix4<f32>,
         proj_matrix: Matrix4<f32>,
         rect: Rect,
     ) {
     }
 
-    fn apply_rotate(&mut self, view_matrix: Matrix4<f32>, proj_matrix: Matrix4<f32>, rect: Rect) {}
+    fn apply_scale(
+        &mut self,
+        scene: &mut Scene,
+        view_matrix: Matrix4<f32>,
+        proj_matrix: Matrix4<f32>,
+        rect: Rect,
+    ) {
+    }
 
-    fn apply_scale(&mut self, view_matrix: Matrix4<f32>, proj_matrix: Matrix4<f32>, rect: Rect) {}
+    fn get_screen_direction(
+        &self,
+        view_matrix: Matrix4<f32>,
+        proj_matrix: Matrix4<f32>,
+        rect: Rect,
+    ) {
+
+
+        
+    }
 }
